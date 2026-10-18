@@ -30,9 +30,11 @@ from bot.routers import (
     free_chat,
     level_detector,
     quiz,
+    reminders,
     start,
     stats,
 )
+from bot.scheduler import build_scheduler
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,7 @@ def build_dispatcher(storage: BaseStorage) -> Dispatcher:
     dispatcher.include_router(free_chat.router)
     dispatcher.include_router(quiz.router)
     dispatcher.include_router(level_detector.router)
+    dispatcher.include_router(reminders.router)
 
     # Порядок важен: ошибки ловим снаружи, сессия БД открывается до хендлера.
     dispatcher.update.outer_middleware(ErrorMiddleware())
@@ -113,10 +116,20 @@ async def main() -> None:
     except Exception:
         logger.exception("Не удалось обновить список команд")
 
+    scheduler = None
+    try:
+        scheduler = await build_scheduler(bot, settings)
+        scheduler.start()
+        logger.info("Планировщик напоминаний запущен")
+    except Exception:
+        logger.exception("Не удалось запустить планировщик напоминаний")
+
     logger.info("Бот запускается в режиме long polling")
     try:
         await dispatcher.start_polling(bot)
     finally:
+        if scheduler is not None and scheduler.running:
+            scheduler.shutdown(wait=False)
         await bot.session.close()
         logger.info("Бот остановлен")
 

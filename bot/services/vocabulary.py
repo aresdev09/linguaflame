@@ -146,7 +146,7 @@ def format_daily_vocabulary(daily: DailyVocabulary, lang: str) -> list[str]:
             lang,
             index=index,
             word=word.word,
-            transcription=_format_transcription(word.transcription),
+            transcription=format_transcription(word.transcription),
             translation=word.translation,
         )
         for index, word in enumerate(daily.words, start=1)
@@ -154,7 +154,7 @@ def format_daily_vocabulary(daily: DailyVocabulary, lang: str) -> list[str]:
     return _chunk_lines(lines)
 
 
-def _format_transcription(value: str) -> str:
+def format_transcription(value: str) -> str:
     """Приводит транскрипцию к виду /.../."""
     cleaned = value.strip()
     if cleaned.startswith("/") and cleaned.endswith("/") and len(cleaned) > 1:

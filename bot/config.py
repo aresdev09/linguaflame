@@ -82,6 +82,8 @@ class Settings(BaseSettings):
     ai_api_key: str = ""
     ai_model: str = "nvidia/nemotron-3.5-super-vl:free"
     log_level: str = "INFO"
+    # Сдвиг часов для ручной проверки напоминаний: 0 — обычное время.
+    reminder_hour_offset: int = 0
 
 
 @lru_cache

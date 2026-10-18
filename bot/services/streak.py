@@ -14,6 +14,7 @@ from typing import Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot.locales import t
 from bot.repositories import ActivityRepo, StreakRepo, UserRepo
 from bot.services.timezones import as_utc, resolve_timezone
 
@@ -107,6 +108,18 @@ async def register_activity(
         increased=increased,
         last_activity_date=last,
     )
+
+
+async def streak_line(
+    session: AsyncSession,
+    user_id: int,
+    lang: str,
+    *,
+    now: datetime | None = None,
+) -> str:
+    """Строка «🔥 N дн.» для итогов команд."""
+    stats = await get_user_stats(session, user_id, now=now)
+    return t("streak.line", lang, days=stats.current_streak)
 
 
 async def get_user_stats(

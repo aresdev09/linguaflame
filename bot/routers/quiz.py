@@ -26,7 +26,7 @@ from bot.services.quiz import (
     next_quiz_question,
     score_quiz_answer,
 )
-from bot.services.streak import register_activity
+from bot.services.streak import register_activity, streak_line
 from bot.states import QuizStates
 
 logger = logging.getLogger(__name__)
@@ -120,7 +120,7 @@ async def quiz_callback(
 
     if callback.data == QUIZ_FINISH_CALLBACK:
         await callback.answer()
-        await _finish_quiz(callback, state, lang)
+        await _finish_quiz(callback, state, session, user, lang)
         return
 
     parsed = _parse_answer(callback.data)
@@ -169,8 +169,14 @@ async def quiz_callback(
     await _send_question(callback.message, state, user, session, ai, lang=lang)
 
 
-async def _finish_quiz(callback: CallbackQuery, state: FSMContext, lang: str) -> None:
-    """Показывает итог и закрывает сессию."""
+async def _finish_quiz(
+    callback: CallbackQuery,
+    state: FSMContext,
+    session: AsyncSession,
+    user: User,
+    lang: str,
+) -> None:
+    """Показывает итог с серией дней и закрывает сессию."""
     data = await state.get_data()
     correct_count = int(data.get(CORRECT_COUNT_KEY, 0))
     answered_count = int(data.get(ANSWERED_COUNT_KEY, 0))
@@ -178,14 +184,14 @@ async def _finish_quiz(callback: CallbackQuery, state: FSMContext, lang: str) ->
 
     if callback.message is None:
         return
-    await callback.message.edit_text(
-        format_quiz_result(
-            correct_count=correct_count,
-            answered_count=answered_count,
-            lang=lang,
-        ),
-        reply_markup=empty_kb(),
+    text = format_quiz_result(
+        correct_count=correct_count,
+        answered_count=answered_count,
+        lang=lang,
     )
+    if answered_count:
+        text = f"{text}\n\n{await streak_line(session, user.id, lang)}"
+    await callback.message.edit_text(text, reply_markup=empty_kb())
 
 
 def _parse_answer(data: str | None) -> tuple[int, str] | None:

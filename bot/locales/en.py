@@ -154,6 +154,53 @@ TEXTS: dict[str, str] = {
         "👋 The free conversation is closed, history cleared. Start again: /free_chat"
     ),
     "chat.not_active": "The free conversation is not open. Start it: /free_chat",
+    # Streak and reminders
+    "streak.line": "🔥 Streak: {days} days",
+    "reminder.morning.1": (
+        "☀️ Good morning! Have you practised English today? Five minutes and the flame stays on."
+    ),
+    "reminder.morning.2": (
+        "☀️ Start the morning with English? One short task and today counts."
+    ),
+    "reminder.morning.3": (
+        "☀️ Hi! Today is not counted yet: do a short task and keep your flame."
+    ),
+    "reminder.evening.1": (
+        "🔥 {days} days in a row! Don't lose the flame — one task before midnight."
+    ),
+    "reminder.evening.2": (
+        "🔥 Your streak is {days} days. There is still time to extend it — start with 5 words."
+    ),
+    "reminder.evening.3": (
+        "🔥 {days} days in a row is a great result. Keep it going today."
+    ),
+    "reminder.evening_cold.1": (
+        "🌙 The day is almost over and there is no flame yet. Shall we start with 5 words?"
+    ),
+    "reminder.evening_cold.2": (
+        "🌙 Evening is a good time for English. One task and the flame is lit."
+    ),
+    "reminder.missed.1": (
+        "👋 Where are you? Your {days}-day flame went out, but you can light it again "
+        "in 2 minutes. Start with 5 words?"
+    ),
+    "reminder.missed.2": (
+        "👋 Where are you? Your {days}-day streak broke, but that is fine. "
+        "Five words and the flame is back."
+    ),
+    "reminder.missed.3": (
+        "👋 You were away yesterday and your {days}-day flame went out. "
+        "Shall we return? Start with 5 words."
+    ),
+    "reminder.missed_long.1": (
+        "🕯️ {days} days without English — the flame went out long ago. "
+        "Shall we come back with 5 words?"
+    ),
+    "reminder.missed_long.2": (
+        "🕯️ {days} days of silence. Let's start again — 5 words are enough to light the flame."
+    ),
+    "reminder.button": "🔥 5 words",
+    "reminder.quick_title": "🔥 Quick start: {count} words",
     # Common
     "common.friend": "friend",
     "common.cancel": "Cancel",

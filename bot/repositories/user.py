@@ -2,9 +2,9 @@
 
 from datetime import datetime
 
-from sqlalchemy import update
+from sqlalchemy import select, update
 
-from bot.models import User
+from bot.models import Streak, User
 from bot.repositories.base import BaseRepo
 
 
@@ -32,6 +32,23 @@ class UserRepo(BaseRepo):
         self.session.add(user)
         await self.session.flush()
         return user
+
+    async def list_active_with_streaks(self) -> list[tuple[User, Streak | None]]:
+        """Активные пользователи вместе с их серией — кандидаты на напоминание."""
+        stmt = (
+            select(User, Streak)
+            .outerjoin(Streak, Streak.user_id == User.id)
+            .where(User.is_active.is_(True))
+            .order_by(User.id)
+        )
+        rows = await self.session.execute(stmt)
+        return [(user, streak) for user, streak in rows.all()]
+
+    async def deactivate(self, user_id: int) -> None:
+        """Помечает пользователя неактивным (бот заблокирован)."""
+        await self.session.execute(
+            update(User).where(User.id == user_id).values(is_active=False)
+        )
 
     async def get_or_create(
         self,

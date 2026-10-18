@@ -30,7 +30,7 @@ from bot.services import grammar
 from bot.services.ai_client import AIClient
 from bot.services.ai_errors import AIError
 from bot.services.ai_schemas import LessonPlan
-from bot.services.streak import register_activity
+from bot.services.streak import register_activity, streak_line
 from bot.states import GrammarStates
 
 logger = logging.getLogger(__name__)
@@ -511,14 +511,15 @@ async def grammar_test_callback(
         await register_activity(session, user.id, "grammar")
         await state.clear()
         if callback.message is not None:
+            result_text = grammar.format_test_result(
+                correct,
+                total,
+                _parse_mistakes(mistakes),
+                topic=lesson.topic,
+                lang=lang,
+            )
             await callback.message.edit_text(
-                grammar.format_test_result(
-                    correct,
-                    total,
-                    _parse_mistakes(mistakes),
-                    topic=lesson.topic,
-                    lang=lang,
-                ),
+                f"{result_text}\n\n{await streak_line(session, user.id, lang)}",
                 reply_markup=empty_kb(),
             )
         return

@@ -42,7 +42,7 @@ from bot.services.level_test import (
     get_questions_by_ids,
     select_test_questions,
 )
-from bot.services.streak import register_activity
+from bot.services.streak import register_activity, streak_line
 from bot.states import LevelTestStates
 
 logger = logging.getLogger(__name__)
@@ -140,7 +140,8 @@ async def _resume_test(
         await state.clear()
         if result is not None:
             await message.answer(
-                _result_text(result, lang), reply_markup=empty_kb()
+                await _result_text(session, result, user, lang),
+                reply_markup=empty_kb(),
             )
         return
 
@@ -327,7 +328,8 @@ async def _handle_answer(
             )
             return
         await callback.message.edit_text(
-            _result_text(result, lang), reply_markup=empty_kb()
+            await _result_text(session, result, user, lang),
+            reply_markup=empty_kb(),
         )
         return
 
@@ -387,8 +389,17 @@ async def _complete_test(
     return result
 
 
-def _result_text(result: LevelTestResult, lang: str) -> str:
-    return f"{format_level_result(result, lang)}\n\n{t('level.result_done', lang)}"
+async def _result_text(
+    session: AsyncSession,
+    result: LevelTestResult,
+    user: User,
+    lang: str,
+) -> str:
+    """Итог теста и текущая серия дней."""
+    return (
+        f"{format_level_result(result, lang)}\n\n{t('level.result_done', lang)}"
+        f"\n\n{await streak_line(session, user.id, lang)}"
+    )
 
 
 def _elapsed_seconds(sent_at_raw: object, now: datetime) -> int:

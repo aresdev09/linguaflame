@@ -7,6 +7,7 @@ from bot.routers import (
     free_chat,
     level_detector,
     quiz,
+    reminders,
     start,
     stats,
 )
@@ -18,6 +19,7 @@ __all__ = [
     "free_chat",
     "level_detector",
     "quiz",
+    "reminders",
     "start",
     "stats",
 ]

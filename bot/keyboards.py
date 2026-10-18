@@ -19,6 +19,7 @@ GRAMMAR_NEXT_CALLBACK_PREFIX = f"{GRAMMAR_CALLBACK_PREFIX}next:"
 GRAMMAR_CONTINUE_CALLBACK = f"{GRAMMAR_CALLBACK_PREFIX}continue"
 GRAMMAR_RESTART_CALLBACK = f"{GRAMMAR_CALLBACK_PREFIX}restart"
 GRAMMAR_TEST_CALLBACK_PREFIX = f"{GRAMMAR_CALLBACK_PREFIX}test:"
+REMINDER_QUICK_CALLBACK = "reminder:quick"
 
 # Часовые пояса: (IANA-идентификатор, ключ подписи в локализации)
 TIMEZONES: tuple[tuple[str, str], ...] = (
@@ -169,6 +170,20 @@ def grammar_test_kb(question_index: int, options: dict[str, str]) -> InlineKeybo
         for option, text in sorted(options.items())
     ]
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def reminder_quick_kb(lang: str) -> InlineKeyboardMarkup:
+    """Кнопка быстрого старта под напоминанием."""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=t("reminder.button", lang),
+                    callback_data=REMINDER_QUICK_CALLBACK,
+                )
+            ]
+        ]
+    )
 
 
 def empty_kb() -> InlineKeyboardMarkup:

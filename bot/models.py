@@ -19,6 +19,7 @@ from sqlalchemy import (
     JSON,
     String,
     Text,
+    true,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -49,6 +50,10 @@ class User(Base):
     timezone: Mapped[str] = mapped_column(
         String(64), default="UTC", server_default="UTC"
     )
+    # Заблокировавшие бота пользователи: напоминания им больше не шлём.
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default=true()
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
@@ -64,6 +69,9 @@ class Streak(Base):
     best_streak: Mapped[int] = mapped_column(Integer, default=0)
     last_activity_date: Mapped[date | None] = mapped_column(Date)
     last_reminder_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Счётчик напоминаний за локальный день: не больше 2 в сутки.
+    reminders_date: Mapped[date | None] = mapped_column(Date)
+    reminders_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
 
 class LevelTest(Base):
