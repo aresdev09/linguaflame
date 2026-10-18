@@ -2,11 +2,15 @@
 .env.local
 __pycache__/
 *.py[cod]
+*.pyc
 .venv/
 venv/
 *.db
 *.sqlite3
 .pytest_cache/
+.ruff_cache/
+.idea/
+.vscode/
 .coverage
 htmlcov/
 AGENTS.md
