@@ -47,7 +47,8 @@ def main() -> int:
     )
     args = parser.parse_args()
     try:
-        setup_logging(get_settings().log_level)
+        settings = get_settings()
+        setup_logging(settings.log_level, json_logs=settings.log_json)
         return asyncio.run(run(args.offset))
     except ConfigError as exc:
         print(exc)

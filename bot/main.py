@@ -35,6 +35,7 @@ from bot.routers import (
     stats,
 )
 from bot.scheduler import build_scheduler
+from bot.webhook import run_webhook
 
 logger = logging.getLogger(__name__)
 
@@ -68,8 +69,11 @@ def build_dispatcher(storage: BaseStorage) -> Dispatcher:
     # Порядок важен: ошибки ловим снаружи, сессия БД открывается до хендлера.
     dispatcher.update.outer_middleware(ErrorMiddleware())
     dispatcher.update.middleware(DbSessionMiddleware(get_session_factory()))
-    dispatcher.update.middleware(AIClientMiddleware())
+    # Пользователь нужен раньше ИИ: от него зависит дневной лимит запросов.
     dispatcher.update.middleware(UserMiddleware())
+    dispatcher.update.middleware(
+        AIClientMiddleware(daily_limit=get_settings().ai_daily_limit)
+    )
     dispatcher.update.middleware(ThrottleMiddleware())
     # Ближе к хендлеру: сначала закрываем чат, потом команда ставит свой режим.
     dispatcher.message.middleware(FreeChatExitMiddleware())
@@ -106,7 +110,7 @@ async def setup_commands(bot: Bot) -> None:
 async def main() -> None:
     setup_logging()
     settings = get_settings()
-    setup_logging(settings.log_level)
+    setup_logging(settings.log_level, json_logs=settings.log_json)
 
     bot = Bot(token=settings.bot_token)
     dispatcher = build_dispatcher(await build_storage(settings))
@@ -124,9 +128,12 @@ async def main() -> None:
     except Exception:
         logger.exception("Не удалось запустить планировщик напоминаний")
 
-    logger.info("Бот запускается в режиме long polling")
     try:
-        await dispatcher.start_polling(bot)
+        if settings.bot_mode == "webhook":
+            await run_webhook(bot, dispatcher, settings)
+        else:
+            logger.info("Бот запускается в режиме long polling")
+            await dispatcher.start_polling(bot)
     finally:
         if scheduler is not None and scheduler.running:
             scheduler.shutdown(wait=False)

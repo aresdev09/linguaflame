@@ -6,7 +6,7 @@
 
 from functools import lru_cache
 
-from pydantic import Field, ValidationError
+from pydantic import Field, ValidationError, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_DATABASE_URL = "sqlite+aiosqlite:///./linguflame.db"
@@ -82,8 +82,39 @@ class Settings(BaseSettings):
     ai_api_key: str = ""
     ai_model: str = "nvidia/nemotron-3.5-super-vl:free"
     log_level: str = "INFO"
+    # JSON-логи для продакшена; в разработке удобнее обычный текст.
+    log_json: bool = False
+    # Ограничение расходов на ИИ: логических запросов на пользователя в день.
+    # 0 — без ограничения.
+    ai_daily_limit: int = Field(default=100, ge=0)
     # Сдвиг часов для ручной проверки напоминаний: 0 — обычное время.
     reminder_hour_offset: int = 0
+    # long polling прост в запуске, webhook нужен, если хостинг этого требует.
+    bot_mode: str = "polling"
+    webhook_base_url: str = ""
+    webhook_path: str = "/telegram/webhook"
+    webhook_secret: str = ""
+    webhook_host: str = "0.0.0.0"
+    webhook_port: int = 8080
+
+    @field_validator("bot_mode")
+    @classmethod
+    def _check_bot_mode(cls, value: str) -> str:
+        mode = value.strip().lower()
+        if mode not in ("polling", "webhook"):
+            raise ValueError("допустимо только polling или webhook")
+        return mode
+
+    @model_validator(mode="after")
+    def _check_webhook_settings(self) -> "Settings":
+        if self.bot_mode == "webhook" and not self.webhook_base_url.strip():
+            raise ValueError("для webhook нужен WEBHOOK_BASE_URL")
+        return self
+
+    @property
+    def webhook_url(self) -> str:
+        """Полный адрес webhook: базовый URL плюс путь."""
+        return f"{self.webhook_base_url.rstrip('/')}{self.webhook_path}"
 
 
 @lru_cache

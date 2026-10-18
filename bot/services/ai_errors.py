@@ -33,3 +33,9 @@ class AIRequestRejected(AIError):
     """Сервер отверг запрос (4xx) — повтор не поможет."""
 
     user_message_key = "common.ai_unavailable"
+
+
+class AIQuotaExceeded(AIError):
+    """Дневной лимит запросов к ИИ исчерпан."""
+
+    user_message_key = "common.ai_limit"

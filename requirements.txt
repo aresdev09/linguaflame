@@ -13,3 +13,4 @@ python-dotenv>=1.0
 # Тесты
 pytest>=8.2
 pytest-asyncio>=0.23
+pytest-cov>=5.0

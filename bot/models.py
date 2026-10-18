@@ -165,6 +165,19 @@ class Essay(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
+class AIUsage(Base):
+    """Дневной счётчик запросов к ИИ: ограничение расходов на пользователя."""
+
+    __tablename__ = "ai_usage"
+
+    user_id: Mapped[int] = mapped_column(
+        BigIntType, ForeignKey("users.id"), primary_key=True
+    )
+    # Локальная дата пользователя: лимит сбрасывается в его полночь.
+    day: Mapped[date] = mapped_column(Date, primary_key=True)
+    requests: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
 class ActivityLog(Base):
     """Лог учебной активности пользователя (для серии дней и статистики)."""
 

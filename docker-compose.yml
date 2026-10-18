@@ -1,0 +1,77 @@
+name: linguaflame
+
+# Ротация логов, чтобы диск не заполнился JSON-строками.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-linguflame}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-linguflame}
+      POSTGRES_DB: ${POSTGRES_DB:-linguflame}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    logging: *default-logging
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+    logging: *default-logging
+
+  bot:
+    build:
+      context: .
+    # Миграции и загрузка банка вопросов идемпотентны: выполняются при старте.
+    command: ["sh", "-c", "alembic upgrade head && python -m scripts.load_level_questions && python -m bot.main"]
+    environment:
+      BOT_TOKEN: "${BOT_TOKEN:?BOT_TOKEN не задан: добавьте его в .env}"
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-linguflame}:${POSTGRES_PASSWORD:-linguflame}@db:5432/${POSTGRES_DB:-linguflame}
+      REDIS_URL: redis://redis:6379/0
+      AI_SERVER_URL: ${AI_SERVER_URL:-https://openrouter.ai/api/v1}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-nvidia/nemotron-3.5-super-vl:free}
+      AI_DAILY_LIMIT: ${AI_DAILY_LIMIT:-100}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_JSON: ${LOG_JSON:-false}
+      BOT_MODE: ${BOT_MODE:-polling}
+      WEBHOOK_BASE_URL: ${WEBHOOK_BASE_URL:-}
+      WEBHOOK_PATH: ${WEBHOOK_PATH:-/telegram/webhook}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
+      WEBHOOK_HOST: 0.0.0.0
+      WEBHOOK_PORT: ${WEBHOOK_PORT:-8080}
+      REMINDER_HOUR_OFFSET: ${REMINDER_HOUR_OFFSET:-0}
+    # Для BOT_MODE=webhook раскомментируйте публикацию порта
+    # (снаружи нужен HTTPS-прокси, например nginx или Caddy).
+    # ports:
+    #   - "${WEBHOOK_PORT:-8080}:${WEBHOOK_PORT:-8080}"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    stop_grace_period: 30s
+    logging: *default-logging
+
+volumes:
+  pgdata:
+  redisdata:

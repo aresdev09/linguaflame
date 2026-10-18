@@ -1,6 +1,7 @@
 """Репозитории: весь доступ к БД идёт только через них."""
 
 from bot.repositories.activity import ActivityRepo
+from bot.repositories.ai_usage import AIUsageRepo
 from bot.repositories.base import BaseRepo
 from bot.repositories.essay import EssayRepo
 from bot.repositories.lesson import LessonRepo
@@ -12,6 +13,7 @@ from bot.repositories.vocabulary import VocabularyRepo
 
 __all__ = [
     "ActivityRepo",
+    "AIUsageRepo",
     "BaseRepo",
     "EssayRepo",
     "LessonRepo",

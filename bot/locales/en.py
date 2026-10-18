@@ -209,6 +209,9 @@ TEXTS: dict[str, str] = {
     "common.timezone_invalid": "Could not recognise the timezone, pick one of the options.",
     "common.ai_unavailable": "The AI server is unavailable right now. Please try later.",
     "common.ai_bad_answer": "The AI answered in an unexpected way. Please try again.",
+    "common.ai_limit": (
+        "Today's AI request limit is reached. Your progress is saved — come back tomorrow."
+    ),
     # Language names (same in both languages)
     "language.ru": "Русский",
     "language.en": "English",
