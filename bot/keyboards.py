@@ -14,6 +14,11 @@ QUIZ_FINISH_CALLBACK = f"{QUIZ_CALLBACK_PREFIX}finish"
 LEVEL_CALLBACK_PREFIX = "level:"
 LEVEL_START_CALLBACK = f"{LEVEL_CALLBACK_PREFIX}start"
 LEVEL_CANCEL_CALLBACK = f"{LEVEL_CALLBACK_PREFIX}cancel"
+GRAMMAR_CALLBACK_PREFIX = "grammar:"
+GRAMMAR_NEXT_CALLBACK_PREFIX = f"{GRAMMAR_CALLBACK_PREFIX}next:"
+GRAMMAR_CONTINUE_CALLBACK = f"{GRAMMAR_CALLBACK_PREFIX}continue"
+GRAMMAR_RESTART_CALLBACK = f"{GRAMMAR_CALLBACK_PREFIX}restart"
+GRAMMAR_TEST_CALLBACK_PREFIX = f"{GRAMMAR_CALLBACK_PREFIX}test:"
 
 # Часовые пояса: (IANA-идентификатор, ключ подписи в локализации)
 TIMEZONES: tuple[tuple[str, str], ...] = (
@@ -117,6 +122,53 @@ def level_retake_kb(lang: str) -> InlineKeyboardMarkup:
             ]
         ]
     )
+
+
+def grammar_next_kb(step_index: int, lang: str, *, resume: bool = False) -> InlineKeyboardMarkup:
+    """Кнопка «Дальше» для шагов explanation и example."""
+    key = "grammar.continue_button" if resume else "grammar.next_button"
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=t(key, lang),
+                    callback_data=f"{GRAMMAR_NEXT_CALLBACK_PREFIX}{step_index}",
+                )
+            ]
+        ]
+    )
+
+
+def grammar_resume_kb(lang: str) -> InlineKeyboardMarkup:
+    """Кнопки незавершённого урока: продолжить или начать заново."""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=t("grammar.continue_button_short", lang),
+                    callback_data=GRAMMAR_CONTINUE_CALLBACK,
+                ),
+                InlineKeyboardButton(
+                    text=t("grammar.restart_button", lang),
+                    callback_data=GRAMMAR_RESTART_CALLBACK,
+                ),
+            ]
+        ]
+    )
+
+
+def grammar_test_kb(question_index: int, options: dict[str, str]) -> InlineKeyboardMarkup:
+    """Варианты ответа A, B, C для мини-теста в конце урока."""
+    rows = [
+        [
+            InlineKeyboardButton(
+                text=f"{option}) {text}",
+                callback_data=f"{GRAMMAR_TEST_CALLBACK_PREFIX}{question_index}:{option}",
+            )
+        ]
+        for option, text in sorted(options.items())
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 def empty_kb() -> InlineKeyboardMarkup:

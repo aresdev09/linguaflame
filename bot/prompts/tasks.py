@@ -75,7 +75,9 @@ def lesson_plan_prompt(topic: str | None = None) -> str:
     return (
         f"Create a grammar lesson plan for the student. {topic_line}\n"
         "Steps must follow one by one: explanation, example, exercise. "
-        "Finish with 5 multiple-choice questions for the final test.\n"
+        "Keep every step text under 800 characters; if the explanation is "
+        "longer, split it into several steps.\n"
+        "Finish with exactly 5 multiple-choice questions for the final test.\n"
         f"Answer with JSON only, exactly this shape:\n{LESSON_PLAN_JSON_FORMAT}"
     )
 

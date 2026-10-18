@@ -45,7 +45,31 @@ DEFAULT_LESSON_PLAN = LessonPlan(
         {"type": "exercise", "question": "He ___ to work by bus.", "answer": "goes"},
     ],
     final_test=[
-        {"question": "She ___ coffee.", "options": {"A": "like", "B": "likes", "C": "liking"}, "correct": "B"}
+        {
+            "question": "She ___ coffee.",
+            "options": {"A": "like", "B": "likes", "C": "liking"},
+            "correct": "B",
+        },
+        {
+            "question": "They ___ football every Sunday.",
+            "options": {"A": "play", "B": "plays", "C": "playing"},
+            "correct": "A",
+        },
+        {
+            "question": "I ___ tea in the morning.",
+            "options": {"A": "drinks", "B": "drink", "C": "drinking"},
+            "correct": "B",
+        },
+        {
+            "question": "We ___ not watch TV.",
+            "options": {"A": "do", "B": "does", "C": "doing"},
+            "correct": "A",
+        },
+        {
+            "question": "___ he like apples?",
+            "options": {"A": "Do", "B": "Does", "C": "Is"},
+            "correct": "B",
+        },
     ],
 )
 

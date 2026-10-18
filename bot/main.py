@@ -22,7 +22,7 @@ from bot.middlewares import (
     ThrottleMiddleware,
     UserMiddleware,
 )
-from bot.routers import daily_vocabulary, level_detector, quiz, start, stats
+from bot.routers import daily_grammar, daily_vocabulary, level_detector, quiz, start, stats
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +46,7 @@ def build_dispatcher(storage: BaseStorage) -> Dispatcher:
     dispatcher.include_router(start.router)
     dispatcher.include_router(stats.router)
     dispatcher.include_router(daily_vocabulary.router)
+    dispatcher.include_router(daily_grammar.router)
     dispatcher.include_router(quiz.router)
     dispatcher.include_router(level_detector.router)
 

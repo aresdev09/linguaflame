@@ -31,6 +31,16 @@ class LessonRepo(BaseRepo):
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def list_topics(self, user_id: int, level: str) -> list[str]:
+        """Темы уроков пользователя на уровне, от старых к новым."""
+        stmt = (
+            select(Lesson.topic)
+            .where(Lesson.user_id == user_id, Lesson.level == level)
+            .order_by(Lesson.id)
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def update(
         self,
         lesson_id: int,

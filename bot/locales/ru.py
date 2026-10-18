@@ -75,6 +75,44 @@ TEXTS: dict[str, str] = {
     "level.result_done": (
         "Уровень обновлён. Продолжай заниматься: /daily_grammar и /daily_vocabulary."
     ),
+    # Урок грамматики
+    "grammar.loading": "⏳ Готовлю урок… Обычно это занимает до минуты.",
+    "grammar.default_level": (
+        "Уровень пока не определён, поэтому урок уровня {level}. "
+        "Пройди /level_detector, чтобы уроки подходили под твой уровень."
+    ),
+    "grammar.step_header": "📘 {topic} · шаг {number} из {total}",
+    "grammar.exercise_header": (
+        "✍️ {topic} · упражнение {number} из {total}\nНапиши ответ сообщением."
+    ),
+    "grammar.next_button": "▶️ Дальше",
+    "grammar.continue_button": "▶️ Продолжить урок",
+    "grammar.continue_button_short": "▶️ Продолжить",
+    "grammar.restart_button": "🔄 Начать заново",
+    "grammar.continued": "Продолжаем урок «{topic}».",
+    "grammar.resume_prompt": (
+        "У тебя есть незавершённый урок «{topic}». {progress}\n"
+        "Продолжить или начать заново?"
+    ),
+    "grammar.progress_step": "Остановились на шаге {number} из {total}.",
+    "grammar.progress_test": "Остался финальный мини-тест.",
+    "grammar.exercise_correct": "✅ Верно!",
+    "grammar.exercise_wrong": "❌ Неверно. Правильный ответ: {answer}",
+    "grammar.question_return": "💬 Возвращаемся к уроку.",
+    "grammar.test_intro": "🏁 Мини-тест по теме «{topic}». Отвечай кнопками.",
+    "grammar.test_header": "🏁 Мини-тест · вопрос {number} из {total}",
+    "grammar.test_correct": "✅ Верно!",
+    "grammar.test_wrong": "❌ Неверно. Правильный ответ: {option}) {answer}",
+    "grammar.test_result": "🏁 Мини-тест: {correct} из {total}",
+    "grammar.test_mistakes_title": "Разбор ошибок:",
+    "grammar.test_mistake": "{number}. {question}\nПравильный ответ: {option}) {answer}",
+    "grammar.test_perfect": "Все ответы верные! Отличная работа.",
+    "grammar.lesson_done": "Урок «{topic}» завершён. Новый урок: /daily_grammar",
+    "grammar.test_use_buttons": "Выбери вариант кнопкой под вопросом.",
+    "grammar.not_active": "Урок сейчас не идёт. Начни новый: /daily_grammar",
+    "grammar.already_answered": "На этот вопрос уже ответили.",
+    "grammar.stale_button": "Эта кнопка уже неактуальна.",
+    "grammar.invalid_option": "Не понял вариант ответа. Попробуй ещё раз.",
     # Общие
     "common.friend": "друг",
     "common.cancel": "Отмена",

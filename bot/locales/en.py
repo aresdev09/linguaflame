@@ -75,6 +75,44 @@ TEXTS: dict[str, str] = {
     "level.result_done": (
         "Your level has been updated. Keep going: /daily_grammar and /daily_vocabulary."
     ),
+    # Grammar lesson
+    "grammar.loading": "⏳ Preparing your lesson… It usually takes up to a minute.",
+    "grammar.default_level": (
+        "Your level is not set yet, so this is a level {level} lesson. "
+        "Take /level_detector to get lessons that match your level."
+    ),
+    "grammar.step_header": "📘 {topic} · step {number} of {total}",
+    "grammar.exercise_header": (
+        "✍️ {topic} · exercise {number} of {total}\nWrite your answer as a message."
+    ),
+    "grammar.next_button": "▶️ Next",
+    "grammar.continue_button": "▶️ Continue lesson",
+    "grammar.continue_button_short": "▶️ Continue",
+    "grammar.restart_button": "🔄 Start over",
+    "grammar.continued": "Continuing the lesson “{topic}”.",
+    "grammar.resume_prompt": (
+        "You have an unfinished lesson “{topic}”. {progress}\n"
+        "Continue or start over?"
+    ),
+    "grammar.progress_step": "You stopped at step {number} of {total}.",
+    "grammar.progress_test": "Only the final mini-test is left.",
+    "grammar.exercise_correct": "✅ Correct!",
+    "grammar.exercise_wrong": "❌ Not quite. Correct answer: {answer}",
+    "grammar.question_return": "💬 Back to the lesson.",
+    "grammar.test_intro": "🏁 Mini-test on “{topic}”. Answer with the buttons.",
+    "grammar.test_header": "🏁 Mini-test · question {number} of {total}",
+    "grammar.test_correct": "✅ Correct!",
+    "grammar.test_wrong": "❌ Not quite. Correct answer: {option}) {answer}",
+    "grammar.test_result": "🏁 Mini-test: {correct} out of {total}",
+    "grammar.test_mistakes_title": "Mistakes to review:",
+    "grammar.test_mistake": "{number}. {question}\nCorrect answer: {option}) {answer}",
+    "grammar.test_perfect": "All answers are correct! Great job.",
+    "grammar.lesson_done": "Lesson “{topic}” is finished. New lesson: /daily_grammar",
+    "grammar.test_use_buttons": "Pick an option with the button under the question.",
+    "grammar.not_active": "No lesson is running. Start a new one: /daily_grammar",
+    "grammar.already_answered": "This question has already been answered.",
+    "grammar.stale_button": "This button is no longer relevant.",
+    "grammar.invalid_option": "I couldn't read that answer option. Please try again.",
     # Common
     "common.friend": "friend",
     "common.cancel": "Cancel",
