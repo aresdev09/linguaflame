@@ -28,6 +28,20 @@ TEXTS: dict[str, str] = {
         "Пройди /level_detector, чтобы получать слова под свой уровень."
     ),
     "vocabulary.item": "{index}. {word} {transcription} — {translation}",
+    # Квиз
+    "quiz.loading": "⏳ Подбираю вопрос…",
+    "quiz.question": "Вопрос {number}\n\n{text}",
+    "quiz.correct": "✅ Верно!",
+    "quiz.wrong": "❌ Неверно.",
+    "quiz.correct_answer": "Правильный ответ: {option}) {answer}",
+    "quiz.finish_button": "🏁 Закончить",
+    "quiz.result": "🏁 Квиз завершён\n\nПравильных ответов: {correct} из {total}.",
+    "quiz.result_empty": (
+        "🏁 Квиз завершён\n\nТы не ответил ни на один вопрос. Начни новый: /quiz"
+    ),
+    "quiz.already_answered": "На этот вопрос уже ответили.",
+    "quiz.not_active": "Квиз сейчас не идёт. Начни новый: /quiz",
+    "quiz.invalid_option": "Не понял вариант ответа. Попробуй ещё раз.",
     # Общие
     "common.friend": "друг",
     "common.error": "Что-то пошло не так. Попробуй ещё раз чуть позже.",

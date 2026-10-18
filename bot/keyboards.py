@@ -9,6 +9,8 @@ from bot.locales import t
 
 LANGUAGE_CALLBACK_PREFIX = "lang:"
 TIMEZONE_CALLBACK_PREFIX = "tz:"
+QUIZ_CALLBACK_PREFIX = "quiz:"
+QUIZ_FINISH_CALLBACK = f"{QUIZ_CALLBACK_PREFIX}finish"
 
 # Часовые пояса: (IANA-идентификатор, ключ подписи в локализации)
 TIMEZONES: tuple[tuple[str, str], ...] = (
@@ -51,3 +53,34 @@ def timezone_kb(lang: str) -> InlineKeyboardMarkup:
     ]
     rows = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def quiz_options_kb(
+    question_id: int,
+    options: dict[str, str],
+    lang: str,
+) -> InlineKeyboardMarkup:
+    """Варианты ответа A, B, C и кнопка завершения квиза."""
+    rows = [
+        [
+            InlineKeyboardButton(
+                text=f"{option}) {text}",
+                callback_data=f"{QUIZ_CALLBACK_PREFIX}{question_id}:{option}",
+            )
+        ]
+        for option, text in sorted(options.items())
+    ]
+    rows.append(
+        [
+            InlineKeyboardButton(
+                text=t("quiz.finish_button", lang),
+                callback_data=QUIZ_FINISH_CALLBACK,
+            )
+        ]
+    )
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def empty_kb() -> InlineKeyboardMarkup:
+    """Пустая клавиатура: убирает кнопки у сообщения."""
+    return InlineKeyboardMarkup(inline_keyboard=[])

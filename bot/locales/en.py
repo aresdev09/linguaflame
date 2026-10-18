@@ -28,6 +28,20 @@ TEXTS: dict[str, str] = {
         "Take /level_detector to get words that match your level."
     ),
     "vocabulary.item": "{index}. {word} {transcription} — {translation}",
+    # Quiz
+    "quiz.loading": "⏳ Picking a question…",
+    "quiz.question": "Question {number}\n\n{text}",
+    "quiz.correct": "✅ Correct!",
+    "quiz.wrong": "❌ Not quite.",
+    "quiz.correct_answer": "Correct answer: {option}) {answer}",
+    "quiz.finish_button": "🏁 Finish",
+    "quiz.result": "🏁 Quiz finished\n\nCorrect answers: {correct} out of {total}.",
+    "quiz.result_empty": (
+        "🏁 Quiz finished\n\nYou haven't answered any questions. Start a new one: /quiz"
+    ),
+    "quiz.already_answered": "This question has already been answered.",
+    "quiz.not_active": "No quiz is running. Start a new one: /quiz",
+    "quiz.invalid_option": "I couldn't read that answer option. Please try again.",
     # Common
     "common.friend": "friend",
     "common.error": "Something went wrong. Please try again in a moment.",

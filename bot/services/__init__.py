@@ -25,6 +25,14 @@ from bot.services.ai_schemas import (
     Word,
 )
 from bot.services.fake_ai_client import FakeAIClient
+from bot.services.quiz import (
+    QuizScore,
+    format_quiz_feedback,
+    format_quiz_question,
+    format_quiz_result,
+    next_quiz_question,
+    score_quiz_answer,
+)
 from bot.services.streak import (
     ACTIVITY_KINDS,
     ActivityKind,
@@ -60,16 +68,22 @@ __all__ = [
     "LessonStep",
     "LessonTestQuestion",
     "QuizQuestion",
+    "QuizScore",
     "UserStats",
     "VocabularyResponse",
     "Word",
     "as_utc",
     "format_daily_vocabulary",
+    "format_quiz_feedback",
+    "format_quiz_question",
+    "format_quiz_result",
     "get_ai_client",
     "get_daily_vocabulary",
     "get_user_stats",
+    "next_quiz_question",
     "parse_json_payload",
     "register_activity",
     "resolve_timezone",
+    "score_quiz_answer",
     "strip_markdown_fences",
 ]
