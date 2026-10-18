@@ -1,26 +1,25 @@
-"""Единый клиент общения с AI-сервером.
+"""Единый клиент общения с ИИ через OpenRouter (OpenAI-совместимый API).
 
 Весь код бота ходит в ИИ только через этот класс.
 
-Контракт запроса (его нужно соблюдать на стороне сервера):
-    POST {AI_SERVER_URL}/generate
-    headers: {"X-API-Key": <AI_API_KEY>, "Content-Type": "application/json"}
+Контракт запроса:
+    POST {AI_SERVER_URL}/chat/completions   # по умолчанию https://openrouter.ai/api/v1
+    headers: Authorization: Bearer <AI_API_KEY>, Content-Type: application/json
+
     body:
         {
-            "task": "quiz" | "vocabulary" | "lesson_plan" | "essay_check"
-                   | "free_chat" | "lesson_question",
-            "level": "B1",
-            "language": "ru",
-            "system_prompt": "...",
-            "prompt": "...",
-            "response_format": "json" | "text",
-            "history": [{"role": "user", "content": "..."}]  # только free_chat
+            "model": "<AI_MODEL>",
+            "messages": [
+                {"role": "system", "content": "..."},
+                {"role": "user", "content": "..."}
+            ],
+            "response_format": {"type": "json_object"}   # только для задач с JSON
         }
 
-Ответ сервера — «голый» JSON по описанным ниже схемам
-(для free_chat и вопроса внутри урока — обычный текст).
-Если сервер умеет отдавать `{"usage": {"prompt_tokens": N, "completion_tokens": M}}`,
-эти значения попадут в лог; иначе считаем токены грубо, по длине текста.
+Ответ — стандартный ответ OpenAI-совместимого API: результат лежит строкой в
+`choices[0].message.content` (для задач с JSON — JSON, возможно в markdown-обёртке),
+а `usage.prompt_tokens` / `usage.completion_tokens` показывают расход токенов.
+Адрес, ключ и модель берутся только из конфига.
 """
 
 import asyncio
@@ -55,11 +54,15 @@ logger = logging.getLogger(__name__)
 
 SchemaT = TypeVar("SchemaT", bound=BaseModel)
 
-GENERATE_PATH = "/generate"
+CHAT_COMPLETIONS_PATH = "/chat/completions"
+JSON_RESPONSE_FORMAT = {"type": "json_object"}
 DEFAULT_TIMEOUT = 30.0
 MAX_RETRIES = 2
 RETRY_BASE_DELAY = 1.0
 CHARS_PER_TOKEN = 4  # грубая оценка, если сервер не вернул usage
+RATE_LIMIT_STATUS = 429  # у бесплатных моделей это обычное дело, поэтому повторяем
+
+BOT_TITLE_HEADER = "X-Title"  # необязательный заголовок OpenRouter для статистики
 
 
 def strip_markdown_fences(text: str) -> str:
@@ -85,13 +88,14 @@ def parse_json_payload(text: str) -> Any:
 
 
 class AIClient:
-    """Надёжная обёртка над AI-сервером: таймаут, повторы, валидация JSON."""
+    """Надёжная обёртка над OpenRouter: таймаут, повторы, валидация JSON."""
 
     def __init__(
         self,
         base_url: str,
         api_key: str,
         *,
+        model: str,
         timeout: float = DEFAULT_TIMEOUT,
         max_retries: int = MAX_RETRIES,
         retry_delay: float = RETRY_BASE_DELAY,
@@ -100,6 +104,7 @@ class AIClient:
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
+        self.model = model
         self.timeout = timeout
         self.max_retries = max_retries
         self.retry_delay = retry_delay
@@ -184,7 +189,7 @@ class AIClient:
             prompt=wrap_user_text(text),
             history=history,
             with_user_text=True,
-            extra= tasks.FREE_CHAT_RULES,
+            extra=tasks.FREE_CHAT_RULES,
         )
 
     async def ask_in_lesson(
@@ -202,6 +207,7 @@ class AIClient:
             lang=lang,
             prompt=tasks.lesson_question_prompt(step_text, wrap_user_text(question)),
             with_user_text=True,
+            extra=tasks.LESSON_QUESTION_RULES,
         )
 
     # --- транспорт -----------------------------------------------------
@@ -209,36 +215,43 @@ class AIClient:
     def _payload(
         self,
         *,
-        task: str,
         level: str,
         lang: str,
         prompt: str,
-        response_format: str,
+        response_format: dict[str, str] | None,
         with_user_text: bool,
+        json_mode: bool,
         extra: str = "",
         history: Sequence[dict[str, str]] | None = None,
-    ) -> tuple[dict[str, Any], str]:
+    ) -> dict[str, Any]:
+        """Тело запроса в формате OpenAI: модель, системный промпт, история, вопрос."""
         system_prompt = build_system_prompt(
-            level, lang, extra=extra, with_user_text=with_user_text
+            level,
+            lang,
+            extra=extra,
+            with_user_text=with_user_text,
+            json_mode=json_mode,
         )
-        payload: dict[str, Any] = {
-            "task": task,
-            "level": level,
-            "language": lang,
-            "system_prompt": system_prompt,
-            "prompt": prompt,
-            "response_format": response_format,
-        }
+        messages: list[dict[str, str]] = [
+            {"role": "system", "content": system_prompt}
+        ]
         if history:
-            payload["history"] = [dict(item) for item in history]
-        return payload, system_prompt
+            messages.extend(
+                {"role": item["role"], "content": item["content"]} for item in history
+            )
+        messages.append({"role": "user", "content": prompt})
+
+        payload: dict[str, Any] = {"model": self.model, "messages": messages}
+        if response_format is not None:
+            payload["response_format"] = response_format
+        return payload
 
     async def _send(self, payload: dict[str, Any], task: str, prompt: str) -> str:
-        """Один HTTP-запрос к AI-серверу с логированием времени и токенов."""
-        headers = {"Content-Type": "application/json"}
+        """Один запрос к OpenRouter: логирование времени и токенов, разбор конверта."""
+        headers = {"Content-Type": "application/json", BOT_TITLE_HEADER: "LinguaFlame"}
         if self.api_key:
-            headers["X-API-Key"] = self.api_key
-        url = f"{self.base_url}{GENERATE_PATH}"
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        url = f"{self.base_url}{CHAT_COMPLETIONS_PATH}"
 
         started = time.perf_counter()
         try:
@@ -249,26 +262,61 @@ class AIClient:
             raise AIRequestError(f"ИИ-сервер недоступен: {exc}") from exc
         elapsed_ms = int((time.perf_counter() - started) * 1000)
 
-        self._log_usage(task, prompt, response.text, elapsed_ms)
-
-        if response.status_code >= 500:
-            raise AIRequestError(f"ИИ-сервер вернул {response.status_code}")
+        if response.status_code >= 500 or response.status_code == RATE_LIMIT_STATUS:
+            raise AIRequestError(
+                f"ИИ-сервер вернул {response.status_code}: {response.text[:200]}"
+            )
         if response.status_code >= 400:
             raise AIRequestRejected(
                 f"ИИ-сервер отклонил запрос: {response.status_code} {response.text[:200]}"
             )
-        return response.text
 
-    def _log_usage(self, task: str, prompt: str, text: str, elapsed_ms: int) -> None:
+        data = self._decode(response)
+        content = self._extract_content(data)
+        self._log_usage(task, prompt, content, elapsed_ms, data.get("usage"))
+        return content
+
+    @staticmethod
+    def _decode(response: httpx.Response) -> dict[str, Any]:
+        """Разбирает конверт OpenAI; не-JSON тело — ошибка ответа."""
+        try:
+            data = response.json()
+        except ValueError as exc:
+            raise AIResponseError("ИИ вернул не JSON") from exc
+        if not isinstance(data, dict):
+            raise AIResponseError("ИИ вернул не объект")
+        return data
+
+    @staticmethod
+    def _extract_content(data: dict[str, Any]) -> str:
+        """Достаёт текст ответа из choices[0].message.content."""
+        choices = data.get("choices") or []
+        message = (choices[0].get("message") or {}) if choices else {}
+        content = message.get("content")
+        if not isinstance(content, str) or not content.strip():
+            reason = data.get("error") or data
+            raise AIResponseError(
+                f"В ответе ИИ нет текста: "
+                f"{json.dumps(reason, ensure_ascii=False)[:200]}"
+            )
+        return content
+
+    def _log_usage(
+        self,
+        task: str,
+        prompt: str,
+        content: str,
+        elapsed_ms: int,
+        usage: Any,
+    ) -> None:
         """Пишет в лог время ответа и расход токенов (точные или оценку)."""
-        usage = self._exact_usage(text)
-        if usage is not None:
+        if isinstance(usage, dict) and {"prompt_tokens", "completion_tokens"} <= set(usage):
             logger.info(
                 "ИИ %s: %d мс, токены промпт=%d ответ=%d",
                 task,
                 elapsed_ms,
-                usage[0],
-                usage[1],
+                int(usage["prompt_tokens"]),
+                int(usage["completion_tokens"]),
             )
             return
         logger.info(
@@ -276,24 +324,10 @@ class AIClient:
             task,
             elapsed_ms,
             len(prompt) // CHARS_PER_TOKEN,
-            len(text) // CHARS_PER_TOKEN,
+            len(content) // CHARS_PER_TOKEN,
             len(prompt),
-            len(text),
+            len(content),
         )
-
-    @staticmethod
-    def _exact_usage(text: str) -> tuple[int, int] | None:
-        """Достаёт usage из ответа, если сервер его присылает."""
-        try:
-            data = json.loads(strip_markdown_fences(text))
-        except (json.JSONDecodeError, TypeError):
-            return None
-        if not isinstance(data, dict):
-            return None
-        usage = data.get("usage")
-        if isinstance(usage, dict) and {"prompt_tokens", "completion_tokens"} <= set(usage):
-            return int(usage["prompt_tokens"]), int(usage["completion_tokens"])
-        return None
 
     async def _before_retry(self, retry_number: int, task: str, error: Exception) -> None:
         """Экспоненциальная пауза перед повтором: base, base*2, base*4."""
@@ -321,13 +355,13 @@ class AIClient:
         history: Sequence[dict[str, str]] | None = None,
     ) -> SchemaT:
         """Ответ как JSON нужной схемы; битый ответ — до 2 повторов."""
-        payload, _ = self._payload(
-            task=task,
+        payload = self._payload(
             level=level,
             lang=lang,
             prompt=prompt,
-            response_format="json",
+            response_format=JSON_RESPONSE_FORMAT,
             with_user_text=with_user_text,
+            json_mode=True,
             extra=extra,
             history=history,
         )
@@ -362,13 +396,13 @@ class AIClient:
         history: Sequence[dict[str, str]] | None = None,
     ) -> str:
         """Ответ как обычный текст (свободный чат, вопрос внутри урока)."""
-        payload, _ = self._payload(
-            task=task,
+        payload = self._payload(
             level=level,
             lang=lang,
             prompt=prompt,
-            response_format="text",
+            response_format=None,
             with_user_text=with_user_text,
+            json_mode=False,
             extra=extra,
             history=history,
         )
@@ -391,6 +425,10 @@ class AIClient:
 
 @lru_cache
 def get_ai_client() -> AIClient:
-    """Клиент из настроек: адрес и ключ только из конфига."""
+    """Клиент из настроек: адрес, ключ и модель только из конфига."""
     settings = get_settings()
-    return AIClient(base_url=settings.ai_server_url, api_key=settings.ai_api_key)
+    return AIClient(
+        base_url=settings.ai_server_url,
+        api_key=settings.ai_api_key,
+        model=settings.ai_model,
+    )

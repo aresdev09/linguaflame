@@ -29,8 +29,9 @@ class Settings(BaseSettings):
     bot_token: str = Field(min_length=1)
     database_url: str = DEFAULT_DATABASE_URL
     redis_url: str = "redis://localhost:6379/0"
-    ai_server_url: str = "http://localhost:8000"
+    ai_server_url: str = "https://openrouter.ai/api/v1"
     ai_api_key: str = ""
+    ai_model: str = "nvidia/nemotron-3.5-super-vl:free"
     log_level: str = "INFO"
 
 
