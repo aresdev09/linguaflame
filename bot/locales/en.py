@@ -144,6 +144,16 @@ TEXTS: dict[str, str] = {
     "essay.disclaimer": (
         "⚠️ This score is approximate and does not replace the official IELTS exam."
     ),
+    # Free conversation
+    "chat.started": (
+        "💬 Free conversation is open. Write in any language — I will answer "
+        "in yours and gently correct mistakes in English.\n\n"
+        "Close the chat: /close_free_chat"
+    ),
+    "chat.closed": (
+        "👋 The free conversation is closed, history cleared. Start again: /free_chat"
+    ),
+    "chat.not_active": "The free conversation is not open. Start it: /free_chat",
     # Common
     "common.friend": "friend",
     "common.cancel": "Cancel",

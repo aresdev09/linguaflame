@@ -26,6 +26,19 @@ class ActivityRepo(BaseRepo):
         await self.session.flush()
         return entry
 
+    async def has_since(self, user_id: int, kind: str, since: datetime) -> bool:
+        """Было ли у пользователя действие `kind` начиная с момента `since`."""
+        stmt = (
+            select(ActivityLog.id)
+            .where(
+                ActivityLog.user_id == user_id,
+                ActivityLog.kind == kind,
+                ActivityLog.created_at >= since,
+            )
+            .limit(1)
+        )
+        return await self.session.scalar(stmt) is not None
+
     async def count_since(self, user_id: int, since: datetime) -> int:
         """Сколько действий пользователь совершил начиная с момента `since`."""
         stmt = (

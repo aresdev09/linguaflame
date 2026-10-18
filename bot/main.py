@@ -19,6 +19,7 @@ from bot.middlewares import (
     AIClientMiddleware,
     DbSessionMiddleware,
     ErrorMiddleware,
+    FreeChatExitMiddleware,
     ThrottleMiddleware,
     UserMiddleware,
 )
@@ -26,6 +27,7 @@ from bot.routers import (
     daily_grammar,
     daily_vocabulary,
     essay_checker,
+    free_chat,
     level_detector,
     quiz,
     start,
@@ -56,6 +58,7 @@ def build_dispatcher(storage: BaseStorage) -> Dispatcher:
     dispatcher.include_router(daily_vocabulary.router)
     dispatcher.include_router(daily_grammar.router)
     dispatcher.include_router(essay_checker.router)
+    dispatcher.include_router(free_chat.router)
     dispatcher.include_router(quiz.router)
     dispatcher.include_router(level_detector.router)
 
@@ -65,6 +68,8 @@ def build_dispatcher(storage: BaseStorage) -> Dispatcher:
     dispatcher.update.middleware(AIClientMiddleware())
     dispatcher.update.middleware(UserMiddleware())
     dispatcher.update.middleware(ThrottleMiddleware())
+    # Ближе к хендлеру: сначала закрываем чат, потом команда ставит свой режим.
+    dispatcher.message.middleware(FreeChatExitMiddleware())
     return dispatcher
 
 
