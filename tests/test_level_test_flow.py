@@ -284,6 +284,45 @@ async def test_double_click_does_not_add_answer(
     assert data["answered_count"] == 1
 
 
+async def test_full_flow_all_correct_sets_c2(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    await _create_user(session_factory)
+    await _seed_bank(session_factory)
+    chat = FakeChat(USER_ID)
+    state = make_state(USER_ID)
+
+    await _start_test(session_factory, chat, state)
+
+    for number in range(1, 51):
+        question_message = FakeMessage(chat, len(chat.messages) - 1)
+        question_id = _question_id(chat.markups[-1])
+        await state.update_data(sent_at=_age_sent_at(5))
+        await dispatch(
+            session_factory,
+            level_callback,
+            FakeCallbackQuery(f"level:{question_id}:A", question_message),
+            state,
+        )
+
+    assert await state.get_state() is None
+    assert "C2" in chat.messages[-1]
+
+    async with session_factory() as session:
+        answers = list(await session.scalars(select(LevelTestAnswer)))
+        assert len(answers) == 50
+        user = await UserRepo(session).get(USER_ID)
+        assert user is not None
+        assert user.level == "C2"
+        assert user.level_tested_at is not None
+        test = (await session.scalars(select(LevelTest))).one()
+        assert test.finished_at is not None
+        assert test.result_level == "C2"
+        assert test.total_time_sec == 250
+        kinds = list(await session.scalars(select(ActivityLog.kind)))
+        assert kinds == ["level_test"]
+
+
 async def test_complete_test_writes_level_and_activity_once(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:
