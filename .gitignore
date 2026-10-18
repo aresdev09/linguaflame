@@ -9,3 +9,9 @@ venv/
 .pytest_cache/
 .coverage
 htmlcov/
+AGENTS.md
+skills/
+tasks/
+PROMPTS.md
+.opencode/
+.freebuff
