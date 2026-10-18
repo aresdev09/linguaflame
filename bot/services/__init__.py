@@ -24,13 +24,26 @@ from bot.services.ai_schemas import (
     Word,
 )
 from bot.services.fake_ai_client import FakeAIClient
+from bot.services.streak import (
+    ACTIVITY_KINDS,
+    ActivityKind,
+    ActivityResult,
+    UserStats,
+    get_user_stats,
+    register_activity,
+)
+from bot.services.timezones import DEFAULT_TIMEZONE, as_utc, resolve_timezone
 
 __all__ = [
+    "ACTIVITY_KINDS",
     "AIClient",
     "AIError",
     "AIRequestError",
     "AIRequestRejected",
     "AIResponseError",
+    "ActivityKind",
+    "ActivityResult",
+    "DEFAULT_TIMEZONE",
     "EssayCheck",
     "EssayCriteria",
     "EssayWeakSpot",
@@ -39,9 +52,14 @@ __all__ = [
     "LessonStep",
     "LessonTestQuestion",
     "QuizQuestion",
+    "UserStats",
     "VocabularyResponse",
     "Word",
+    "as_utc",
     "get_ai_client",
+    "get_user_stats",
     "parse_json_payload",
+    "register_activity",
+    "resolve_timezone",
     "strip_markdown_fences",
 ]

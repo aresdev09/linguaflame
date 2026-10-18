@@ -11,6 +11,12 @@ TEXTS: dict[str, str] = {
         "Welcome back, {name}! Explanations: {language}, timezone: {timezone}."
     ),
     "start.commands_hint": "The command list is in the menu next to the input field.",
+    # Progress and streak
+    "stats.title": "Your progress",
+    "stats.current": "🔥 Current streak: {days} days",
+    "stats.best": "🏆 Best streak: {days} days",
+    "stats.week": "📅 Actions this week: {count}",
+    "stats.hint": "Complete one task to light the flame.",
     # Common
     "common.friend": "friend",
     "common.error": "Something went wrong. Please try again in a moment.",
@@ -31,6 +37,7 @@ TEXTS: dict[str, str] = {
     "timezone.new_york": "New York",
     # Commands in the Telegram menu
     "commands.start": "Start the bot",
+    "commands.stats": "Streak and record",
     "commands.quiz": "Quiz with questions",
     "commands.free_chat": "Free conversation",
     "commands.close_free_chat": "Close free conversation",

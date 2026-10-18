@@ -1,5 +1,7 @@
 """Репозиторий серий дней."""
 
+from datetime import date
+
 from sqlalchemy import update
 
 from bot.models import Streak
@@ -19,6 +21,21 @@ class StreakRepo(BaseRepo):
             self.session.add(streak)
             await self.session.flush()
         return streak
+
+    async def set_progress(
+        self,
+        user_id: int,
+        *,
+        current_streak: int,
+        best_streak: int,
+        last_activity_date: date,
+    ) -> None:
+        """Записывает серию после учебного действия."""
+        streak = await self.get_or_create(user_id)
+        streak.current_streak = current_streak
+        streak.best_streak = best_streak
+        streak.last_activity_date = last_activity_date
+        await self.session.flush()
 
     async def update(self, user_id: int, **fields: object) -> None:
         """Обновляет переданные поля серии (current_streak, best_streak, ...)."""

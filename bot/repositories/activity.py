@@ -11,8 +11,17 @@ from bot.repositories.base import BaseRepo
 class ActivityRepo(BaseRepo):
     """Доступ к таблице `activity_log`."""
 
-    async def add(self, user_id: int, kind: str) -> ActivityLog:
+    async def add(
+        self,
+        user_id: int,
+        kind: str,
+        *,
+        created_at: datetime | None = None,
+    ) -> ActivityLog:
+        """Пишет действие в лог; момент можно подменить (нужно тестам)."""
         entry = ActivityLog(user_id=user_id, kind=kind)
+        if created_at is not None:
+            entry.created_at = created_at
         self.session.add(entry)
         await self.session.flush()
         return entry

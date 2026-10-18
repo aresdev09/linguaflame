@@ -21,13 +21,14 @@ from bot.middlewares import (
     ThrottleMiddleware,
     UserMiddleware,
 )
-from bot.routers import start
+from bot.routers import start, stats
 
 logger = logging.getLogger(__name__)
 
 # Команды меню Telegram: (команда, ключ описания в локализации)
 COMMANDS: tuple[tuple[str, str], ...] = (
     ("start", "commands.start"),
+    ("stats", "commands.stats"),
     ("quiz", "commands.quiz"),
     ("daily_vocabulary", "commands.daily_vocabulary"),
     ("daily_grammar", "commands.daily_grammar"),
@@ -42,6 +43,7 @@ def build_dispatcher(storage: BaseStorage) -> Dispatcher:
     """Собирает диспетчер: роутеры и порядок middleware."""
     dispatcher = Dispatcher(storage=storage)
     dispatcher.include_router(start.router)
+    dispatcher.include_router(stats.router)
 
     # Порядок важен: ошибки ловим снаружи, сессия БД открывается до хендлера.
     dispatcher.update.outer_middleware(ErrorMiddleware())

@@ -11,6 +11,12 @@ TEXTS: dict[str, str] = {
         "С возвращением, {name}! Язык объяснений: {language}, часовой пояс: {timezone}."
     ),
     "start.commands_hint": "Список команд — в меню рядом с полем ввода.",
+    # Прогресс и серия дней
+    "stats.title": "Твой прогресс",
+    "stats.current": "🔥 Текущая серия: {days} дн.",
+    "stats.best": "🏆 Рекорд: {days} дн.",
+    "stats.week": "📅 Действий за неделю: {count}",
+    "stats.hint": "Сделай одно задание, чтобы зажечь огонёк.",
     # Общие
     "common.friend": "друг",
     "common.error": "Что-то пошло не так. Попробуй ещё раз чуть позже.",
@@ -31,6 +37,7 @@ TEXTS: dict[str, str] = {
     "timezone.new_york": "Нью-Йорк",
     # Команды в меню Telegram
     "commands.start": "Запустить бота",
+    "commands.stats": "Серия и рекорд",
     "commands.quiz": "Квиз с вопросами",
     "commands.free_chat": "Свободный разговор",
     "commands.close_free_chat": "Закрыть свободный разговор",
