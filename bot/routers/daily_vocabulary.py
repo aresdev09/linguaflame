@@ -23,11 +23,14 @@ async def daily_vocabulary_command(
 ) -> None:
     """Выдаёт 20 слов на день: сохранённый набор или новый запрос к ИИ."""
     lang = user.native_language
+    status = await message.answer(t("vocabulary.loading", lang))
     try:
         daily = await get_daily_vocabulary(session, user.id, ai)
     except AIError as exc:
-        await message.answer(t(exc.user_message_key, lang))
+        await status.edit_text(t(exc.user_message_key, lang))
         return
 
-    for chunk in format_daily_vocabulary(daily, lang):
+    chunks = format_daily_vocabulary(daily, lang)
+    await status.edit_text(chunks[0])
+    for chunk in chunks[1:]:
         await message.answer(chunk)

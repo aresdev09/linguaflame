@@ -18,6 +18,9 @@ TEXTS: dict[str, str] = {
     "stats.week": "📅 Действий за неделю: {count}",
     "stats.hint": "Сделай одно задание, чтобы зажечь огонёк.",
     # Слова дня
+    "vocabulary.loading": (
+        "⏳ Подбираю 20 слов на сегодня… Обычно это занимает до минуты."
+    ),
     "vocabulary.title": "📚 Слова дня · уровень {level}",
     "vocabulary.reused": "Сегодняшний набор уже сохранён — вот он.",
     "vocabulary.default_level": (

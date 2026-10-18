@@ -14,6 +14,7 @@ from bot.services.ai_errors import (
     AIRequestError,
     AIRequestRejected,
     AIResponseError,
+    AITimeoutError,
 )
 from bot.services.ai_schemas import QuizQuestion
 
@@ -201,16 +202,16 @@ async def test_empty_choices_are_retried_and_reported(make_client) -> None:
     assert error.value.user_message_key == "common.ai_bad_answer"
 
 
-async def test_timeout_is_retried_and_reported(make_client) -> None:
+async def test_timeout_is_reported_without_retry(make_client) -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         raise httpx.ReadTimeout("timed out", request=request)
 
     client, requests = make_client(handler)
 
-    with pytest.raises(AIRequestError) as error:
+    with pytest.raises(AITimeoutError) as error:
         await client.generate_quiz("A2", "ru")
 
-    assert len(requests) == 3
+    assert len(requests) == 1  # повтор после таймаута не тратит ещё минуту
     assert error.value.user_message_key == "common.ai_unavailable"
 
 
@@ -266,7 +267,7 @@ async def test_retry_delay_grows_exponentially(make_client) -> None:
         delays.append(delay)
 
     def handler(request: httpx.Request) -> httpx.Response:
-        raise httpx.ReadTimeout("timed out", request=request)
+        return httpx.Response(500, text="server error")
 
     client, _ = make_client(handler, sleep=sleep, retry_delay=0.5)
 

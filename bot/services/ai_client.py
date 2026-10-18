@@ -41,6 +41,7 @@ from bot.services.ai_errors import (
     AIRequestError,
     AIRequestRejected,
     AIResponseError,
+    AITimeoutError,
 )
 from bot.services.ai_schemas import (
     EssayCheck,
@@ -54,7 +55,8 @@ logger = logging.getLogger(__name__)
 SchemaT = TypeVar("SchemaT", bound=BaseModel)
 
 CHAT_COMPLETIONS_PATH = "/chat/completions"
-DEFAULT_TIMEOUT = 30.0
+# Бесплатные reasoning-модели отвечают 20–40 с, поэтому запас больше типичного.
+DEFAULT_TIMEOUT = 60.0
 MAX_RETRIES = 2
 RETRY_BASE_DELAY = 1.0
 CHARS_PER_TOKEN = 4  # грубая оценка, если сервер не вернул usage
@@ -254,7 +256,7 @@ class AIClient:
         try:
             response = await self._client.post(url, json=payload, headers=headers)
         except httpx.TimeoutException as exc:
-            raise AIRequestError(f"Таймаут {self.timeout}с при обращении к ИИ") from exc
+            raise AITimeoutError(f"Таймаут {self.timeout}с при обращении к ИИ") from exc
         except httpx.TransportError as exc:
             raise AIRequestError(f"ИИ-сервер недоступен: {exc}") from exc
         elapsed_ms = int((time.perf_counter() - started) * 1000)
@@ -368,6 +370,8 @@ class AIClient:
                 await self._before_retry(attempt, task, last_error or AIError("?"))
             try:
                 text = await self._send(payload, task, prompt)
+            except AITimeoutError:
+                raise  # повтор после таймаута только удвоит ожидание
             except (AIRequestError, AIResponseError) as exc:
                 last_error = exc
                 continue
@@ -408,6 +412,8 @@ class AIClient:
                 await self._before_retry(attempt, task, last_error or AIError("?"))
             try:
                 text = await self._send(payload, task, prompt)
+            except AITimeoutError:
+                raise  # повтор после таймаута только удвоит ожидание
             except (AIRequestError, AIResponseError) as exc:
                 last_error = exc
                 continue

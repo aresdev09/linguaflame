@@ -17,6 +17,12 @@ class AIRequestError(AIError):
     user_message_key = "common.ai_unavailable"
 
 
+class AITimeoutError(AIRequestError):
+    """Модель не ответила за отведённое время: повтор только удлинит ожидание."""
+
+    user_message_key = "common.ai_unavailable"
+
+
 class AIResponseError(AIError):
     """Ответ не разобрался или не прошёл схему — запрос повторяется."""
 

@@ -11,6 +11,7 @@ from bot.services.ai_errors import (
     AIRequestError,
     AIRequestRejected,
     AIResponseError,
+    AITimeoutError,
 )
 from bot.services.ai_schemas import (
     EssayCheck,
@@ -46,6 +47,7 @@ __all__ = [
     "AIRequestError",
     "AIRequestRejected",
     "AIResponseError",
+    "AITimeoutError",
     "ActivityKind",
     "ActivityResult",
     "DailyVocabulary",

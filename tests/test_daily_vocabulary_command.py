@@ -29,13 +29,25 @@ class FakeTelegramUser:
         self.username = None
 
 
+class FakeSentMessage:
+    """Сообщение, которое можно отредактировать (как в Telegram)."""
+
+    def __init__(self, chat: "FakeMessage", index: int) -> None:
+        self._chat = chat
+        self._index = index
+
+    async def edit_text(self, text: str, **kwargs: Any) -> None:
+        self._chat.answers[self._index] = text
+
+
 class FakeMessage:
     def __init__(self) -> None:
         self.from_user = FakeTelegramUser(USER_ID)
         self.answers: list[str] = []
 
-    async def answer(self, text: str, **kwargs: Any) -> None:
+    async def answer(self, text: str, **kwargs: Any) -> FakeSentMessage:
         self.answers.append(text)
+        return FakeSentMessage(self, len(self.answers) - 1)
 
 
 class FakeUpdate:
@@ -96,6 +108,28 @@ async def _create_user(
                 await repo.set_level(USER_ID, level, datetime.now(timezone.utc))
 
 
+class _LoadingAwareAIClient(FakeAIClient):
+    """Запоминает, что бот успел показать к моменту запроса к ИИ."""
+
+    def __init__(self, message: FakeMessage) -> None:
+        super().__init__()
+        self.message = message
+        self.answers_at_call: list[list[str]] = []
+
+    async def generate_vocabulary(
+        self,
+        level: str,
+        lang: str,
+        *,
+        count: int = 20,
+        exclude_words=(),
+    ) -> VocabularyResponse:
+        self.answers_at_call.append(list(self.message.answers))
+        return await super().generate_vocabulary(
+            level, lang, count=count, exclude_words=exclude_words
+        )
+
+
 def _item_lines(text: str) -> list[str]:
     return [line for line in text.splitlines() if line and line[0].isdigit()]
 
@@ -134,6 +168,20 @@ async def test_command_sends_twenty_words_and_registers_activity(
         streak = await StreakRepo(session).get(USER_ID)
         assert streak is not None
         assert streak.current_streak == 1
+
+
+async def test_loading_message_is_sent_before_ai_request(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    await _create_user(session_factory)
+    message = FakeMessage()
+    ai = _LoadingAwareAIClient(message)
+
+    await _dispatch(session_factory, message, ai)
+
+    assert ai.answers_at_call == [[t("vocabulary.loading", "ru")]]
+    assert t("vocabulary.loading", "ru") not in message.answers[0]
+    assert len(_item_lines(message.answers[0])) == 20
 
 
 async def test_repeated_command_returns_saved_set_without_ai(
