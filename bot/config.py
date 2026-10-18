@@ -9,6 +9,8 @@ from functools import lru_cache
 from pydantic import Field, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+DEFAULT_DATABASE_URL = "sqlite+aiosqlite:///./linguflame.db"
+
 
 class ConfigError(RuntimeError):
     """Понятная ошибка конфигурации, показывается пользователю при запуске."""
@@ -25,7 +27,7 @@ class Settings(BaseSettings):
     )
 
     bot_token: str = Field(min_length=1)
-    database_url: str = "sqlite+aiosqlite:///./linguflame.db"
+    database_url: str = DEFAULT_DATABASE_URL
     redis_url: str = "redis://localhost:6379/0"
     ai_server_url: str = "http://localhost:8000"
     ai_api_key: str = ""

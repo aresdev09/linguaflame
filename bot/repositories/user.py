@@ -1,0 +1,69 @@
+"""Репозиторий пользователей."""
+
+from datetime import datetime
+
+from sqlalchemy import update
+
+from bot.models import User
+from bot.repositories.base import BaseRepo
+
+
+class UserRepo(BaseRepo):
+    """Доступ к таблице `users`."""
+
+    async def get(self, user_id: int) -> User | None:
+        return await self.session.get(User, user_id)
+
+    async def get_or_create(
+        self,
+        user_id: int,
+        *,
+        username: str | None = None,
+        native_language: str = "en",
+        timezone: str = "UTC",
+    ) -> User:
+        """Возвращает пользователя, создавая его при первом обращении."""
+        user = await self.get(user_id)
+        if user is None:
+            user = User(
+                id=user_id,
+                username=username,
+                native_language=native_language,
+                timezone=timezone,
+            )
+            self.session.add(user)
+            await self.session.flush()
+        return user
+
+    async def update_profile(
+        self,
+        user_id: int,
+        *,
+        username: str | None = None,
+        native_language: str | None = None,
+        timezone: str | None = None,
+    ) -> None:
+        """Обновляет профиль; поля, переданные как None, не меняются."""
+        values: dict[str, object] = {}
+        if username is not None:
+            values["username"] = username
+        if native_language is not None:
+            values["native_language"] = native_language
+        if timezone is not None:
+            values["timezone"] = timezone
+        if values:
+            await self.session.execute(
+                update(User).where(User.id == user_id).values(**values)
+            )
+
+    async def set_level(self, user_id: int, level: str, tested_at: datetime) -> None:
+        """Записывает уровень пользователя.
+
+        Вызывается только из сервиса level detector: больше нигде
+        `users.level` не меняется.
+        """
+        await self.session.execute(
+            update(User)
+            .where(User.id == user_id)
+            .values(level=level, level_tested_at=tested_at)
+        )
