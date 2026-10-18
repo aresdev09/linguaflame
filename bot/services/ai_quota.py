@@ -47,12 +47,8 @@ class QuotaAIClient:
     async def _charge(self) -> None:
         """Списывает один запрос; при исчерпании лимита — понятная ошибка."""
         moment = as_utc(self._now)
-        day = moment.astimezone(
-            resolve_timezone(self._user.timezone, user_id=self._user.id)
-        ).date()
-        allowed = await AIUsageRepo(self._session).consume(
-            self._user.id, day, self._limit
-        )
+        day = moment.astimezone(resolve_timezone(self._user.timezone, user_id=self._user.id)).date()
+        allowed = await AIUsageRepo(self._session).consume(self._user.id, day, self._limit)
         if not allowed:
             logger.warning(
                 "Лимит ИИ исчерпан: пользователь %s, %s, лимит %d",
@@ -60,9 +56,7 @@ class QuotaAIClient:
                 day,
                 self._limit,
             )
-            raise AIQuotaExceeded(
-                f"Пользователь {self._user.id} исчерпал лимит ИИ на {day}"
-            )
+            raise AIQuotaExceeded(f"Пользователь {self._user.id} исчерпал лимит ИИ на {day}")
 
     async def generate_quiz(self, level: str, lang: str) -> QuizQuestion:
         await self._charge()
@@ -115,6 +109,4 @@ class QuotaAIClient:
         question: str,
     ) -> str:
         await self._charge()
-        return await self._client.ask_in_lesson(
-            level, lang, step_text=step_text, question=question
-        )
+        return await self._client.ask_in_lesson(level, lang, step_text=step_text, question=question)

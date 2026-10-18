@@ -56,9 +56,7 @@ class FakeBot:
     ) -> None:
         if self.errors:
             raise self.errors.pop(0)
-        self.messages.append(
-            {"chat_id": chat_id, "text": text, "reply_markup": reply_markup}
-        )
+        self.messages.append({"chat_id": chat_id, "text": text, "reply_markup": reply_markup})
 
 
 async def _create_user(
@@ -73,15 +71,11 @@ async def _create_user(
 ) -> None:
     async with session_factory() as session:
         async with session.begin():
-            await UserRepo(session).create(
-                user_id, native_language="ru", timezone=timezone_name
-            )
+            await UserRepo(session).create(user_id, native_language="ru", timezone=timezone_name)
             if created_on is not None:
                 user = await UserRepo(session).get(user_id)
                 assert user is not None
-                user.created_at = datetime.combine(
-                    created_on, time.min, tzinfo=timezone.utc
-                )
+                user.created_at = datetime.combine(created_on, time.min, tzinfo=timezone.utc)
             if last_activity is not None:
                 await StreakRepo(session).set_progress(
                     user_id,
@@ -91,18 +85,14 @@ async def _create_user(
                 )
 
 
-async def _user(
-    session_factory: async_sessionmaker[AsyncSession], user_id: int
-) -> User:
+async def _user(session_factory: async_sessionmaker[AsyncSession], user_id: int) -> User:
     async with session_factory() as session:
         user = await UserRepo(session).get(user_id)
         assert user is not None
         return user
 
 
-async def _streak(
-    session_factory: async_sessionmaker[AsyncSession], user_id: int
-) -> Streak:
+async def _streak(session_factory: async_sessionmaker[AsyncSession], user_id: int) -> Streak:
     async with session_factory() as session:
         streak = await StreakRepo(session).get(user_id)
         assert streak is not None
@@ -185,8 +175,7 @@ async def test_hour_offset_shifts_reminder_slot(
 
     assert run.sent == 1
     assert bot.messages[0]["text"] in {
-        t(f"reminder.evening.{index}", "ru", days=4)
-        for index in range(1, VARIANTS["evening"] + 1)
+        t(f"reminder.evening.{index}", "ru", days=4) for index in range(1, VARIANTS["evening"] + 1)
     }
 
 
@@ -240,8 +229,7 @@ async def test_evening_shows_current_streak(
     assert run.sent == 1
     text = bot.messages[0]["text"]
     assert text in {
-        t(f"reminder.evening.{index}", "ru", days=6)
-        for index in range(1, VARIANTS["evening"] + 1)
+        t(f"reminder.evening.{index}", "ru", days=6) for index in range(1, VARIANTS["evening"] + 1)
     }
     assert bot.messages[0]["reply_markup"] is not None
 
@@ -286,8 +274,7 @@ async def test_missed_day_reports_lost_streak_and_resets_it(
 
     assert run.sent == 1
     assert bot.messages[0]["text"] in {
-        t(f"reminder.missed.{index}", "ru", days=5)
-        for index in range(1, VARIANTS["missed"] + 1)
+        t(f"reminder.missed.{index}", "ru", days=5) for index in range(1, VARIANTS["missed"] + 1)
     }
     streak = await _streak(session_factory, UTC_USER)
     assert streak.current_streak == 0
@@ -462,9 +449,7 @@ async def test_blocked_user_is_marked_inactive(
     assert user.is_active is False
 
     # Повторный запуск больше не беспокоит пользователя.
-    again = await _run(
-        session_factory, bot, datetime(2026, 10, 18, 20, 0, tzinfo=timezone.utc)
-    )
+    again = await _run(session_factory, bot, datetime(2026, 10, 18, 20, 0, tzinfo=timezone.utc))
     assert again.checked == 0
     assert again.sent == 0
 
@@ -567,15 +552,11 @@ async def test_quick_start_sends_five_words_and_counts_activity(
 
     call = ai.calls_of("vocabulary")[-1]
     assert call["count"] == QUICK_START_WORDS
-    assert chat.messages[-1].startswith(
-        t("reminder.quick_title", "ru", count=QUICK_START_WORDS)
-    )
+    assert chat.messages[-1].startswith(t("reminder.quick_title", "ru", count=QUICK_START_WORDS))
     assert "1. apple" in chat.messages[-1]
 
     async with session_factory() as session:
-        rows = await session.scalars(
-            select(ActivityLog).where(ActivityLog.user_id == UTC_USER)
-        )
+        rows = await session.scalars(select(ActivityLog).where(ActivityLog.user_id == UTC_USER))
         assert [row.kind for row in rows] == ["vocabulary"]
 
 

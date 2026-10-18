@@ -12,22 +12,14 @@ def test_ru_and_en_have_the_same_keys() -> None:
 
 
 def test_t_returns_text_of_requested_language() -> None:
-    assert t("start.greeting", "ru", name="Аня") == (
-        "Привет, Аня! Я бот для изучения английского."
-    )
-    assert t("start.greeting", "en", name="Anna") == (
-        "Hi, Anna! I am a bot for learning English."
-    )
+    assert t("start.greeting", "ru", name="Аня") == ("Привет, Аня! Я бот для изучения английского.")
+    assert t("start.greeting", "en", name="Anna") == ("Hi, Anna! I am a bot for learning English.")
 
 
 def test_t_falls_back_to_default_language() -> None:
     assert DEFAULT_LANGUAGE == "ru"
-    assert t("start.greeting", "de", name="Hans") == ru.TEXTS["start.greeting"].format(
-        name="Hans"
-    )
-    assert t("start.greeting", None, name="X") == ru.TEXTS["start.greeting"].format(
-        name="X"
-    )
+    assert t("start.greeting", "de", name="Hans") == ru.TEXTS["start.greeting"].format(name="Hans")
+    assert t("start.greeting", None, name="X") == ru.TEXTS["start.greeting"].format(name="X")
 
 
 def test_t_formats_placeholders() -> None:

@@ -115,8 +115,4 @@ async def dispatch(
 
 def callbacks(markup: Any) -> list[str]:
     """Все callback_data кнопок клавиатуры."""
-    return [
-        button.callback_data
-        for row in markup.inline_keyboard
-        for button in row
-    ]
+    return [button.callback_data for row in markup.inline_keyboard for button in row]

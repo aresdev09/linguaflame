@@ -47,6 +47,4 @@ async def quick_start_callback(
     await register_activity(session, user.id, "vocabulary")
     await callback.answer()
     if callback.message is not None:
-        await callback.message.answer(
-            format_quick_words(words, lang), reply_markup=empty_kb()
-        )
+        await callback.message.answer(format_quick_words(words, lang), reply_markup=empty_kb())

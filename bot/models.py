@@ -47,13 +47,9 @@ class User(Base):
     native_language: Mapped[str] = mapped_column(String(8))
     level: Mapped[str | None] = mapped_column(String(2))
     level_tested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    timezone: Mapped[str] = mapped_column(
-        String(64), default="UTC", server_default="UTC"
-    )
+    timezone: Mapped[str] = mapped_column(String(64), default="UTC", server_default="UTC")
     # Заблокировавшие бота пользователи: напоминания им больше не шлём.
-    is_active: Mapped[bool] = mapped_column(
-        Boolean, default=True, server_default=true()
-    )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
@@ -62,9 +58,7 @@ class Streak(Base):
 
     __tablename__ = "streaks"
 
-    user_id: Mapped[int] = mapped_column(
-        BigIntType, ForeignKey("users.id"), primary_key=True
-    )
+    user_id: Mapped[int] = mapped_column(BigIntType, ForeignKey("users.id"), primary_key=True)
     current_streak: Mapped[int] = mapped_column(Integer, default=0)
     best_streak: Mapped[int] = mapped_column(Integer, default=0)
     last_activity_date: Mapped[date | None] = mapped_column(Date)
@@ -170,9 +164,7 @@ class AIUsage(Base):
 
     __tablename__ = "ai_usage"
 
-    user_id: Mapped[int] = mapped_column(
-        BigIntType, ForeignKey("users.id"), primary_key=True
-    )
+    user_id: Mapped[int] = mapped_column(BigIntType, ForeignKey("users.id"), primary_key=True)
     # Локальная дата пользователя: лимит сбрасывается в его полночь.
     day: Mapped[date] = mapped_column(Date, primary_key=True)
     requests: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
@@ -199,6 +191,4 @@ class ActivityLog(Base):
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
-    __table_args__ = (
-        Index("ix_activity_log_user_id_created_at", "user_id", "created_at"),
-    )
+    __table_args__ = (Index("ix_activity_log_user_id_created_at", "user_id", "created_at"),)

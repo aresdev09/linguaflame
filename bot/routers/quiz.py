@@ -83,9 +83,7 @@ async def _send_question(
         status = await message.answer(t("quiz.loading", lang))
 
     try:
-        question = await next_quiz_question(
-            session, user, ai, used_ids=used_ids
-        )
+        question = await next_quiz_question(session, user, ai, used_ids=used_ids)
     except AIError as exc:
         await state.clear()
         await status.edit_text(t(exc.user_message_key, lang))

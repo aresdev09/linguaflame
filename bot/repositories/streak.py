@@ -41,6 +41,4 @@ class StreakRepo(BaseRepo):
         """Обновляет переданные поля серии (current_streak, best_streak, ...)."""
         if not fields:
             return
-        await self.session.execute(
-            update(Streak).where(Streak.user_id == user_id).values(**fields)
-        )
+        await self.session.execute(update(Streak).where(Streak.user_id == user_id).values(**fields))

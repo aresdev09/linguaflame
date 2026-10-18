@@ -46,9 +46,7 @@ TEXTS: dict[str, str] = {
     "level.loading": "⏳ Preparing your test…",
     "level.intro": "🎯 Level test: 50 questions, take your time.",
     "level.question": "Question {number} of {total}\n\n{text}",
-    "level.retake": (
-        "Your current level is {level} (test taken on {date}).\nTake the test again?"
-    ),
+    "level.retake": ("Your current level is {level} (test taken on {date}).\nTake the test again?"),
     "level.start_button": "🎯 Take the test",
     "level.canceled": "Okay, the test is cancelled. Start again: /level_detector",
     "level.already_running": "A test is already running — answer the question.",
@@ -91,8 +89,7 @@ TEXTS: dict[str, str] = {
     "grammar.restart_button": "🔄 Start over",
     "grammar.continued": "Continuing the lesson “{topic}”.",
     "grammar.resume_prompt": (
-        "You have an unfinished lesson “{topic}”. {progress}\n"
-        "Continue or start over?"
+        "You have an unfinished lesson “{topic}”. {progress}\nContinue or start over?"
     ),
     "grammar.progress_step": "You stopped at step {number} of {total}.",
     "grammar.progress_test": "Only the final mini-test is left.",
@@ -150,30 +147,22 @@ TEXTS: dict[str, str] = {
         "in yours and gently correct mistakes in English.\n\n"
         "Close the chat: /close_free_chat"
     ),
-    "chat.closed": (
-        "👋 The free conversation is closed, history cleared. Start again: /free_chat"
-    ),
+    "chat.closed": ("👋 The free conversation is closed, history cleared. Start again: /free_chat"),
     "chat.not_active": "The free conversation is not open. Start it: /free_chat",
     # Streak and reminders
     "streak.line": "🔥 Streak: {days} days",
     "reminder.morning.1": (
         "☀️ Good morning! Have you practised English today? Five minutes and the flame stays on."
     ),
-    "reminder.morning.2": (
-        "☀️ Start the morning with English? One short task and today counts."
-    ),
-    "reminder.morning.3": (
-        "☀️ Hi! Today is not counted yet: do a short task and keep your flame."
-    ),
+    "reminder.morning.2": ("☀️ Start the morning with English? One short task and today counts."),
+    "reminder.morning.3": ("☀️ Hi! Today is not counted yet: do a short task and keep your flame."),
     "reminder.evening.1": (
         "🔥 {days} days in a row! Don't lose the flame — one task before midnight."
     ),
     "reminder.evening.2": (
         "🔥 Your streak is {days} days. There is still time to extend it — start with 5 words."
     ),
-    "reminder.evening.3": (
-        "🔥 {days} days in a row is a great result. Keep it going today."
-    ),
+    "reminder.evening.3": ("🔥 {days} days in a row is a great result. Keep it going today."),
     "reminder.evening_cold.1": (
         "🌙 The day is almost over and there is no flame yet. Shall we start with 5 words?"
     ),

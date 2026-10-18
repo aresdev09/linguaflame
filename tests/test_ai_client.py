@@ -73,9 +73,7 @@ def openai_envelope(content: str, usage: dict[str, Any] | None = None) -> dict[s
 
 def json_envelope(payload: dict[str, Any]) -> httpx.Response:
     """Ответ, в content которого лежит JSON-строка."""
-    return httpx.Response(
-        200, json=openai_envelope(json.dumps(payload, ensure_ascii=False))
-    )
+    return httpx.Response(200, json=openai_envelope(json.dumps(payload, ensure_ascii=False)))
 
 
 async def _no_sleep(_delay: float) -> None:
@@ -147,9 +145,7 @@ async def test_generate_quiz_returns_validated_object(make_client) -> None:
 
 async def test_parses_json_wrapped_in_markdown_fences(make_client) -> None:
     fenced = "```json\n" + json.dumps(QUIZ_RESPONSE, ensure_ascii=False) + "\n```"
-    client, _ = make_client(
-        lambda request: httpx.Response(200, json=openai_envelope(fenced))
-    )
+    client, _ = make_client(lambda request: httpx.Response(200, json=openai_envelope(fenced)))
 
     question = await client.generate_quiz("A2", "en")
 
@@ -250,9 +246,7 @@ async def test_server_error_is_retried_then_succeeds(make_client) -> None:
 
 
 async def test_rejected_request_is_not_retried(make_client) -> None:
-    client, requests = make_client(
-        lambda request: httpx.Response(401, text="Invalid credentials")
-    )
+    client, requests = make_client(lambda request: httpx.Response(401, text="Invalid credentials"))
 
     with pytest.raises(AIRequestRejected):
         await client.generate_quiz("A2", "ru")
@@ -301,9 +295,7 @@ async def test_vocabulary_prompt_mentions_count_and_excluded_words(make_client) 
 
 async def test_free_chat_returns_text_with_history(make_client) -> None:
     client, requests = make_client(
-        lambda request: httpx.Response(
-            200, json=openai_envelope("  Hello! How are you?  ")
-        )
+        lambda request: httpx.Response(200, json=openai_envelope("  Hello! How are you?  "))
     )
 
     answer = await client.free_chat(
@@ -324,9 +316,10 @@ async def test_free_chat_returns_text_with_history(make_client) -> None:
 
 
 async def test_lesson_plan_and_lesson_question(make_client) -> None:
-    answers = [json_envelope(LESSON_PLAN_RESPONSE), httpx.Response(
-        200, json=openai_envelope("С 'have' вопрос закрыт. Возвращаемся к уроку.")
-    )]
+    answers = [
+        json_envelope(LESSON_PLAN_RESPONSE),
+        httpx.Response(200, json=openai_envelope("С 'have' вопрос закрыт. Возвращаемся к уроку.")),
+    ]
     client, requests = make_client(lambda request: answers.pop(0))
 
     plan = await client.generate_lesson_plan("B1", "ru", topic="Present Perfect")

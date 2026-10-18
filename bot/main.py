@@ -71,9 +71,7 @@ def build_dispatcher(storage: BaseStorage) -> Dispatcher:
     dispatcher.update.middleware(DbSessionMiddleware(get_session_factory()))
     # Пользователь нужен раньше ИИ: от него зависит дневной лимит запросов.
     dispatcher.update.middleware(UserMiddleware())
-    dispatcher.update.middleware(
-        AIClientMiddleware(daily_limit=get_settings().ai_daily_limit)
-    )
+    dispatcher.update.middleware(AIClientMiddleware(daily_limit=get_settings().ai_daily_limit))
     dispatcher.update.middleware(ThrottleMiddleware())
     # Ближе к хендлеру: сначала закрываем чат, потом команда ставит свой режим.
     dispatcher.message.middleware(FreeChatExitMiddleware())

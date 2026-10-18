@@ -29,18 +29,50 @@ FINAL_TEST_SIZE = 5
 # Вопросы, по которым отличаем вопрос пользователя от ответа на упражнение.
 _QUESTION_WORDS = frozenset(
     {
-        "why", "what", "how", "where", "when", "who", "which", "whose",
-        "can", "could", "should", "would", "explain", "help", "please",
-        "почему", "зачем", "как", "что", "где", "когда", "кто", "какой",
-        "какая", "какие", "объясни", "помоги", "можно", "скажи",
+        "why",
+        "what",
+        "how",
+        "where",
+        "when",
+        "who",
+        "which",
+        "whose",
+        "can",
+        "could",
+        "should",
+        "would",
+        "explain",
+        "help",
+        "please",
+        "почему",
+        "зачем",
+        "как",
+        "что",
+        "где",
+        "когда",
+        "кто",
+        "какой",
+        "какая",
+        "какие",
+        "объясни",
+        "помоги",
+        "можно",
+        "скажи",
     }
 )
 
 # Фразы «я не знаю» тоже считаются вопросом, а не ответом.
 _HELP_PHRASES = frozenset(
     {
-        "не знаю", "не понимаю", "не понял", "не поняла",
-        "i dont know", "i don't know", "idk", "dont know", "don't know",
+        "не знаю",
+        "не понимаю",
+        "не понял",
+        "не поняла",
+        "i dont know",
+        "i don't know",
+        "idk",
+        "dont know",
+        "don't know",
         "no idea",
     }
 )
@@ -251,10 +283,7 @@ def format_final_question(
     lang: str,
 ) -> str:
     """Вопрос мини-теста; варианты показываются кнопками."""
-    return (
-        f"{t('grammar.test_header', lang, number=number, total=total)}"
-        f"\n\n{question.question}"
-    )
+    return f"{t('grammar.test_header', lang, number=number, total=total)}\n\n{question.question}"
 
 
 def format_test_feedback(question: LessonTestQuestion, option: str, *, lang: str) -> str:

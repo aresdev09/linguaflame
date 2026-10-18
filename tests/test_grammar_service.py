@@ -52,9 +52,7 @@ def test_validate_lesson_plan_requires_steps_and_five_questions() -> None:
             LessonPlan(
                 topic="X",
                 steps=[],
-                final_test=[
-                    {"question": "?", "options": {"A": "a", "B": "b"}, "correct": "A"}
-                ],
+                final_test=[{"question": "?", "options": {"A": "a", "B": "b"}, "correct": "A"}],
             )
         )
 

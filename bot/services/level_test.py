@@ -47,9 +47,7 @@ class InsufficientQuestionsError(RuntimeError):
         self.kind = kind
         self.needed = needed
         self.available = available
-        super().__init__(
-            f"Уровень {level}, вид {kind}: нужно {needed}, в банке {available}"
-        )
+        super().__init__(f"Уровень {level}, вид {kind}: нужно {needed}, в банке {available}")
 
 
 class MissingQuestionsError(RuntimeError):
@@ -95,9 +93,7 @@ async def get_questions_by_ids(
     """Возвращает вопросы в сохранённом порядке теста."""
     if not question_ids:
         return []
-    result = await session.execute(
-        select(Question).where(Question.id.in_(list(question_ids)))
-    )
+    result = await session.execute(select(Question).where(Question.id.in_(list(question_ids))))
     by_id = {question.id: question for question in result.scalars().all()}
     missing = [question_id for question_id in question_ids if question_id not in by_id]
     if missing:
@@ -280,9 +276,7 @@ def format_retake_prompt(user: User, lang: str) -> str:
 def format_level_result(result: LevelTestResult, lang: str) -> str:
     """Сообщение с уровнем, точностью, временем и сильными/слабыми сторонами."""
     grammar_percent = _section_percent(result.grammar_correct, result.grammar_total)
-    vocabulary_percent = _section_percent(
-        result.vocabulary_correct, result.vocabulary_total
-    )
+    vocabulary_percent = _section_percent(result.vocabulary_correct, result.vocabulary_total)
     lines = [
         t(
             "level.result",
@@ -305,9 +299,7 @@ def format_level_result(result: LevelTestResult, lang: str) -> str:
         if vocabulary_percent > grammar_percent:
             weak_key = "level.topic.grammar"
             strong_key = "level.topic.vocabulary"
-        lines.append(
-            t("level.result_strength", lang, topic=t(strong_key, lang))
-        )
+        lines.append(t("level.result_strength", lang, topic=t(strong_key, lang)))
         lines.append(t("level.result_weakness", lang, topic=t(weak_key, lang)))
 
     return "\n".join(lines)

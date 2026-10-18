@@ -26,9 +26,7 @@ async def _create_user(
 ) -> None:
     async with session_factory() as session:
         async with session.begin():
-            await UserRepo(session).create(
-                USER_ID, native_language="ru", timezone=timezone_name
-            )
+            await UserRepo(session).create(USER_ID, native_language="ru", timezone=timezone_name)
 
 
 async def _register(
@@ -49,9 +47,7 @@ async def _streak(session_factory: async_sessionmaker[AsyncSession]) -> Streak |
 async def _kinds(session_factory: async_sessionmaker[AsyncSession]) -> list[str]:
     async with session_factory() as session:
         rows = await session.scalars(
-            select(ActivityLog.kind)
-            .where(ActivityLog.user_id == USER_ID)
-            .order_by(ActivityLog.id)
+            select(ActivityLog.kind).where(ActivityLog.user_id == USER_ID).order_by(ActivityLog.id)
         )
         return list(rows)
 
@@ -61,9 +57,7 @@ async def test_first_activity_starts_streak(
 ) -> None:
     await _create_user(session_factory)
 
-    result = await _register(
-        session_factory, datetime(2026, 10, 18, 9, 0, tzinfo=SAMARKAND)
-    )
+    result = await _register(session_factory, datetime(2026, 10, 18, 9, 0, tzinfo=SAMARKAND))
 
     assert result.current_streak == 1
     assert result.best_streak == 1
@@ -84,9 +78,7 @@ async def test_yesterday_then_today_increases_by_one(
     await _create_user(session_factory)
 
     await _register(session_factory, datetime(2026, 10, 17, 12, 0, tzinfo=SAMARKAND))
-    result = await _register(
-        session_factory, datetime(2026, 10, 18, 12, 0, tzinfo=SAMARKAND)
-    )
+    result = await _register(session_factory, datetime(2026, 10, 18, 12, 0, tzinfo=SAMARKAND))
 
     assert result.current_streak == 2
     assert result.best_streak == 2
@@ -102,9 +94,7 @@ async def test_skipped_day_resets_streak_but_keeps_best(
     assert (await _streak(session_factory)).current_streak == 3
 
     # 17 октября пропущено
-    result = await _register(
-        session_factory, datetime(2026, 10, 18, 12, 0, tzinfo=SAMARKAND)
-    )
+    result = await _register(session_factory, datetime(2026, 10, 18, 12, 0, tzinfo=SAMARKAND))
 
     assert result.current_streak == 1
     assert result.best_streak == 3  # рекорд сохраняется
@@ -182,9 +172,7 @@ async def test_utc_user_counts_by_utc_days(
     await _create_user(session_factory, timezone_name="UTC")
 
     await _register(session_factory, datetime(2026, 10, 17, 23, 30, tzinfo=timezone.utc))
-    result = await _register(
-        session_factory, datetime(2026, 10, 18, 0, 30, tzinfo=timezone.utc)
-    )
+    result = await _register(session_factory, datetime(2026, 10, 18, 0, 30, tzinfo=timezone.utc))
 
     assert result.current_streak == 2
     assert result.last_activity_date == date(2026, 10, 18)
@@ -195,9 +183,7 @@ async def test_unknown_timezone_falls_back_to_utc(
 ) -> None:
     await _create_user(session_factory, timezone_name="Mars/Olympus")
 
-    result = await _register(
-        session_factory, datetime(2026, 10, 17, 23, 30, tzinfo=timezone.utc)
-    )
+    result = await _register(session_factory, datetime(2026, 10, 17, 23, 30, tzinfo=timezone.utc))
 
     assert result.last_activity_date == date(2026, 10, 17)
     assert result.current_streak == 1
@@ -211,18 +197,14 @@ async def test_unknown_activity_kind_is_rejected(
     with pytest.raises(ValueError):
         async with session_factory() as session:
             async with session.begin():
-                await register_activity(
-                    session, USER_ID, "singing", now=datetime.now(timezone.utc)
-                )
+                await register_activity(session, USER_ID, "singing", now=datetime.now(timezone.utc))
 
 
 async def test_register_activity_requires_existing_user(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:
     with pytest.raises(ValueError):
-        await _register(
-            session_factory, datetime(2026, 10, 18, 12, 0, tzinfo=SAMARKAND)
-        )
+        await _register(session_factory, datetime(2026, 10, 18, 12, 0, tzinfo=SAMARKAND))
 
 
 async def test_stats_shows_current_best_and_week_actions(

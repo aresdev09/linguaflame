@@ -49,9 +49,7 @@ async def test_webhook_app_registers_path() -> None:
     try:
         app = build_webhook_app(bot, dispatcher, settings)
         paths = {
-            route.resource.canonical
-            for route in app.router.routes()
-            if route.resource is not None
+            route.resource.canonical for route in app.router.routes() if route.resource is not None
         }
     finally:
         await bot.session.close()

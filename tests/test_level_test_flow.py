@@ -44,9 +44,7 @@ async def _create_user(
     async with session_factory() as session:
         async with session.begin():
             repo = UserRepo(session)
-            user = await repo.create(
-                USER_ID, native_language="ru", timezone=timezone_name
-            )
+            user = await repo.create(USER_ID, native_language="ru", timezone=timezone_name)
             if level is not None:
                 await repo.set_level(USER_ID, level, tested_at or datetime.now(timezone.utc))
             await session.flush()
@@ -109,9 +107,7 @@ async def test_retake_prompt_shows_current_level_and_date(
 
     await _start_test(session_factory, chat, state)
 
-    assert chat.messages[-1] == t(
-        "level.retake", "ru", level="B1", date="12.10.2026"
-    )
+    assert chat.messages[-1] == t("level.retake", "ru", level="B1", date="12.10.2026")
     assert set(callbacks(chat.markups[-1])) == {
         LEVEL_START_CALLBACK,
         LEVEL_CANCEL_CALLBACK,
@@ -347,16 +343,10 @@ async def test_complete_test_writes_level_and_activity_once(
             )
             user = await session.get(User, USER_ID)
             assert user is not None
-            test = await LevelTestRepo(session).create(
-                USER_ID, [first.id, second.id]
-            )
+            test = await LevelTestRepo(session).create(USER_ID, [first.id, second.id])
             answers = LevelTestAnswerRepo(session)
-            await answers.add(
-                test.id, first.id, is_correct=False, answer_time_sec=5
-            )
-            await answers.add(
-                test.id, second.id, is_correct=False, answer_time_sec=5
-            )
+            await answers.add(test.id, first.id, is_correct=False, answer_time_sec=5)
+            await answers.add(test.id, second.id, is_correct=False, answer_time_sec=5)
             result = await _complete_test(session, test, user)
 
     assert result is not None
@@ -399,9 +389,7 @@ async def test_incomplete_answers_do_not_write_level(
             )
             user = await session.get(User, USER_ID)
             assert user is not None
-            test = await LevelTestRepo(session).create(
-                USER_ID, [first.id, second.id]
-            )
+            test = await LevelTestRepo(session).create(USER_ID, [first.id, second.id])
             await LevelTestAnswerRepo(session).add(
                 test.id, first.id, is_correct=True, answer_time_sec=5
             )

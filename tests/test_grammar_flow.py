@@ -102,11 +102,7 @@ def _last_message(chat: FakeChat) -> FakeMessage:
 
 
 def _callbacks(markup: Any) -> list[str]:
-    return [
-        button.callback_data
-        for row in markup.inline_keyboard
-        for button in row
-    ]
+    return [button.callback_data for row in markup.inline_keyboard for button in row]
 
 
 async def _start(
@@ -115,9 +111,7 @@ async def _start(
     state: FSMContext,
     ai: FakeAIClient,
 ) -> None:
-    await _dispatch(
-        session_factory, daily_grammar_command, FakeMessage(chat), state, ai
-    )
+    await _dispatch(session_factory, daily_grammar_command, FakeMessage(chat), state, ai)
 
 
 async def _click(
@@ -420,9 +414,7 @@ async def test_double_next_click_does_not_skip_step(
     first_step_message = _last_message(chat)
 
     await _click(session_factory, chat, state, ai, "grammar:next:0", first_step_message)
-    second = await _click(
-        session_factory, chat, state, ai, "grammar:next:0", first_step_message
-    )
+    second = await _click(session_factory, chat, state, ai, "grammar:next:0", first_step_message)
 
     assert second.answers == [t("grammar.stale_button", "ru")]
     lessons = await _lessons(session_factory)

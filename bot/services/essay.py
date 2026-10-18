@@ -197,9 +197,7 @@ def format_essay_feedback(
     return _chunk_lines(lines)
 
 
-def _chunk_lines(
-    lines: Sequence[str], limit: int = MAX_MESSAGE_LENGTH
-) -> list[str]:
+def _chunk_lines(lines: Sequence[str], limit: int = MAX_MESSAGE_LENGTH) -> list[str]:
     """Собирает строки в сообщения не длиннее лимита Telegram."""
     chunks: list[str] = []
     current = ""

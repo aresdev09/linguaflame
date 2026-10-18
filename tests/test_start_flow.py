@@ -181,17 +181,13 @@ async def test_onboarding_saves_language_and_timezone(
     state = _state()
     await _dispatch(session_factory, start_command, message, state)
 
-    await _dispatch(
-        session_factory, choose_language, FakeCallbackQuery("lang:ru", message), state
-    )
+    await _dispatch(session_factory, choose_language, FakeCallbackQuery("lang:ru", message), state)
     callback = FakeCallbackQuery("tz:Asia/Samarkand", message)
     await _dispatch(session_factory, choose_timezone, callback, state)
 
     assert await state.get_state() is None
     assert callback.answers == [""]
-    assert message.answers[-2] == t(
-        "start.timezone_saved", "ru", timezone="Asia/Samarkand"
-    )
+    assert message.answers[-2] == t("start.timezone_saved", "ru", timezone="Asia/Samarkand")
 
     async with session_factory() as session:
         user = await UserRepo(session).get(USER_ID)
@@ -206,9 +202,7 @@ async def test_choose_timezone_rejects_unknown_timezone(
     message = FakeMessage()
     state = _state()
     await _dispatch(session_factory, start_command, message, state)
-    await _dispatch(
-        session_factory, choose_language, FakeCallbackQuery("lang:ru", message), state
-    )
+    await _dispatch(session_factory, choose_language, FakeCallbackQuery("lang:ru", message), state)
 
     callback = FakeCallbackQuery("tz:Mars/Olympus", message)
     await _dispatch(session_factory, choose_timezone, callback, state)

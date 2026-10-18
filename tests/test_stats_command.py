@@ -74,9 +74,7 @@ async def test_stats_command_shows_streak_best_and_week(
 
     async with session_factory() as session:
         async with session.begin():
-            await UserRepo(session).create(
-                USER_ID, native_language="ru", timezone="Asia/Samarkand"
-            )
+            await UserRepo(session).create(USER_ID, native_language="ru", timezone="Asia/Samarkand")
             await StreakRepo(session).set_progress(
                 USER_ID,
                 current_streak=4,
@@ -105,9 +103,7 @@ async def test_stats_command_shows_hint_without_streak(
 ) -> None:
     async with session_factory() as session:
         async with session.begin():
-            await UserRepo(session).create(
-                USER_ID, native_language="ru", timezone="Asia/Samarkand"
-            )
+            await UserRepo(session).create(USER_ID, native_language="ru", timezone="Asia/Samarkand")
 
     message = FakeMessage()
     await _dispatch(session_factory, message)

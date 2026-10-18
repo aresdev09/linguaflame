@@ -20,11 +20,7 @@ def _make_answers(
     answers: list[LevelAnswer] = []
     for level, total in LEVEL_TEST_DISTRIBUTION.items():
         for index in range(total):
-            correct = (
-                is_correct(level, index)
-                if callable(is_correct)
-                else bool(is_correct)
-            )
+            correct = is_correct(level, index) if callable(is_correct) else bool(is_correct)
             answers.append(
                 LevelAnswer(
                     level=level,
@@ -37,9 +33,7 @@ def _make_answers(
 
 
 def test_all_correct_and_fast_gives_c2() -> None:
-    result = compute_level_test_result(
-        _make_answers(is_correct=True, answer_time_sec=1)
-    )
+    result = compute_level_test_result(_make_answers(is_correct=True, answer_time_sec=1))
 
     assert result.level == "C2"
     assert result.correct_count == 50
@@ -48,18 +42,14 @@ def test_all_correct_and_fast_gives_c2() -> None:
 
 
 def test_all_correct_at_comfortable_speed_gives_c2() -> None:
-    result = compute_level_test_result(
-        _make_answers(is_correct=True, answer_time_sec=5)
-    )
+    result = compute_level_test_result(_make_answers(is_correct=True, answer_time_sec=5))
 
     assert result.level == "C2"
     assert result.percent == 100.0
 
 
 def test_all_wrong_gives_a1() -> None:
-    result = compute_level_test_result(
-        _make_answers(is_correct=False, answer_time_sec=5)
-    )
+    result = compute_level_test_result(_make_answers(is_correct=False, answer_time_sec=5))
 
     assert result.level == "A1"
     assert result.correct_count == 0
@@ -72,9 +62,7 @@ def test_fast_random_clicks_are_not_higher_than_b1() -> None:
     def random_correct(level: str, index: int) -> bool:
         return rng.random() < 1 / 3
 
-    result = compute_level_test_result(
-        _make_answers(is_correct=random_correct, answer_time_sec=1)
-    )
+    result = compute_level_test_result(_make_answers(is_correct=random_correct, answer_time_sec=1))
 
     assert LEVELS.index(result.level) <= LEVELS.index("B1"), (
         f"случайные клики дали {result.level} ({result.percent}%)"
@@ -82,12 +70,8 @@ def test_fast_random_clicks_are_not_higher_than_b1() -> None:
 
 
 def test_speed_bonus_rewards_fast_answers() -> None:
-    fast = compute_level_test_result(
-        _make_answers(is_correct=True, answer_time_sec=5)
-    )
-    slow = compute_level_test_result(
-        _make_answers(is_correct=True, answer_time_sec=61)
-    )
+    fast = compute_level_test_result(_make_answers(is_correct=True, answer_time_sec=5))
+    slow = compute_level_test_result(_make_answers(is_correct=True, answer_time_sec=61))
 
     assert fast.percent > slow.percent
     assert fast.percent == 100.0
@@ -107,9 +91,7 @@ def test_consistency_check_raises_level_when_high_level_questions_pass() -> None
     def only_c2_correct(level: str, index: int) -> bool:
         return level == "C2" and index < 6
 
-    result = compute_level_test_result(
-        _make_answers(is_correct=only_c2_correct, answer_time_sec=5)
-    )
+    result = compute_level_test_result(_make_answers(is_correct=only_c2_correct, answer_time_sec=5))
 
     assert result.level == "C2"
 

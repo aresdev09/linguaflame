@@ -73,17 +73,13 @@ async def test_quota_counts_users_separately(session: AsyncSession) -> None:
     second = await _user(session, OTHER_USER)
     limit = 1
 
-    await QuotaAIClient(FakeAIClient(), session, first, limit, now=MOMENT).generate_quiz(
-        "B1", "ru"
-    )
+    await QuotaAIClient(FakeAIClient(), session, first, limit, now=MOMENT).generate_quiz("B1", "ru")
     await QuotaAIClient(FakeAIClient(), session, second, limit, now=MOMENT).generate_quiz(
         "B1", "ru"
     )
 
     assert (await AIUsageRepo(session).get(USER_ID, datetime(2026, 10, 18).date())).requests == 1
-    assert (
-        await AIUsageRepo(session).get(OTHER_USER, datetime(2026, 10, 18).date())
-    ).requests == 1
+    assert (await AIUsageRepo(session).get(OTHER_USER, datetime(2026, 10, 18).date())).requests == 1
 
 
 async def test_middleware_wraps_client_with_quota(

@@ -39,9 +39,7 @@ async def free_chat_command(message: Message, state: FSMContext, user: User) -> 
     """Открывает свободный разговор и очищает историю прошлого чата."""
     await state.set_state(FreeChatStates.chatting)
     await state.set_data({HISTORY_KEY: []})
-    await message.answer(
-        t("chat.started", user.native_language), reply_markup=empty_kb()
-    )
+    await message.answer(t("chat.started", user.native_language), reply_markup=empty_kb())
 
 
 @router.message(FreeChatStates.chatting, F.text, ~F.text.startswith("/"))
@@ -74,18 +72,14 @@ async def free_chat_message(
 
 
 @router.message(Command("close_free_chat"))
-async def close_free_chat_command(
-    message: Message, state: FSMContext, user: User
-) -> None:
+async def close_free_chat_command(message: Message, state: FSMContext, user: User) -> None:
     """Полностью закрывает чат: состояние и история удаляются.
 
     Если открыт другой режим, его состояние не трогаем: пользователь
     просил закрыть именно свободный разговор.
     """
     if await state.get_state() != FreeChatStates.chatting.state:
-        await message.answer(
-            t("chat.not_active", user.native_language), reply_markup=empty_kb()
-        )
+        await message.answer(t("chat.not_active", user.native_language), reply_markup=empty_kb())
         return
 
     await state.clear()

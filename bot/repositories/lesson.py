@@ -9,9 +9,7 @@ from bot.repositories.base import BaseRepo
 class LessonRepo(BaseRepo):
     """Доступ к таблице `lessons`."""
 
-    async def create(
-        self, *, user_id: int, topic: str, level: str, plan: dict
-    ) -> Lesson:
+    async def create(self, *, user_id: int, topic: str, level: str, plan: dict) -> Lesson:
         lesson = Lesson(user_id=user_id, topic=topic, level=level, plan=plan)
         self.session.add(lesson)
         await self.session.flush()

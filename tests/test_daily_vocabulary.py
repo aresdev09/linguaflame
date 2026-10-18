@@ -119,10 +119,7 @@ async def test_first_request_generates_and_saves_twenty_words(
     assert daily.reused is False
     assert daily.level == "B1"
     assert daily.level_default is False
-    assert all(
-        word.word and word.transcription and word.translation
-        for word in daily.words
-    )
+    assert all(word.word and word.transcription and word.translation for word in daily.words)
 
     calls = ai.calls_of("vocabulary")
     assert len(calls) == 1

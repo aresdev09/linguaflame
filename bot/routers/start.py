@@ -52,9 +52,7 @@ async def start_command(
 
     await state.set_state(OnboardingStates.choose_language)
     await message.answer(t("start.greeting", lang, name=name))
-    await message.answer(
-        t("start.choose_language", lang), reply_markup=language_kb(lang)
-    )
+    await message.answer(t("start.choose_language", lang), reply_markup=language_kb(lang))
 
 
 @router.callback_query(F.data.startswith(LANGUAGE_CALLBACK_PREFIX))
@@ -79,9 +77,7 @@ async def choose_language(
     await callback.message.answer(
         t("start.language_saved", lang, language=t(f"language.{lang}", lang))
     )
-    await callback.message.answer(
-        t("start.choose_timezone", lang), reply_markup=timezone_kb(lang)
-    )
+    await callback.message.answer(t("start.choose_timezone", lang), reply_markup=timezone_kb(lang))
 
 
 @router.callback_query(F.data.startswith(TIMEZONE_CALLBACK_PREFIX))

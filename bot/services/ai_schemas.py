@@ -25,9 +25,7 @@ class QuizQuestion(BaseModel):
         if not self.options:
             raise ValueError("options не может быть пустым")
         if self.correct not in self.options:
-            raise ValueError(
-                f"correct={self.correct!r} нет среди вариантов {sorted(self.options)}"
-            )
+            raise ValueError(f"correct={self.correct!r} нет среди вариантов {sorted(self.options)}")
         return self
 
 
@@ -75,9 +73,7 @@ class LessonTestQuestion(BaseModel):
         if not self.options:
             raise ValueError("options не может быть пустым")
         if self.correct not in self.options:
-            raise ValueError(
-                f"correct={self.correct!r} нет среди вариантов {sorted(self.options)}"
-            )
+            raise ValueError(f"correct={self.correct!r} нет среди вариантов {sorted(self.options)}")
         return self
 
 

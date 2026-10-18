@@ -112,15 +112,11 @@ async def check_streaks(
                         continue
                     except Exception:
                         failed += 1
-                        logger.exception(
-                            "Повторная отправка напоминания %s не удалась", user.id
-                        )
+                        logger.exception("Повторная отправка напоминания %s не удалась", user.id)
                         continue
                 except Exception:
                     failed += 1
-                    logger.exception(
-                        "Не удалось отправить напоминание пользователю %s", user.id
-                    )
+                    logger.exception("Не удалось отправить напоминание пользователю %s", user.id)
                     continue
 
                 await mark_reminder_sent(session, user, reminder, moment)
@@ -135,8 +131,7 @@ async def check_streaks(
         failed=failed,
     )
     logger.info(
-        "Напоминания: проверено %d, отправлено %d, пропущено %d, "
-        "заблокировали %d, ошибок %d",
+        "Напоминания: проверено %d, отправлено %d, пропущено %d, заблокировали %d, ошибок %d",
         run.checked,
         run.sent,
         run.skipped,

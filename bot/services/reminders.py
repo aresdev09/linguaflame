@@ -73,9 +73,7 @@ def _silent_days(today: date, user: User, streak: Streak | None) -> int:
     last = streak.last_activity_date if streak else None
     if last is not None:
         return (today - last).days
-    created = as_utc(user.created_at).astimezone(
-        resolve_timezone(user.timezone, user_id=user.id)
-    )
+    created = as_utc(user.created_at).astimezone(resolve_timezone(user.timezone, user_id=user.id))
     return (today - created.date()).days
 
 

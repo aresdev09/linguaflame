@@ -46,9 +46,7 @@ class UserRepo(BaseRepo):
 
     async def deactivate(self, user_id: int) -> None:
         """Помечает пользователя неактивным (бот заблокирован)."""
-        await self.session.execute(
-            update(User).where(User.id == user_id).values(is_active=False)
-        )
+        await self.session.execute(update(User).where(User.id == user_id).values(is_active=False))
 
     async def get_or_create(
         self,
@@ -86,9 +84,7 @@ class UserRepo(BaseRepo):
         if timezone is not None:
             values["timezone"] = timezone
         if values:
-            await self.session.execute(
-                update(User).where(User.id == user_id).values(**values)
-            )
+            await self.session.execute(update(User).where(User.id == user_id).values(**values))
 
     async def set_level(self, user_id: int, level: str, tested_at: datetime) -> None:
         """Записывает уровень пользователя.
@@ -97,7 +93,5 @@ class UserRepo(BaseRepo):
         `users.level` не меняется.
         """
         await self.session.execute(
-            update(User)
-            .where(User.id == user_id)
-            .values(level=level, level_tested_at=tested_at)
+            update(User).where(User.id == user_id).values(level=level, level_tested_at=tested_at)
         )

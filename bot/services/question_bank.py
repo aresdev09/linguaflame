@@ -63,9 +63,7 @@ class BankCounts:
 
     def for_level(self, level: str) -> int:
         return sum(
-            count
-            for (item_level, _), count in self.by_level_kind.items()
-            if item_level == level
+            count for (item_level, _), count in self.by_level_kind.items() if item_level == level
         )
 
 
@@ -108,9 +106,7 @@ def load_bank(path: Path = BANK_PATH) -> list[BankQuestion]:
             item_errors.append("options должен содержать 3–4 варианта")
         elif set(options) - set(OPTION_LETTERS):
             item_errors.append("варианты должны называться A, B, C (D)")
-        elif any(
-            not isinstance(value, str) or not value.strip() for value in options.values()
-        ):
+        elif any(not isinstance(value, str) or not value.strip() for value in options.values()):
             item_errors.append("варианты должны быть непустыми строками")
         else:
             valid_options = True
@@ -162,9 +158,7 @@ def validate_bank(
     for level in LEVELS:
         total = sum(count for (item_level, _), count in counts.items() if item_level == level)
         if total < min_per_level:
-            raise BankError(
-                f"Уровень {level}: {total} вопросов, нужно минимум {min_per_level}"
-            )
+            raise BankError(f"Уровень {level}: {total} вопросов, нужно минимум {min_per_level}")
         for kind in QUESTION_KINDS:
             if counts.get((level, kind), 0) == 0:
                 raise BankError(f"Уровень {level}: нет вопросов вида {kind}")
@@ -182,9 +176,7 @@ async def insert_bank(
     """
     repo = QuestionRepo(session)
     existing = await repo.list_by_kind_level()
-    known = {
-        (item.level, item.kind, item.text.strip().casefold()) for item in existing
-    }
+    known = {(item.level, item.kind, item.text.strip().casefold()) for item in existing}
 
     added = 0
     skipped = 0

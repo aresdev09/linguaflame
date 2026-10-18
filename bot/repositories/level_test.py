@@ -100,9 +100,7 @@ class LevelTestAnswerRepo(BaseRepo):
         )
         return bool(await self.session.scalar(stmt))
 
-    async def list_with_questions(
-        self, test_id: int
-    ) -> list[tuple[LevelTestAnswer, Question]]:
+    async def list_with_questions(self, test_id: int) -> list[tuple[LevelTestAnswer, Question]]:
         """Ответы теста вместе с вопросами, в порядке добавления."""
         stmt = (
             select(LevelTestAnswer, Question)

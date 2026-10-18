@@ -59,7 +59,5 @@ class ThrottleMiddleware(BaseMiddleware):
     def _prune(self, now: float) -> None:
         """Забывает пользователей, которые давно не писали."""
         self._last_seen = {
-            key: seen
-            for key, seen in self._last_seen.items()
-            if now - seen < _MAX_IDLE_SECONDS
+            key: seen for key, seen in self._last_seen.items() if now - seen < _MAX_IDLE_SECONDS
         }

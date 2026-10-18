@@ -133,9 +133,7 @@ async def _history(state: FSMContext) -> list[dict[str, str]]:
 
 async def _chat_activities(session_factory: async_sessionmaker[AsyncSession]) -> list[ActivityLog]:
     async with session_factory() as session:
-        result = await session.execute(
-            select(ActivityLog).where(ActivityLog.kind == "chat")
-        )
+        result = await session.execute(select(ActivityLog).where(ActivityLog.kind == "chat"))
         return list(result.scalars().all())
 
 
@@ -232,11 +230,16 @@ async def test_history_is_passed_to_ai_and_keeps_last_ten_messages(
     last_call = ai.calls_of("free_chat")[-1]
     # В ИИ уходят последние 10 сообщений до новой реплики: это реплики 1–5.
     assert [item["content"] for item in last_call["history"]] == [
-        "message 1", DEFAULT_CHAT_ANSWER,
-        "message 2", DEFAULT_CHAT_ANSWER,
-        "message 3", DEFAULT_CHAT_ANSWER,
-        "message 4", DEFAULT_CHAT_ANSWER,
-        "message 5", DEFAULT_CHAT_ANSWER,
+        "message 1",
+        DEFAULT_CHAT_ANSWER,
+        "message 2",
+        DEFAULT_CHAT_ANSWER,
+        "message 3",
+        DEFAULT_CHAT_ANSWER,
+        "message 4",
+        DEFAULT_CHAT_ANSWER,
+        "message 5",
+        DEFAULT_CHAT_ANSWER,
     ]
 
 

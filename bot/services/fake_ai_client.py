@@ -25,9 +25,26 @@ DEFAULT_QUIZ_QUESTION = QuizQuestion(
 
 # 20 слов, чтобы набор проходил проверку «ровно 20 слов».
 DEFAULT_WORDS = (
-    "apple", "book", "city", "day", "evening", "family", "garden", "home",
-    "idea", "journey", "kitchen", "letter", "morning", "night", "orange",
-    "people", "question", "river", "school", "window",
+    "apple",
+    "book",
+    "city",
+    "day",
+    "evening",
+    "family",
+    "garden",
+    "home",
+    "idea",
+    "journey",
+    "kitchen",
+    "letter",
+    "morning",
+    "night",
+    "orange",
+    "people",
+    "question",
+    "river",
+    "school",
+    "window",
 )
 
 DEFAULT_VOCABULARY = VocabularyResponse(
@@ -81,9 +98,7 @@ DEFAULT_ESSAY_CHECK = EssayCheck(
         "lexical_resource": 6.5,
         "grammar": 6.5,
     },
-    weak_spots=[
-        {"quote": "people is happy", "problem": "согласование", "fix": "people are happy"}
-    ],
+    weak_spots=[{"quote": "people is happy", "problem": "согласование", "fix": "people are happy"}],
     summary="Хорошая структура, расширить аргументацию.",
 )
 

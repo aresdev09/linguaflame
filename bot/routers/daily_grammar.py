@@ -133,9 +133,7 @@ async def _start_new_lesson(
     prefix = None
     if not user.level:
         prefix = t("grammar.default_level", lang, level=lesson.level)
-    await _send_step(
-        message, state, lesson, plan, index=0, lang=lang, status=status, prefix=prefix
-    )
+    await _send_step(message, state, lesson, plan, index=0, lang=lang, status=status, prefix=prefix)
 
 
 async def _send_step(
@@ -340,9 +338,7 @@ async def grammar_message(
         else:
             feedback = t("grammar.exercise_wrong", lang, answer=step.answer or "—")
         await message.answer(feedback)
-        await _advance(
-            session, message, state, lesson, plan, next_index=index + 1, lang=lang
-        )
+        await _advance(session, message, state, lesson, plan, next_index=index + 1, lang=lang)
         return
 
     # Вопрос посреди урока: отвечаем и повторяем текущий шаг, прогресс не меняем.
@@ -358,9 +354,7 @@ async def grammar_message(
     else:
         await message.answer(answer)
         await message.answer(t("grammar.question_return", lang))
-    await _send_step(
-        message, state, lesson, plan, index=index, lang=lang, resume=True
-    )
+    await _send_step(message, state, lesson, plan, index=index, lang=lang, resume=True)
 
 
 @router.message(GrammarStates.final_test, F.text, ~F.text.startswith("/"))
@@ -417,9 +411,7 @@ async def grammar_continue_callback(
     await callback.message.edit_text(
         t("grammar.continued", lang, topic=lesson.topic), reply_markup=empty_kb()
     )
-    await _start_final_test(
-        session, callback.message, state, lesson, plan, lang=lang
-    )
+    await _start_final_test(session, callback.message, state, lesson, plan, lang=lang)
 
 
 @router.callback_query(F.data == GRAMMAR_RESTART_CALLBACK)

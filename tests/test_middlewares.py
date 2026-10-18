@@ -135,9 +135,7 @@ async def test_error_middleware_answers_user_in_their_language() -> None:
     async def handler(event: Any, data: dict[str, Any]) -> None:
         raise RuntimeError("boom")
 
-    result = await middleware(
-        handler, event, {"user": SimpleNamespace(native_language="en")}
-    )
+    result = await middleware(handler, event, {"user": SimpleNamespace(native_language="en")})
 
     assert result is None
     assert event.answers == [t("common.error", "en")]

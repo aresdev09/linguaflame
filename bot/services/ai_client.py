@@ -235,13 +235,9 @@ class AIClient:
             with_user_text=with_user_text,
             json_mode=json_mode,
         )
-        messages: list[dict[str, str]] = [
-            {"role": "system", "content": system_prompt}
-        ]
+        messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
         if history:
-            messages.extend(
-                {"role": item["role"], "content": item["content"]} for item in history
-            )
+            messages.extend({"role": item["role"], "content": item["content"]} for item in history)
         messages.append({"role": "user", "content": prompt})
         return {"model": self.model, "messages": messages}
 
@@ -262,9 +258,7 @@ class AIClient:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
 
         if response.status_code >= 500 or response.status_code == RATE_LIMIT_STATUS:
-            raise AIRequestError(
-                f"ИИ-сервер вернул {response.status_code}: {response.text[:200]}"
-            )
+            raise AIRequestError(f"ИИ-сервер вернул {response.status_code}: {response.text[:200]}")
         if response.status_code >= 400:
             raise AIRequestRejected(
                 f"ИИ-сервер отклонил запрос: {response.status_code} {response.text[:200]}"
@@ -295,8 +289,7 @@ class AIClient:
         if not isinstance(content, str) or not content.strip():
             reason = data.get("error") or data
             raise AIResponseError(
-                f"В ответе ИИ нет текста: "
-                f"{json.dumps(reason, ensure_ascii=False)[:200]}"
+                f"В ответе ИИ нет текста: {json.dumps(reason, ensure_ascii=False)[:200]}"
             )
         return content
 

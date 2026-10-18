@@ -101,9 +101,7 @@ async def _start_new_test(
         await state.clear()
         return
 
-    test = await LevelTestRepo(session).create(
-        user.id, [question.id for question in questions]
-    )
+    test = await LevelTestRepo(session).create(user.id, [question.id for question in questions])
     await state.set_state(LevelTestStates.answering)
     if send_intro:
         await message.answer(t("level.intro", lang))
@@ -146,13 +144,9 @@ async def _resume_test(
         return
 
     next_index = answers_count
-    question = (
-        await get_questions_by_ids(session, [question_ids[next_index]])
-    )[0]
+    question = (await get_questions_by_ids(session, [question_ids[next_index]]))[0]
     await state.set_state(LevelTestStates.answering)
-    await message.answer(
-        t("level.resume", lang, number=next_index + 1, total=total)
-    )
+    await message.answer(t("level.resume", lang, number=next_index + 1, total=total))
     await _ask_question(
         message,
         state,
@@ -206,9 +200,7 @@ async def level_callback(
         await callback.answer()
         await state.clear()
         if callback.message is not None:
-            await callback.message.edit_text(
-                t("level.canceled", lang), reply_markup=empty_kb()
-            )
+            await callback.message.edit_text(t("level.canceled", lang), reply_markup=empty_kb())
         return
 
     await _handle_answer(callback, state, user, session, lang=lang)
@@ -276,20 +268,13 @@ async def _handle_answer(
 
     test_id = data.get(TEST_ID_KEY)
     test = await LevelTestRepo(session).get(int(test_id)) if test_id else None
-    if (
-        test is None
-        or test.user_id != user.id
-        or test.finished_at is not None
-    ):
+    if test is None or test.user_id != user.id or test.finished_at is not None:
         await callback.answer(t("level.not_active", lang))
         return
 
     question_ids = list(test.question_ids or [])
     answered_count = int(data.get(ANSWERED_COUNT_KEY, 0))
-    if (
-        answered_count >= len(question_ids)
-        or question_ids[answered_count] != question_id
-    ):
+    if answered_count >= len(question_ids) or question_ids[answered_count] != question_id:
         await callback.answer(t("level.invalid_option", lang))
         return
 
@@ -323,9 +308,7 @@ async def _handle_answer(
         result = await _complete_test(session, test, user)
         await state.clear()
         if result is None:
-            await callback.message.edit_text(
-                t("level.bank_empty", lang), reply_markup=empty_kb()
-            )
+            await callback.message.edit_text(t("level.bank_empty", lang), reply_markup=empty_kb())
             return
         await callback.message.edit_text(
             await _result_text(session, result, user, lang),
@@ -337,9 +320,7 @@ async def _handle_answer(
         t("level.answer_saved", lang, number=new_count, total=total),
         reply_markup=empty_kb(),
     )
-    next_question = (
-        await get_questions_by_ids(session, [question_ids[new_count]])
-    )[0]
+    next_question = (await get_questions_by_ids(session, [question_ids[new_count]]))[0]
     await _ask_question(
         callback.message,
         state,

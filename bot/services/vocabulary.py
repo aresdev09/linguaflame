@@ -75,9 +75,7 @@ async def get_daily_vocabulary(
             reused=True,
         )
 
-    recent = await repo.recent_words(
-        user_id, today - timedelta(days=EXCLUDE_DAYS - 1)
-    )
+    recent = await repo.recent_words(user_id, today - timedelta(days=EXCLUDE_DAYS - 1))
     words = await _generate_words(ai, level, user.native_language, recent)
 
     await repo.save(user_id, today, [word.model_dump() for word in words])
@@ -126,9 +124,7 @@ async def _generate_words(
                 break
 
     if len(collected) < WORDS_PER_DAY:
-        raise AIResponseError(
-            f"ИИ вернул {len(collected)} слов вместо {WORDS_PER_DAY}"
-        )
+        raise AIResponseError(f"ИИ вернул {len(collected)} слов вместо {WORDS_PER_DAY}")
     return collected
 
 

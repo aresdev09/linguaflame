@@ -160,11 +160,7 @@ async def _start(
 
 
 def _callbacks(markup: Any) -> list[str]:
-    return [
-        button.callback_data
-        for row in markup.inline_keyboard
-        for button in row
-    ]
+    return [button.callback_data for row in markup.inline_keyboard for button in row]
 
 
 def _question_text(text: str, number: int = 1) -> str:
@@ -178,9 +174,7 @@ async def test_correct_answer_shows_feedback_then_next_question(
     first_id = await _seed_question(
         session_factory, text="I ___ a student.", explanation="С I — am."
     )
-    second_id = await _seed_question(
-        session_factory, text="She ___ a doctor.", correct="B"
-    )
+    second_id = await _seed_question(session_factory, text="She ___ a doctor.", correct="B")
     chat = FakeChat()
     state = _state()
     ai = FakeAIClient()
@@ -319,8 +313,7 @@ async def test_finish_shows_score_and_closes_session(
     assert finish.answers == [""]
     assert await state.get_state() is None
     assert chat.messages[2] == (
-        f"{t('quiz.result', 'ru', correct=1, total=2)}\n\n"
-        f"{t('streak.line', 'ru', days=1)}"
+        f"{t('quiz.result', 'ru', correct=1, total=2)}\n\n{t('streak.line', 'ru', days=1)}"
     )
     assert chat.markups[2].inline_keyboard == []
     assert ai.calls == []  # все вопросы взяты из банка
@@ -334,9 +327,7 @@ async def test_finish_shows_score_and_closes_session(
     stale = FakeCallbackQuery(QUIZ_FINISH_CALLBACK, FakeMessage(chat, 2))
     await _dispatch(session_factory, quiz_callback, stale, state, ai)
     assert stale.answers == [t("quiz.not_active", "ru")]
-    assert chat.messages[2].startswith(
-        t("quiz.result", "ru", correct=1, total=2)
-    )
+    assert chat.messages[2].startswith(t("quiz.result", "ru", correct=1, total=2))
 
 
 async def test_finish_without_answers(

@@ -67,9 +67,7 @@ async def test_next_question_prefers_bank_and_skips_used(
             user = await UserRepo(session).get(USER_ID)
             assert user is not None
             first = await next_quiz_question(session, user, ai)
-            second = await next_quiz_question(
-                session, user, ai, used_ids=[first.id]
-            )
+            second = await next_quiz_question(session, user, ai, used_ids=[first.id])
 
     assert first.id == first_id
     assert second.id == second_id
@@ -129,9 +127,7 @@ def _question() -> Question:
 def test_score_counts_correct_and_wrong_answers() -> None:
     question = _question()
 
-    correct = score_quiz_answer(
-        question, "A", correct_count=2, answered_count=5
-    )
+    correct = score_quiz_answer(question, "A", correct_count=2, answered_count=5)
     assert correct.is_correct is True
     assert correct.correct_count == 3
     assert correct.answered_count == 6
@@ -155,9 +151,9 @@ def test_feedback_contains_correct_option_and_explanation() -> None:
 
 
 def test_result_text() -> None:
-    assert format_quiz_result(
-        correct_count=1, answered_count=2, lang="ru"
-    ) == t("quiz.result", "ru", correct=1, total=2)
-    assert format_quiz_result(
-        correct_count=0, answered_count=0, lang="en"
-    ) == t("quiz.result_empty", "en")
+    assert format_quiz_result(correct_count=1, answered_count=2, lang="ru") == t(
+        "quiz.result", "ru", correct=1, total=2
+    )
+    assert format_quiz_result(correct_count=0, answered_count=0, lang="en") == t(
+        "quiz.result_empty", "en"
+    )
