@@ -17,12 +17,17 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-if config.config_file_name is not None:
+# При запуске из бота логирование уже настроено, перезаписывать его нельзя.
+if config.config_file_name is not None and not config.attributes.get("skip_logging_config"):
     fileConfig(config.config_file_name)
 
-# Миграции не требуют токена бота: адрес БД берём из DATABASE_URL или .env.
+# Миграции не требуют токена бота: адрес БД берём из аргументов программы,
+# затем из DATABASE_URL, затем из .env или значения по умолчанию.
 load_dotenv()
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL", DEFAULT_DATABASE_URL))
+database_url = config.attributes.get("database_url") or os.getenv(
+    "DATABASE_URL", DEFAULT_DATABASE_URL
+)
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Схема приложения нужна для 'autogenerate'
 target_metadata = Base.metadata

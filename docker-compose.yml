@@ -40,8 +40,8 @@ services:
   bot:
     build:
       context: .
-    # Миграции и загрузка банка вопросов идемпотентны: выполняются при старте.
-    command: ["sh", "-c", "alembic upgrade head && python -m scripts.load_level_questions && python -m bot.main"]
+    # Бот сам идемпотентно применяет миграции и загружает банк вопросов.
+    command: ["python", "-m", "bot.main"]
     environment:
       BOT_TOKEN: "${BOT_TOKEN:?BOT_TOKEN не задан: добавьте его в .env}"
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-linguflame}:${POSTGRES_PASSWORD:-linguflame}@db:5432/${POSTGRES_DB:-linguflame}

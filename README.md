@@ -94,10 +94,17 @@ pip install -r requirements-dev.txt # tests and linting
 
 cp .env.example .env               # then fill in the values
 
-alembic upgrade head                           # apply the schema
-python -m scripts.load_level_questions         # load the question bank
-
 python -m bot.main                             # long polling
+```
+
+On startup the bot applies Alembic migrations (`alembic upgrade head`) and
+loads the bundled question bank, both idempotently. This also makes panel
+hosting work, where only `python main.py` is configured as the start command.
+The same steps can still be run manually:
+
+```bash
+alembic upgrade head                    # apply the schema
+python -m scripts.load_level_questions  # load the question bank
 ```
 
 ### Environment variables
@@ -129,8 +136,8 @@ Keep real values only in `.env` or in the process environment.
 ## Docker
 
 `Dockerfile` and `docker-compose.yml` are included. Compose starts PostgreSQL,
-Redis, and the bot; the bot container runs `alembic upgrade head`, loads the
-question bank, and then starts the bot.
+Redis, and the bot; the bot itself applies migrations and loads the question
+bank before polling starts.
 
 ```bash
 cp .env.example .env        # fill in BOT_TOKEN (and other values you need)

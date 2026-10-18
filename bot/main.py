@@ -11,6 +11,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand
 
+from bot.bootstrap import DatabaseSetupError, prepare_database
 from bot.config import ConfigError, Settings, get_settings
 from bot.database import get_session_factory
 from bot.locales import DEFAULT_LANGUAGE, t
@@ -110,6 +111,10 @@ async def main() -> None:
     settings = get_settings()
     setup_logging(settings.log_level, json_logs=settings.log_json)
 
+    # Без схемы первый же апдейт упадёт с `no such table`: миграции
+    # выполняем до старта polling и до создания бота.
+    await prepare_database(settings)
+
     bot = Bot(token=settings.bot_token)
     dispatcher = build_dispatcher(await build_storage(settings))
 
@@ -144,6 +149,9 @@ def run() -> None:
     try:
         asyncio.run(main())
     except ConfigError as exc:
+        logger.error("%s", exc)
+        sys.exit(1)
+    except DatabaseSetupError as exc:
         logger.error("%s", exc)
         sys.exit(1)
     except TelegramUnauthorizedError:
