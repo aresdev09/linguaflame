@@ -1,7 +1,7 @@
 """Сценарные тесты /free_chat и /close_free_chat."""
 
 import inspect
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from aiogram.fsm.context import FSMContext
@@ -14,7 +14,7 @@ from bot.locales import t
 from bot.middlewares.ai import AIClientMiddleware
 from bot.middlewares.free_chat import FreeChatExitMiddleware
 from bot.middlewares.user import UserMiddleware
-from bot.models import ActivityLog, Streak, User
+from bot.models import ActivityLog, Streak
 from bot.repositories import UserRepo
 from bot.routers.free_chat import (
     close_free_chat_command,
@@ -24,7 +24,7 @@ from bot.routers.free_chat import (
 from bot.routers.quiz import quiz_command
 from bot.services.ai_errors import AITimeoutError
 from bot.services.fake_ai_client import DEFAULT_CHAT_ANSWER, FakeAIClient
-from bot.services.free_chat import HISTORY_LIMIT, HISTORY_KEY, append_exchange, trim_history
+from bot.services.free_chat import HISTORY_KEY, HISTORY_LIMIT, append_exchange, trim_history
 from bot.states import FreeChatStates, QuizStates
 from tests.fakes import FakeChat, FakeMessage, FakeUpdate
 
@@ -84,7 +84,7 @@ async def _create_user(
             repo = UserRepo(session)
             await repo.create(USER_ID, native_language=native_language, timezone=SAMARKAND)
             if level is not None:
-                await repo.set_level(USER_ID, level, datetime.now(timezone.utc))
+                await repo.set_level(USER_ID, level, datetime.now(UTC))
 
 
 class FakeBot:

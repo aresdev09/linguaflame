@@ -11,7 +11,7 @@
 """
 
 from collections.abc import Iterable
-from datetime import datetime, time, timezone
+from datetime import UTC, datetime, time
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -125,7 +125,7 @@ async def _register_chat_activity(
         moment.astimezone(timezone_info).date(),
         time.min,
         tzinfo=timezone_info,
-    ).astimezone(timezone.utc)
+    ).astimezone(UTC)
 
     activities = ActivityRepo(session)
     if await activities.has_since(user.id, "chat", day_start):

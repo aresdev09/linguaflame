@@ -1,6 +1,6 @@
 """Тесты дневного лимита запросов к ИИ."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import pytest
@@ -14,7 +14,7 @@ from bot.services.fake_ai_client import FakeAIClient
 
 USER_ID = 4001
 OTHER_USER = 4002
-MOMENT = datetime(2026, 10, 18, 12, 0, tzinfo=timezone.utc)
+MOMENT = datetime(2026, 10, 18, 12, 0, tzinfo=UTC)
 
 
 async def _user(
@@ -60,7 +60,7 @@ async def test_quota_resets_next_local_day(session: AsyncSession) -> None:
         session,
         user,
         limit,
-        now=datetime(2026, 10, 19, 12, 0, tzinfo=timezone.utc),
+        now=datetime(2026, 10, 19, 12, 0, tzinfo=UTC),
     )
     await next_day.generate_quiz("B1", "ru")
 

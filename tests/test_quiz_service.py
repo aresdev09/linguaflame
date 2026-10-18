@@ -1,6 +1,6 @@
 """Тесты сервиса квиза."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -30,7 +30,7 @@ async def _create_user(
             repo = UserRepo(session)
             await repo.create(USER_ID, native_language=native_language)
             if level is not None:
-                await repo.set_level(USER_ID, level, datetime.now(timezone.utc))
+                await repo.set_level(USER_ID, level, datetime.now(UTC))
 
 
 async def _seed_question(

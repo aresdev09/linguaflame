@@ -1,13 +1,13 @@
 """Тесты сервиса слов дня."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from bot.models import ActivityLog, Streak, VocabularySet
+from bot.models import ActivityLog, VocabularySet
 from bot.repositories import StreakRepo, UserRepo, VocabularyRepo
 from bot.services.ai_errors import AIRequestError, AIResponseError
 from bot.services.ai_schemas import VocabularyResponse, Word
@@ -35,7 +35,7 @@ async def _create_user(
                 timezone=timezone_name,
             )
             if level is not None:
-                await repo.set_level(USER_ID, level, datetime.now(timezone.utc))
+                await repo.set_level(USER_ID, level, datetime.now(UTC))
 
 
 async def _get(
@@ -193,7 +193,7 @@ async def test_same_local_day_across_utc_midnight_reuses_set(
     ai = FakeAIClient()
     early = datetime(2026, 10, 18, 0, 30, tzinfo=SAMARKAND)
     late = datetime(2026, 10, 18, 23, 30, tzinfo=SAMARKAND)
-    assert early.astimezone(timezone.utc).date() != late.astimezone(timezone.utc).date()
+    assert early.astimezone(UTC).date() != late.astimezone(UTC).date()
 
     await _get(session_factory, ai, now=early)
     daily = await _get(session_factory, ai, now=late)

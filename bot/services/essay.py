@@ -15,9 +15,9 @@ import html
 import logging
 import math
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 

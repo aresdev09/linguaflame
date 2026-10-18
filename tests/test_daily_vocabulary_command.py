@@ -1,7 +1,7 @@
 """Тесты команды /daily_vocabulary."""
 
 import inspect
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -105,7 +105,7 @@ async def _create_user(
                 timezone="Asia/Samarkand",
             )
             if level is not None:
-                await repo.set_level(USER_ID, level, datetime.now(timezone.utc))
+                await repo.set_level(USER_ID, level, datetime.now(UTC))
 
 
 class _LoadingAwareAIClient(FakeAIClient):

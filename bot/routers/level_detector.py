@@ -7,7 +7,7 @@
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from aiogram import F, Router
 from aiogram.filters import Command
@@ -33,8 +33,8 @@ from bot.repositories import (
 )
 from bot.services.level_test import (
     InsufficientQuestionsError,
-    LevelTestResult,
     LevelAnswer,
+    LevelTestResult,
     compute_level_test_result,
     format_level_question,
     format_level_result,
@@ -174,7 +174,7 @@ async def _ask_question(
             QUESTION_ID_KEY: question.id,
             ANSWERED_COUNT_KEY: index,
             ANSWERED_KEY: False,
-            SENT_AT_KEY: datetime.now(timezone.utc).isoformat(),
+            SENT_AT_KEY: datetime.now(UTC).isoformat(),
         }
     )
     await message.answer(
@@ -287,7 +287,7 @@ async def _handle_answer(
     # Сразу закрываем вопрос от повторных нажатий, до записей в БД.
     await state.update_data(**{ANSWERED_KEY: True})
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     answer_time = _elapsed_seconds(data.get(SENT_AT_KEY), now)
     is_correct = option == question.correct_option
     await LevelTestAnswerRepo(session).add(
@@ -357,7 +357,7 @@ async def _complete_test(
     ]
     result = compute_level_test_result(answers)
 
-    moment = now or datetime.now(timezone.utc)
+    moment = now or datetime.now(UTC)
     await LevelTestRepo(session).finish(
         test.id,
         score=result.percent,
@@ -392,7 +392,7 @@ def _elapsed_seconds(sent_at_raw: object, now: datetime) -> int:
     except ValueError:
         return 0
     if sent_at.tzinfo is None:
-        sent_at = sent_at.replace(tzinfo=timezone.utc)
+        sent_at = sent_at.replace(tzinfo=UTC)
     return max(0, int((now - sent_at).total_seconds()))
 
 

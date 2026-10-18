@@ -1,7 +1,7 @@
 """Часовые пояса пользователей: все пересчёты через zoneinfo."""
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ def resolve_timezone(name: str | None, *, user_id: int | None = None) -> ZoneInf
 def as_utc(moment: datetime | None = None) -> datetime:
     """Приводит момент к aware UTC; без момента — текущее время."""
     if moment is None:
-        return datetime.now(timezone.utc)
+        return datetime.now(UTC)
     if moment.tzinfo is None:
-        return moment.replace(tzinfo=timezone.utc)
-    return moment.astimezone(timezone.utc)
+        return moment.replace(tzinfo=UTC)
+    return moment.astimezone(UTC)

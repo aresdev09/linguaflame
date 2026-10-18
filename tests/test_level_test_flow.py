@@ -1,6 +1,6 @@
 """Сценарии теста уровня: подтверждение, старт, ответы, продолжение, финал."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from aiogram.fsm.context import FSMContext
 from sqlalchemy import select
@@ -23,8 +23,8 @@ from bot.routers.level_detector import (
 )
 from bot.states import LevelTestStates
 from tests.fakes import (
-    FakeChat,
     FakeCallbackQuery,
+    FakeChat,
     FakeMessage,
     callbacks,
     dispatch,
@@ -46,7 +46,7 @@ async def _create_user(
             repo = UserRepo(session)
             user = await repo.create(USER_ID, native_language="ru", timezone=timezone_name)
             if level is not None:
-                await repo.set_level(USER_ID, level, tested_at or datetime.now(timezone.utc))
+                await repo.set_level(USER_ID, level, tested_at or datetime.now(UTC))
             await session.flush()
             assert user is not None
 
@@ -89,7 +89,7 @@ def _question_id(markup: object) -> int:
 
 
 def _age_sent_at(seconds: int) -> str:
-    moment = datetime.now(timezone.utc) - timedelta(seconds=seconds)
+    moment = datetime.now(UTC) - timedelta(seconds=seconds)
     return moment.isoformat()
 
 
@@ -99,7 +99,7 @@ async def test_retake_prompt_shows_current_level_and_date(
     await _create_user(
         session_factory,
         level="B1",
-        tested_at=datetime(2026, 10, 12, 10, 0, tzinfo=timezone.utc),
+        tested_at=datetime(2026, 10, 12, 10, 0, tzinfo=UTC),
     )
     await _seed_bank(session_factory)
     chat = FakeChat(USER_ID)
@@ -182,7 +182,7 @@ async def test_answer_records_time_and_is_correct(
 async def test_interrupted_test_does_not_touch_level(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:
-    tested_at = datetime(2026, 9, 1, 12, 0, tzinfo=timezone.utc)
+    tested_at = datetime(2026, 9, 1, 12, 0, tzinfo=UTC)
     await _create_user(session_factory, level="A2", tested_at=tested_at)
     await _seed_bank(session_factory)
     chat = FakeChat(USER_ID)
@@ -290,7 +290,7 @@ async def test_full_flow_all_correct_sets_c2(
 
     await _start_test(session_factory, chat, state)
 
-    for number in range(1, 51):
+    for _ in range(1, 51):
         question_message = FakeMessage(chat, len(chat.messages) - 1)
         question_id = _question_id(chat.markups[-1])
         await state.update_data(sent_at=_age_sent_at(5))

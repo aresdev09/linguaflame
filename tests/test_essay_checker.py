@@ -1,7 +1,7 @@
 """Сценарные тесты /essay_checker."""
 
 import inspect
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx
@@ -87,7 +87,7 @@ async def _create_user(
             repo = UserRepo(session)
             await repo.create(USER_ID, native_language=native_language, timezone=SAMARKAND)
             if level is not None:
-                await repo.set_level(USER_ID, level, datetime.now(timezone.utc))
+                await repo.set_level(USER_ID, level, datetime.now(UTC))
 
 
 async def _start(

@@ -1,7 +1,7 @@
 """Сценарии команды /quiz: верный/неверный ответ, повторы и завершение."""
 
 import inspect
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from aiogram.fsm.context import FSMContext
@@ -126,7 +126,7 @@ async def _create_user(
             repo = UserRepo(session)
             await repo.create(USER_ID, native_language=native_language)
             if level is not None:
-                await repo.set_level(USER_ID, level, datetime.now(timezone.utc))
+                await repo.set_level(USER_ID, level, datetime.now(UTC))
 
 
 async def _seed_question(

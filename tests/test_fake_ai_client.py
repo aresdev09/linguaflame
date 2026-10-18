@@ -4,8 +4,8 @@ import pytest
 
 from bot.services.ai_client import AIClient
 from bot.services.ai_errors import AIResponseError
-from bot.services.fake_ai_client import FakeAIClient
 from bot.services.ai_schemas import QuizQuestion
+from bot.services.fake_ai_client import FakeAIClient
 
 CLIENT_METHODS = (
     "generate_quiz",

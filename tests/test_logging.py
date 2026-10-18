@@ -3,7 +3,7 @@
 import json
 import logging
 
-from bot.logging_setup import JsonFormatter, NOISY_LOGGERS, setup_logging
+from bot.logging_setup import NOISY_LOGGERS, JsonFormatter, setup_logging
 
 
 def _record(level: int = logging.INFO) -> logging.LogRecord:

@@ -9,7 +9,7 @@
 
 import logging
 from dataclasses import dataclass
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import UTC, date, datetime, time, timedelta
 from typing import Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -154,9 +154,7 @@ async def get_user_stats(
         time.min,
         tzinfo=timezone_info,
     )
-    activities = await ActivityRepo(session).count_since(
-        user_id, week_start_local.astimezone(timezone.utc)
-    )
+    activities = await ActivityRepo(session).count_since(user_id, week_start_local.astimezone(UTC))
 
     return UserStats(
         current_streak=current,

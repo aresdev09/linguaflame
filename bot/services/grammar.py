@@ -5,8 +5,8 @@
 """
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -4,7 +4,7 @@
 действия в 23:30 и 00:30 по местному времени.
 """
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -133,8 +133,8 @@ async def test_midnight_boundary_in_samarkand_starts_new_day(
     after_midnight = datetime(2026, 10, 18, 0, 30, tzinfo=SAMARKAND)
 
     # сравнение календарных дат в UTC дало бы здесь один день и ошибку
-    assert before_midnight.astimezone(timezone.utc).date() == date(2026, 10, 17)
-    assert after_midnight.astimezone(timezone.utc).date() == date(2026, 10, 17)
+    assert before_midnight.astimezone(UTC).date() == date(2026, 10, 17)
+    assert after_midnight.astimezone(UTC).date() == date(2026, 10, 17)
 
     first = await _register(session_factory, before_midnight)
     second = await _register(session_factory, after_midnight)
@@ -154,8 +154,8 @@ async def test_same_local_day_across_utc_midnight_grows_only_once(
     after_local_midnight = datetime(2026, 10, 18, 0, 30, tzinfo=SAMARKAND)
     before_local_midnight = datetime(2026, 10, 18, 23, 30, tzinfo=SAMARKAND)
 
-    assert after_local_midnight.astimezone(timezone.utc).date() == date(2026, 10, 17)
-    assert before_local_midnight.astimezone(timezone.utc).date() == date(2026, 10, 18)
+    assert after_local_midnight.astimezone(UTC).date() == date(2026, 10, 17)
+    assert before_local_midnight.astimezone(UTC).date() == date(2026, 10, 18)
 
     first = await _register(session_factory, after_local_midnight)
     second = await _register(session_factory, before_local_midnight)
@@ -171,8 +171,8 @@ async def test_utc_user_counts_by_utc_days(
     """Для пользователя с UTC-поясом вчера и сегодня — это даты UTC."""
     await _create_user(session_factory, timezone_name="UTC")
 
-    await _register(session_factory, datetime(2026, 10, 17, 23, 30, tzinfo=timezone.utc))
-    result = await _register(session_factory, datetime(2026, 10, 18, 0, 30, tzinfo=timezone.utc))
+    await _register(session_factory, datetime(2026, 10, 17, 23, 30, tzinfo=UTC))
+    result = await _register(session_factory, datetime(2026, 10, 18, 0, 30, tzinfo=UTC))
 
     assert result.current_streak == 2
     assert result.last_activity_date == date(2026, 10, 18)
@@ -183,7 +183,7 @@ async def test_unknown_timezone_falls_back_to_utc(
 ) -> None:
     await _create_user(session_factory, timezone_name="Mars/Olympus")
 
-    result = await _register(session_factory, datetime(2026, 10, 17, 23, 30, tzinfo=timezone.utc))
+    result = await _register(session_factory, datetime(2026, 10, 17, 23, 30, tzinfo=UTC))
 
     assert result.last_activity_date == date(2026, 10, 17)
     assert result.current_streak == 1
@@ -197,7 +197,7 @@ async def test_unknown_activity_kind_is_rejected(
     with pytest.raises(ValueError):
         async with session_factory() as session:
             async with session.begin():
-                await register_activity(session, USER_ID, "singing", now=datetime.now(timezone.utc))
+                await register_activity(session, USER_ID, "singing", now=datetime.now(UTC))
 
 
 async def test_register_activity_requires_existing_user(

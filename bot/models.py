@@ -4,9 +4,10 @@
 Все даты и время хранятся в UTC (`timestamptz` в PostgreSQL).
 """
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 from sqlalchemy import (
+    JSON,
     BigInteger,
     Boolean,
     Date,
@@ -16,7 +17,6 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
-    JSON,
     String,
     Text,
     true,
@@ -26,7 +26,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 def utcnow() -> datetime:
     """Текущее время в UTC."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 # BIGINT в PostgreSQL, INTEGER в SQLite (нужен для автоинкремента primary key)

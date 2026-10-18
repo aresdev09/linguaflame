@@ -1,7 +1,7 @@
 """Тест команды /stats."""
 
 import inspect
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -70,7 +70,7 @@ async def _dispatch(
 async def test_stats_command_shows_streak_best_and_week(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:
-    today_local = datetime.now(timezone.utc).astimezone(SAMARKAND).date()
+    today_local = datetime.now(UTC).astimezone(SAMARKAND).date()
 
     async with session_factory() as session:
         async with session.begin():

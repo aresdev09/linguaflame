@@ -6,14 +6,14 @@
 """
 
 import inspect
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import UTC, date, datetime, time, timedelta
 from typing import Any
 
+from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.methods import SendMessage
-from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -75,7 +75,7 @@ async def _create_user(
             if created_on is not None:
                 user = await UserRepo(session).get(user_id)
                 assert user is not None
-                user.created_at = datetime.combine(created_on, time.min, tzinfo=timezone.utc)
+                user.created_at = datetime.combine(created_on, time.min, tzinfo=UTC)
             if last_activity is not None:
                 await StreakRepo(session).set_progress(
                     user_id,
@@ -141,13 +141,13 @@ async def test_morning_goes_only_to_matching_timezone(
     bot = FakeBot()
 
     # 04:00 UTC — это 09:00 в Самарканде, но ещё ночь по UTC.
-    run = await _run(session_factory, bot, datetime(2026, 10, 18, 4, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, bot, datetime(2026, 10, 18, 4, 0, tzinfo=UTC))
 
     assert run.sent == 1
     assert [message["chat_id"] for message in bot.messages] == [SAM_USER]
 
     # 09:00 UTC — утро у UTC-пользователя; в Самарканде уже 14:00.
-    run = await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=UTC))
     assert run.sent == 1
     assert [message["chat_id"] for message in bot.messages] == [SAM_USER, UTC_USER]
 
@@ -169,7 +169,7 @@ async def test_hour_offset_shifts_reminder_slot(
     run = await _run(
         session_factory,
         bot,
-        datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc),
+        datetime(2026, 10, 18, 9, 0, tzinfo=UTC),
         hour_offset=11,
     )
 
@@ -184,7 +184,7 @@ async def test_no_reminder_outside_scheduled_hours(
 ) -> None:
     await _create_user(session_factory, UTC_USER, timezone_name="UTC")
 
-    run = await _run(session_factory, FakeBot(), datetime(2026, 10, 18, 4, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, FakeBot(), datetime(2026, 10, 18, 4, 0, tzinfo=UTC))
 
     assert run.checked == 1
     assert run.sent == 0
@@ -203,7 +203,7 @@ async def test_morning_skipped_when_activity_today(
     )
     bot = FakeBot()
 
-    run = await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=UTC))
 
     assert run.sent == 0
     assert bot.messages == []
@@ -224,7 +224,7 @@ async def test_evening_shows_current_streak(
     )
     bot = FakeBot()
 
-    run = await _run(session_factory, bot, datetime(2026, 10, 18, 15, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, bot, datetime(2026, 10, 18, 15, 0, tzinfo=UTC))
 
     assert run.sent == 1
     text = bot.messages[0]["text"]
@@ -246,7 +246,7 @@ async def test_evening_without_alive_streak_uses_cold_text(
     )
     bot = FakeBot()
 
-    run = await _run(session_factory, bot, datetime(2026, 10, 18, 20, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, bot, datetime(2026, 10, 18, 20, 0, tzinfo=UTC))
 
     assert run.sent == 1
     assert bot.messages[0]["text"] in {
@@ -270,7 +270,7 @@ async def test_missed_day_reports_lost_streak_and_resets_it(
     )
     bot = FakeBot()
 
-    run = await _run(session_factory, bot, datetime(2026, 10, 18, 10, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, bot, datetime(2026, 10, 18, 10, 0, tzinfo=UTC))
 
     assert run.sent == 1
     assert bot.messages[0]["text"] in {
@@ -293,7 +293,7 @@ async def test_three_day_silence_sends_soft_reminder(
     )
     bot = FakeBot()
 
-    run = await _run(session_factory, bot, datetime(2026, 10, 18, 10, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, bot, datetime(2026, 10, 18, 10, 0, tzinfo=UTC))
 
     assert run.sent == 1
     assert bot.messages[0]["text"] in {
@@ -314,7 +314,7 @@ async def test_seven_day_silence_sends_last_reminder(
     )
     bot = FakeBot()
 
-    run = await _run(session_factory, bot, datetime(2026, 10, 18, 10, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, bot, datetime(2026, 10, 18, 10, 0, tzinfo=UTC))
 
     assert run.sent == 1
     assert bot.messages[0]["text"] in {
@@ -337,7 +337,7 @@ async def test_no_reminders_after_seven_silent_days(
     )
     bot = FakeBot()
 
-    run = await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=UTC))
 
     assert run.sent == 0
     assert bot.messages == []
@@ -350,7 +350,7 @@ async def test_user_who_never_studied_gets_reminders_first_week(
         session_factory, UTC_USER, timezone_name="UTC", created_on=date(2026, 10, 16)
     )
 
-    run = await _run(session_factory, FakeBot(), datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, FakeBot(), datetime(2026, 10, 18, 9, 0, tzinfo=UTC))
 
     assert run.sent == 1
 
@@ -369,7 +369,7 @@ async def test_same_hour_rerun_sends_no_duplicates(
         streak=2,
     )
     bot = FakeBot()
-    moment = datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc)
+    moment = datetime(2026, 10, 18, 9, 0, tzinfo=UTC)
 
     first = await _run(session_factory, bot, moment)
     second = await _run(session_factory, bot, moment)
@@ -392,10 +392,10 @@ async def test_two_messages_per_day_and_no_third(
     )
     bot = FakeBot()
 
-    await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc))
-    await _run(session_factory, bot, datetime(2026, 10, 18, 20, 0, tzinfo=timezone.utc))
+    await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=UTC))
+    await _run(session_factory, bot, datetime(2026, 10, 18, 20, 0, tzinfo=UTC))
     # Тот же вечер, запуск ещё раз: дубля быть не должно.
-    third = await _run(session_factory, bot, datetime(2026, 10, 18, 20, 0, tzinfo=timezone.utc))
+    third = await _run(session_factory, bot, datetime(2026, 10, 18, 20, 0, tzinfo=UTC))
 
     assert len(bot.messages) == MAX_PER_DAY
     assert third.sent == 0
@@ -411,8 +411,8 @@ async def test_counter_resets_on_next_day(
     await _create_user(session_factory, UTC_USER, timezone_name="UTC")
     bot = FakeBot()
 
-    await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc))
-    await _run(session_factory, bot, datetime(2026, 10, 19, 9, 0, tzinfo=timezone.utc))
+    await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=UTC))
+    await _run(session_factory, bot, datetime(2026, 10, 19, 9, 0, tzinfo=UTC))
 
     assert len(bot.messages) == 2
     streak = await _streak(session_factory, UTC_USER)
@@ -441,7 +441,7 @@ async def test_blocked_user_is_marked_inactive(
         )
     )
 
-    run = await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc))
+    run = await _run(session_factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=UTC))
 
     assert run.blocked == 1
     assert run.sent == 0
@@ -449,7 +449,7 @@ async def test_blocked_user_is_marked_inactive(
     assert user.is_active is False
 
     # Повторный запуск больше не беспокоит пользователя.
-    again = await _run(session_factory, bot, datetime(2026, 10, 18, 20, 0, tzinfo=timezone.utc))
+    again = await _run(session_factory, bot, datetime(2026, 10, 18, 20, 0, tzinfo=UTC))
     assert again.checked == 0
     assert again.sent == 0
 
@@ -477,7 +477,7 @@ async def test_retry_after_waits_and_resends(
     run = await _run(
         session_factory,
         bot,
-        datetime(2026, 10, 18, 9, 0, tzinfo=timezone.utc),
+        datetime(2026, 10, 18, 9, 0, tzinfo=UTC),
         sleeps=sleeps,
     )
 

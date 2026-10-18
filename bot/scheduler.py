@@ -14,7 +14,7 @@ import asyncio
 import logging
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from urllib.parse import unquote, urlparse
 
 import redis.asyncio as redis
@@ -169,7 +169,7 @@ async def build_scheduler(bot: Bot, settings: Settings) -> AsyncIOScheduler:
     jobstore = await _pick_jobstore(settings.redis_url)
     scheduler = AsyncIOScheduler(
         jobstores={CHECK_JOBSTORE: jobstore},
-        timezone=timezone.utc,
+        timezone=UTC,
         job_defaults={"coalesce": True, "max_instances": 1},
     )
     scheduler.add_job(

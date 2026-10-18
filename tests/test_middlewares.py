@@ -7,11 +7,11 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from bot.locales import t
 from bot.middlewares.db import DbSessionMiddleware
 from bot.middlewares.errors import ErrorMiddleware
 from bot.middlewares.throttle import ThrottleMiddleware
 from bot.middlewares.user import UserMiddleware
-from bot.locales import t
 from bot.models import User
 from bot.repositories import UserRepo
 
