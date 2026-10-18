@@ -27,6 +27,9 @@ class FakeChat:
         self.user = FakeTelegramUser(user_id)
         self.messages: list[str] = []
         self.markups: list[Any] = []
+        # Настоящий Message в aiogram привязан к боту, у подделки бота нет:
+        # хендлеры, которым нужен chat action, проверяют message.bot на None.
+        self.bot = None
 
 
 class FakeMessage:
@@ -36,6 +39,7 @@ class FakeMessage:
         self.chat = chat
         self.index = index
         self.from_user = chat.user
+        self.bot = chat.bot
 
     async def answer(self, text: str, **kwargs: Any) -> "FakeMessage":
         self.chat.messages.append(text)

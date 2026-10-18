@@ -113,6 +113,39 @@ TEXTS: dict[str, str] = {
     "grammar.already_answered": "На этот вопрос уже ответили.",
     "grammar.stale_button": "Эта кнопка уже неактуальна.",
     "grammar.invalid_option": "Не понял вариант ответа. Попробуй ещё раз.",
+    # Проверка эссе
+    "essay.prompt": (
+        "📝 Пришли эссе на английском: от {min_words} до {max_words} слов.\n"
+        "Можно первой строкой указать тему — проверю, насколько она раскрыта."
+    ),
+    "essay.loading": "⏳ Проверяю эссе… Обычно это занимает до минуты.",
+    "essay.too_short": (
+        "Эссе слишком короткое: {words} слов. Нужно от {min_words} до {max_words} слов. "
+        "Допиши текст и пришли его снова."
+    ),
+    "essay.too_long": (
+        "Эссе слишком длинное: {words} слов. Нужно от {min_words} до {max_words} слов. "
+        "Сократи текст и пришли его снова."
+    ),
+    "essay.title": "📝 Оценка: {band} / 9",
+    "essay.criterion.task_response": "Task Response",
+    "essay.criterion.coherence": "Coherence and Cohesion",
+    "essay.criterion.lexical_resource": "Lexical Resource",
+    "essay.criterion.grammar": "Grammatical Range and Accuracy",
+    "essay.weak_title": "⚠️ Слабые места:",
+    "essay.weak_item": "{index}. «{quote}»: {problem} → «{fix}»",
+    "essay.no_weak": "✅ Слабых мест не нашлось.",
+    "essay.strengths": "✅ Сильные стороны: {summary}",
+    "essay.main_advice": (
+        "🎯 Что улучшить в первую очередь: {criterion} ({score} / 9) — {hint}"
+    ),
+    "essay.hint.task_response": "убедись, что тема раскрыта, а позиция подкреплена примерами",
+    "essay.hint.coherence": "следи за логикой абзацев и связками между идеями",
+    "essay.hint.lexical_resource": "расширяй словарь и избегай повторов",
+    "essay.hint.grammar": "проверяй согласование, времена и порядок слов",
+    "essay.disclaimer": (
+        "⚠️ Оценка ориентировочная и не заменяет официальный экзамен IELTS."
+    ),
     # Общие
     "common.friend": "друг",
     "common.cancel": "Отмена",

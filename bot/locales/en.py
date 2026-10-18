@@ -113,6 +113,37 @@ TEXTS: dict[str, str] = {
     "grammar.already_answered": "This question has already been answered.",
     "grammar.stale_button": "This button is no longer relevant.",
     "grammar.invalid_option": "I couldn't read that answer option. Please try again.",
+    # Essay check
+    "essay.prompt": (
+        "📝 Send me an essay in English: {min_words} to {max_words} words.\n"
+        "You can put the topic on the first line — I will check how well it is covered."
+    ),
+    "essay.loading": "⏳ Checking your essay… It usually takes up to a minute.",
+    "essay.too_short": (
+        "The essay is too short: {words} words. It must be {min_words} to {max_words} "
+        "words. Add more text and send it again."
+    ),
+    "essay.too_long": (
+        "The essay is too long: {words} words. It must be {min_words} to {max_words} "
+        "words. Shorten it and send it again."
+    ),
+    "essay.title": "📝 Score: {band} / 9",
+    "essay.criterion.task_response": "Task Response",
+    "essay.criterion.coherence": "Coherence and Cohesion",
+    "essay.criterion.lexical_resource": "Lexical Resource",
+    "essay.criterion.grammar": "Grammatical Range and Accuracy",
+    "essay.weak_title": "⚠️ Weak spots:",
+    "essay.weak_item": "{index}. “{quote}”: {problem} → “{fix}”",
+    "essay.no_weak": "✅ No weak spots found.",
+    "essay.strengths": "✅ Strengths: {summary}",
+    "essay.main_advice": "🎯 Improve first: {criterion} ({score} / 9) — {hint}",
+    "essay.hint.task_response": "make sure the topic is covered and the position is supported",
+    "essay.hint.coherence": "watch the logic of paragraphs and the links between ideas",
+    "essay.hint.lexical_resource": "widen your vocabulary and avoid repetitions",
+    "essay.hint.grammar": "check agreement, tenses and word order",
+    "essay.disclaimer": (
+        "⚠️ This score is approximate and does not replace the official IELTS exam."
+    ),
     # Common
     "common.friend": "friend",
     "common.cancel": "Cancel",
