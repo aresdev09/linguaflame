@@ -42,8 +42,42 @@ TEXTS: dict[str, str] = {
     "quiz.already_answered": "На этот вопрос уже ответили.",
     "quiz.not_active": "Квиз сейчас не идёт. Начни новый: /quiz",
     "quiz.invalid_option": "Не понял вариант ответа. Попробуй ещё раз.",
+    # Тест уровня
+    "level.loading": "⏳ Готовлю тест…",
+    "level.intro": "🎯 Тест уровня: 50 вопросов, отвечай в своём темпе.",
+    "level.question": "Вопрос {number} из {total}\n\n{text}",
+    "level.retake": (
+        "Сейчас у тебя уровень {level} (тест от {date}).\nПройти тест заново?"
+    ),
+    "level.start_button": "🎯 Пройти тест",
+    "level.canceled": "Хорошо, тест отменён. Запустить снова: /level_detector",
+    "level.already_running": "Тест уже идёт — отвечай на вопрос.",
+    "level.bank_empty": (
+        "Тест временно недоступен: банк вопросов не загружен. Попробуй позже."
+    ),
+    "level.not_active": "Тест уровня сейчас не идёт. Запусти его: /level_detector",
+    "level.already_answered": "Ответ на этот вопрос уже принят.",
+    "level.invalid_option": "Не понял вариант ответа. Попробуй ещё раз.",
+    "level.answer_saved": "✅ Ответ принят. Вопрос {number} из {total}",
+    "level.resume": "Продолжаю тест: вопрос {number} из {total}.",
+    "level.result": (
+        "🎯 Твой уровень: {level}\n\n"
+        "Правильных ответов: {correct} из {total} ({accuracy:.0f}%)\n"
+        "Среднее время: {average:.1f} с\n\n"
+        "Грамматика: {grammar:.0f}%\n"
+        "Словарь: {vocabulary:.0f}%"
+    ),
+    "level.result_balanced": "Грамматика и словарь — на одном уровне.",
+    "level.result_strength": "💪 Сильная сторона: {topic}.",
+    "level.result_weakness": "📌 Стоит подтянуть: {topic}.",
+    "level.topic.grammar": "грамматика",
+    "level.topic.vocabulary": "словарь",
+    "level.result_done": (
+        "Уровень обновлён. Продолжай заниматься: /daily_grammar и /daily_vocabulary."
+    ),
     # Общие
     "common.friend": "друг",
+    "common.cancel": "Отмена",
     "common.error": "Что-то пошло не так. Попробуй ещё раз чуть позже.",
     "common.language_not_supported": "Такой язык не поддерживается, выбери один из вариантов.",
     "common.timezone_invalid": "Не удалось распознать часовой пояс, выбери один из вариантов.",

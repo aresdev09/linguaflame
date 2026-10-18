@@ -11,6 +11,9 @@ LANGUAGE_CALLBACK_PREFIX = "lang:"
 TIMEZONE_CALLBACK_PREFIX = "tz:"
 QUIZ_CALLBACK_PREFIX = "quiz:"
 QUIZ_FINISH_CALLBACK = f"{QUIZ_CALLBACK_PREFIX}finish"
+LEVEL_CALLBACK_PREFIX = "level:"
+LEVEL_START_CALLBACK = f"{LEVEL_CALLBACK_PREFIX}start"
+LEVEL_CANCEL_CALLBACK = f"{LEVEL_CALLBACK_PREFIX}cancel"
 
 # Часовые пояса: (IANA-идентификатор, ключ подписи в локализации)
 TIMEZONES: tuple[tuple[str, str], ...] = (
@@ -79,6 +82,41 @@ def quiz_options_kb(
         ]
     )
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def level_test_options_kb(
+    question_id: int,
+    options: dict[str, str],
+) -> InlineKeyboardMarkup:
+    """Варианты ответа теста уровня: без кнопки завершения."""
+    rows = [
+        [
+            InlineKeyboardButton(
+                text=f"{option}) {text}",
+                callback_data=f"{LEVEL_CALLBACK_PREFIX}{question_id}:{option}",
+            )
+        ]
+        for option, text in sorted(options.items())
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def level_retake_kb(lang: str) -> InlineKeyboardMarkup:
+    """Кнопки подтверждения повторной сдачи теста."""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=t("level.start_button", lang),
+                    callback_data=LEVEL_START_CALLBACK,
+                ),
+                InlineKeyboardButton(
+                    text=t("common.cancel", lang),
+                    callback_data=LEVEL_CANCEL_CALLBACK,
+                ),
+            ]
+        ]
+    )
 
 
 def empty_kb() -> InlineKeyboardMarkup:

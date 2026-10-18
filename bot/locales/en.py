@@ -42,8 +42,42 @@ TEXTS: dict[str, str] = {
     "quiz.already_answered": "This question has already been answered.",
     "quiz.not_active": "No quiz is running. Start a new one: /quiz",
     "quiz.invalid_option": "I couldn't read that answer option. Please try again.",
+    # Level test
+    "level.loading": "⏳ Preparing your test…",
+    "level.intro": "🎯 Level test: 50 questions, take your time.",
+    "level.question": "Question {number} of {total}\n\n{text}",
+    "level.retake": (
+        "Your current level is {level} (test taken on {date}).\nTake the test again?"
+    ),
+    "level.start_button": "🎯 Take the test",
+    "level.canceled": "Okay, the test is cancelled. Start again: /level_detector",
+    "level.already_running": "A test is already running — answer the question.",
+    "level.bank_empty": (
+        "The test is temporarily unavailable: the question bank is not loaded. Try later."
+    ),
+    "level.not_active": "No level test is running. Start it: /level_detector",
+    "level.already_answered": "This question has already been answered.",
+    "level.invalid_option": "I couldn't read that answer option. Please try again.",
+    "level.answer_saved": "✅ Answer accepted. Question {number} of {total}",
+    "level.resume": "Resuming the test: question {number} of {total}.",
+    "level.result": (
+        "🎯 Your level: {level}\n\n"
+        "Correct answers: {correct} out of {total} ({accuracy:.0f}%)\n"
+        "Average time: {average:.1f} s\n\n"
+        "Grammar: {grammar:.0f}%\n"
+        "Vocabulary: {vocabulary:.0f}%"
+    ),
+    "level.result_balanced": "Grammar and vocabulary are on the same level.",
+    "level.result_strength": "💪 Strength: {topic}.",
+    "level.result_weakness": "📌 Needs work: {topic}.",
+    "level.topic.grammar": "grammar",
+    "level.topic.vocabulary": "vocabulary",
+    "level.result_done": (
+        "Your level has been updated. Keep going: /daily_grammar and /daily_vocabulary."
+    ),
     # Common
     "common.friend": "friend",
+    "common.cancel": "Cancel",
     "common.error": "Something went wrong. Please try again in a moment.",
     "common.language_not_supported": "This language is not supported, pick one of the options.",
     "common.timezone_invalid": "Could not recognise the timezone, pick one of the options.",

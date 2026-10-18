@@ -73,6 +73,8 @@ class LevelTest(Base):
 
     id: Mapped[int] = mapped_column(BigIntType, primary_key=True)
     user_id: Mapped[int] = mapped_column(BigIntType, ForeignKey("users.id"))
+    # Порядок из 50 вопросов теста: нужен, чтобы продолжить незавершённый тест.
+    question_ids: Mapped[list] = mapped_column(JSON, default=list)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     score: Mapped[float | None] = mapped_column(Float)
