@@ -14,6 +14,25 @@ class UserRepo(BaseRepo):
     async def get(self, user_id: int) -> User | None:
         return await self.session.get(User, user_id)
 
+    async def create(
+        self,
+        user_id: int,
+        *,
+        username: str | None = None,
+        native_language: str = "en",
+        timezone: str = "UTC",
+    ) -> User:
+        """Создаёт нового пользователя (id приходит из Telegram)."""
+        user = User(
+            id=user_id,
+            username=username,
+            native_language=native_language,
+            timezone=timezone,
+        )
+        self.session.add(user)
+        await self.session.flush()
+        return user
+
     async def get_or_create(
         self,
         user_id: int,
@@ -25,14 +44,12 @@ class UserRepo(BaseRepo):
         """Возвращает пользователя, создавая его при первом обращении."""
         user = await self.get(user_id)
         if user is None:
-            user = User(
-                id=user_id,
+            user = await self.create(
+                user_id,
                 username=username,
                 native_language=native_language,
                 timezone=timezone,
             )
-            self.session.add(user)
-            await self.session.flush()
         return user
 
     async def update_profile(
