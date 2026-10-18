@@ -1,0 +1,5 @@
+# Development tools (tests and linting)
+pytest>=8.2
+pytest-asyncio>=0.23
+pytest-cov>=5.0
+ruff>=0.6
