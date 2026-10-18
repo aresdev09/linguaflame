@@ -162,3 +162,57 @@ async def test_error_middleware_passes_successful_result_through() -> None:
         return "ok"
 
     assert await middleware(handler, FakeMessage(), {}) == "ok"
+
+
+async def test_user_middleware_reads_user_from_event_from_user(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    """На dp.update в event лежит Update без from_user, пользователь — в data."""
+    middleware = UserMiddleware()
+    update = SimpleNamespace(update_id=7)
+    telegram_user = FakeTelegramUser(4242, username="kate")
+    seen: dict[str, Any] = {}
+
+    async def handler(event: Any, data: dict[str, Any]) -> int:
+        seen.update(data)
+        return data["user"].id
+
+    async with session_factory() as session:
+        async with session.begin():
+            result = await middleware(
+                handler,
+                update,
+                {"session": session, "event_from_user": telegram_user},
+            )
+
+    assert result == 4242
+    assert seen["is_new_user"] is True
+
+
+async def test_user_middleware_skips_updates_without_telegram_user(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    """Пост в канале: у апдейта нет пользователя, хендлер всё равно вызывается."""
+    middleware = UserMiddleware()
+    update = SimpleNamespace(update_id=8)
+
+    async def handler(event: Any, data: dict[str, Any]) -> Any:
+        return data.get("user")
+
+    async with session_factory() as session:
+        async with session.begin():
+            assert await middleware(handler, update, {"session": session}) is None
+
+
+async def test_throttle_works_without_user_in_data() -> None:
+    middleware = ThrottleMiddleware(rate_limit=1.0, monotonic=lambda: 5.0)
+    telegram_user = FakeTelegramUser(3)
+
+    async def handler(event: Any, data: dict[str, Any]) -> str:
+        return "ok"
+
+    update = SimpleNamespace(update_id=9)
+    data = {"event_from_user": telegram_user}
+
+    assert await middleware(handler, update, data) == "ok"
+    assert await middleware(handler, update, data) is None

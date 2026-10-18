@@ -7,6 +7,7 @@ from typing import Any
 from aiogram import BaseMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot.middlewares.utils import telegram_user_from
 from bot.models import User
 from bot.repositories import UserRepo
 
@@ -26,7 +27,10 @@ class UserMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ) -> Any:
         session: AsyncSession = data["session"]
-        telegram_user = event.from_user
+        telegram_user = telegram_user_from(event, data)
+        if telegram_user is None:
+            # Апдейт без пользователя (например, пост в канале)
+            return await handler(event, data)
 
         repo = UserRepo(session)
         user: User | None = await repo.get(telegram_user.id)

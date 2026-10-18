@@ -53,6 +53,14 @@ def _state() -> FSMContext:
     return FSMContext(MemoryStorage(), key)
 
 
+class FakeUpdate:
+    """Апдейт в форме aiogram: middleware видят Update, хендлеры — вложенное событие."""
+
+    def __init__(self, event: Any, update_id: int = 1) -> None:
+        self.event = event
+        self.update_id = update_id
+
+
 async def _dispatch(
     session_factory: async_sessionmaker[AsyncSession],
     handler: Any,
@@ -61,11 +69,19 @@ async def _dispatch(
 ) -> Any:
     """Прогоняет апдейт через UserMiddleware и вызывает хендлер как aiogram."""
     middleware = UserMiddleware()
+    caller = _as_aiogram_caller(handler)
+
+    async def on_update(update: Any, data: dict[str, Any]) -> Any:
+        return await caller(event, data)
+
     async with session_factory() as session:
         async with session.begin():
-            # событие (message/callback) aiogram передаёт первым позиционным аргументом
-            data = {"session": session, "state": state}
-            return await middleware(_as_aiogram_caller(handler), event, data)
+            data = {
+                "session": session,
+                "state": state,
+                "event_from_user": event.from_user,
+            }
+            return await middleware(on_update, FakeUpdate(event), data)
 
 
 def _as_aiogram_caller(handler: Any) -> Any:

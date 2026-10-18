@@ -7,6 +7,8 @@ from typing import Any
 
 from aiogram import BaseMiddleware
 
+from bot.middlewares.utils import telegram_user_from
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_RATE_LIMIT = 1.0
@@ -28,7 +30,7 @@ class ThrottleMiddleware(BaseMiddleware):
     ) -> None:
         self.rate_limit = rate_limit
         self._monotonic = monotonic
-        self._last_seen: dict[int, float] = {}
+        self._last_seen: dict[Any, float] = {}
 
     async def __call__(
         self,
@@ -37,15 +39,19 @@ class ThrottleMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ) -> Any:
         user = data.get("user")
-        user_id = user.id if user is not None else event.from_user.id
-        now = self._monotonic()
+        if user is not None:
+            key = user.id
+        else:
+            telegram_user = telegram_user_from(event, data)
+            key = telegram_user.id if telegram_user is not None else event.update_id
 
-        last_seen = self._last_seen.get(user_id)
+        now = self._monotonic()
+        last_seen = self._last_seen.get(key)
         if last_seen is not None and now - last_seen < self.rate_limit:
-            logger.debug("Апдейт от %s отброшен антиспамом", user_id)
+            logger.debug("Апдейт от %s отброшен антиспамом", key)
             return None
 
-        self._last_seen[user_id] = now
+        self._last_seen[key] = now
         if len(self._last_seen) > _PRUNE_THRESHOLD:
             self._prune(now)
         return await handler(event, data)
@@ -53,7 +59,7 @@ class ThrottleMiddleware(BaseMiddleware):
     def _prune(self, now: float) -> None:
         """Забывает пользователей, которые давно не писали."""
         self._last_seen = {
-            user_id: seen
-            for user_id, seen in self._last_seen.items()
+            key: seen
+            for key, seen in self._last_seen.items()
             if now - seen < _MAX_IDLE_SECONDS
         }
