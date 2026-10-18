@@ -11,6 +11,8 @@ ENV_VARS = (
     "REDIS_URL",
     "AI_SERVER_URL",
     "AI_API_KEY",
+    "AI_MODEL",
+    "AI_TIMEOUT",
     "LOG_LEVEL",
 )
 
@@ -30,6 +32,17 @@ def test_settings_load_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     assert settings.database_url.startswith("sqlite+aiosqlite")
     assert settings.redis_url.startswith("redis://")
     assert settings.log_level == "INFO"
+
+
+def test_ai_defaults_target_nvidia(monkeypatch: pytest.MonkeyPatch) -> None:
+    _clear_env(monkeypatch)
+    monkeypatch.setenv("BOT_TOKEN", "123456:TEST-TOKEN")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.ai_server_url == "https://integrate.api.nvidia.com/v1"
+    assert settings.ai_model == "openai/gpt-oss-20b"
+    assert settings.ai_timeout == 90.0
 
 
 def test_settings_require_bot_token(monkeypatch: pytest.MonkeyPatch) -> None:

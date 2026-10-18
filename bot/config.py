@@ -78,9 +78,13 @@ class Settings(BaseSettings):
     bot_token: str = Field(min_length=1)
     database_url: str = DEFAULT_DATABASE_URL
     redis_url: str = "redis://localhost:6379/0"
-    ai_server_url: str = "https://openrouter.ai/api/v1"
+    # Любой OpenAI-совместимый API. По умолчанию NVIDIA NIM: ключ nvapi-...
+    # с https://build.nvidia.com. OpenRouter: https://openrouter.ai/api/v1.
+    ai_server_url: str = "https://integrate.api.nvidia.com/v1"
     ai_api_key: str = ""
-    ai_model: str = "nvidia/nemotron-3.5-super-vl:free"
+    ai_model: str = "openai/gpt-oss-20b"
+    # Таймаут одного запроса: план урока генерируется 30–60 с.
+    ai_timeout: float = Field(default=90.0, gt=0)
     log_level: str = "INFO"
     # JSON-логи для продакшена; в разработке удобнее обычный текст.
     log_json: bool = False

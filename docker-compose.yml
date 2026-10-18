@@ -46,9 +46,10 @@ services:
       BOT_TOKEN: "${BOT_TOKEN:?BOT_TOKEN не задан: добавьте его в .env}"
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-linguflame}:${POSTGRES_PASSWORD:-linguflame}@db:5432/${POSTGRES_DB:-linguflame}
       REDIS_URL: redis://redis:6379/0
-      AI_SERVER_URL: ${AI_SERVER_URL:-https://openrouter.ai/api/v1}
+      AI_SERVER_URL: ${AI_SERVER_URL:-https://integrate.api.nvidia.com/v1}
       AI_API_KEY: ${AI_API_KEY:-}
-      AI_MODEL: ${AI_MODEL:-nvidia/nemotron-3.5-super-vl:free}
+      AI_MODEL: ${AI_MODEL:-openai/gpt-oss-20b}
+      AI_TIMEOUT: ${AI_TIMEOUT:-90}
       AI_DAILY_LIMIT: ${AI_DAILY_LIMIT:-100}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       LOG_JSON: ${LOG_JSON:-false}

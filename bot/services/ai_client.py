@@ -1,4 +1,7 @@
-"""Единый клиент общения с ИИ через OpenRouter (OpenAI-совместимый API).
+"""Единый клиент общения с ИИ через OpenAI-совместимый API.
+
+Провайдер задаётся настройками: OpenRouter, NVIDIA NIM
+(https://integrate.api.nvidia.com/v1) или любой другой совместимый сервер.
 
 Весь код бота ходит в ИИ только через этот класс.
 
@@ -62,7 +65,7 @@ RETRY_BASE_DELAY = 1.0
 CHARS_PER_TOKEN = 4  # грубая оценка, если сервер не вернул usage
 RATE_LIMIT_STATUS = 429  # у бесплатных моделей это обычное дело, поэтому повторяем
 
-BOT_TITLE_HEADER = "X-Title"  # необязательный заголовок OpenRouter для статистики
+BOT_TITLE_HEADER = "X-Title"  # необязательный заголовок OpenRouter; другие API его игнорируют
 
 
 def strip_markdown_fences(text: str) -> str:
@@ -88,7 +91,7 @@ def parse_json_payload(text: str) -> Any:
 
 
 class AIClient:
-    """Надёжная обёртка над OpenRouter: таймаут, повторы, валидация JSON."""
+    """Надёжная обёртка над OpenAI-совместимым API: таймаут, повторы, валидация JSON."""
 
     def __init__(
         self,
@@ -242,7 +245,7 @@ class AIClient:
         return {"model": self.model, "messages": messages}
 
     async def _send(self, payload: dict[str, Any], task: str, prompt: str) -> str:
-        """Один запрос к OpenRouter: логирование времени и токенов, разбор конверта."""
+        """Один запрос к ИИ: логирование времени и токенов, разбор конверта."""
         headers = {"Content-Type": "application/json", BOT_TITLE_HEADER: "LinguaFlame"}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
@@ -425,4 +428,5 @@ def get_ai_client() -> AIClient:
         base_url=settings.ai_server_url,
         api_key=settings.ai_api_key,
         model=settings.ai_model,
+        timeout=settings.ai_timeout,
     )

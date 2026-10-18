@@ -52,7 +52,7 @@ learning action.
 - Redis: FSM storage (falls back to in-process memory when Redis is
   unavailable) and the APScheduler job store
 - APScheduler for reminders
-- httpx against an OpenAI-compatible API (OpenRouter by default)
+- httpx against an OpenAI-compatible API (NVIDIA NIM by default, OpenRouter supported)
 - pydantic-settings for configuration
 - pytest + pytest-asyncio for tests
 
@@ -117,9 +117,10 @@ All settings are read from the environment or from `.env`
 | `BOT_TOKEN` | yes | — | Telegram bot token from @BotFather |
 | `DATABASE_URL` | no | `sqlite+aiosqlite:///./linguflame.db` | PostgreSQL: `postgresql+asyncpg://user:pass@host:5432/linguflame` |
 | `REDIS_URL` | no | `redis://localhost:6379/0` | FSM storage and scheduler job store |
-| `AI_SERVER_URL` | no | `https://openrouter.ai/api/v1` | Base URL of the OpenAI-compatible API |
-| `AI_API_KEY` | for AI features | empty | API key for that service |
-| `AI_MODEL` | no | `nvidia/nemotron-3.5-super-vl:free` | Model name |
+| `AI_SERVER_URL` | no | `https://integrate.api.nvidia.com/v1` | Base URL of the OpenAI-compatible API (OpenRouter: `https://openrouter.ai/api/v1`) |
+| `AI_API_KEY` | for AI features | empty | API key for that service (`nvapi-...` for NVIDIA) |
+| `AI_MODEL` | no | `openai/gpt-oss-20b` | Model ID from the chosen provider's catalog |
+| `AI_TIMEOUT` | no | `90` | Seconds to wait for one AI request (lesson generation is the slowest) |
 | `AI_DAILY_LIMIT` | no | `100` | AI requests per user per day (`0` disables the limit) |
 | `LOG_LEVEL` | no | `INFO` | `DEBUG` / `INFO` / `WARNING` / `ERROR` |
 | `LOG_JSON` | no | `false` | `true` — structured JSON logs |
@@ -132,6 +133,38 @@ All settings are read from the environment or from `.env`
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | for Docker | `linguflame` | Credentials for the bundled PostgreSQL container |
 
 Keep real values only in `.env` or in the process environment.
+
+### AI provider: NVIDIA NIM (default) or OpenRouter
+
+The AI client speaks the OpenAI chat-completions protocol, so any compatible
+provider works without code changes. Defaults target NVIDIA:
+
+```
+AI_SERVER_URL=https://integrate.api.nvidia.com/v1
+AI_API_KEY=nvapi-...          # from https://build.nvidia.com
+AI_MODEL=openai/gpt-oss-20b
+```
+
+To switch to OpenRouter, change the same three values:
+
+```
+AI_SERVER_URL=https://openrouter.ai/api/v1
+AI_API_KEY=sk-or-...          # from https://openrouter.ai/keys
+AI_MODEL=nvidia/nemotron-3.5-super-vl:free
+```
+
+Model IDs are provider-specific: OpenRouter's `:free` suffix does not exist on
+NVIDIA, and a model ID may be listed in a provider's catalog yet return 404 for
+your account. Before deploying, check the whole setup with one text request and
+one JSON request:
+
+```bash
+python -m scripts.check_ai
+```
+
+The script prints the configured URL, model and whether a key is set, warns
+when the key and URL belong to different providers, and exits non-zero if the
+model fails either request.
 
 ## Docker
 
