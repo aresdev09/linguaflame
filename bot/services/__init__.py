@@ -33,6 +33,11 @@ from bot.services.streak import (
     register_activity,
 )
 from bot.services.timezones import DEFAULT_TIMEZONE, as_utc, resolve_timezone
+from bot.services.vocabulary import (
+    DailyVocabulary,
+    format_daily_vocabulary,
+    get_daily_vocabulary,
+)
 
 __all__ = [
     "ACTIVITY_KINDS",
@@ -43,6 +48,7 @@ __all__ = [
     "AIResponseError",
     "ActivityKind",
     "ActivityResult",
+    "DailyVocabulary",
     "DEFAULT_TIMEZONE",
     "EssayCheck",
     "EssayCriteria",
@@ -56,7 +62,9 @@ __all__ = [
     "VocabularyResponse",
     "Word",
     "as_utc",
+    "format_daily_vocabulary",
     "get_ai_client",
+    "get_daily_vocabulary",
     "get_user_stats",
     "parse_json_payload",
     "register_activity",

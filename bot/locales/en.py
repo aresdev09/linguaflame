@@ -17,6 +17,14 @@ TEXTS: dict[str, str] = {
     "stats.best": "🏆 Best streak: {days} days",
     "stats.week": "📅 Actions this week: {count}",
     "stats.hint": "Complete one task to light the flame.",
+    # Words of the day
+    "vocabulary.title": "📚 Words of the day · level {level}",
+    "vocabulary.reused": "Today's set is already saved — here it is.",
+    "vocabulary.default_level": (
+        "Your level is not set yet, so these are level {level} words. "
+        "Take /level_detector to get words that match your level."
+    ),
+    "vocabulary.item": "{index}. {word} {transcription} — {translation}",
     # Common
     "common.friend": "friend",
     "common.error": "Something went wrong. Please try again in a moment.",

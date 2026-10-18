@@ -7,6 +7,7 @@ from bot.repositories.lesson import LessonRepo
 from bot.repositories.question import QuestionRepo
 from bot.repositories.streak import StreakRepo
 from bot.repositories.user import UserRepo
+from bot.repositories.vocabulary import VocabularyRepo
 
 __all__ = [
     "ActivityRepo",
@@ -16,4 +17,5 @@ __all__ = [
     "QuestionRepo",
     "StreakRepo",
     "UserRepo",
+    "VocabularyRepo",
 ]

@@ -135,7 +135,7 @@ async def test_generate_quiz_returns_validated_object(make_client) -> None:
 
     payload = request_payload(request)
     assert payload["model"] == "test/model"
-    assert payload["response_format"] == {"type": "json_object"}
+    assert "response_format" not in payload  # JSON задаётся промптом, не режимом API
     system_message, user_message = payload["messages"]
     assert system_message["role"] == "system"
     assert "Student level: B1" in system_message["content"]

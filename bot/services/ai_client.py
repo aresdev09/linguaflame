@@ -12,8 +12,7 @@
             "messages": [
                 {"role": "system", "content": "..."},
                 {"role": "user", "content": "..."}
-            ],
-            "response_format": {"type": "json_object"}   # только для задач с JSON
+            ]
         }
 
 Ответ — стандартный ответ OpenAI-совместимого API: результат лежит строкой в
@@ -55,7 +54,6 @@ logger = logging.getLogger(__name__)
 SchemaT = TypeVar("SchemaT", bound=BaseModel)
 
 CHAT_COMPLETIONS_PATH = "/chat/completions"
-JSON_RESPONSE_FORMAT = {"type": "json_object"}
 DEFAULT_TIMEOUT = 30.0
 MAX_RETRIES = 2
 RETRY_BASE_DELAY = 1.0
@@ -218,13 +216,16 @@ class AIClient:
         level: str,
         lang: str,
         prompt: str,
-        response_format: dict[str, str] | None,
         with_user_text: bool,
         json_mode: bool,
         extra: str = "",
         history: Sequence[dict[str, str]] | None = None,
     ) -> dict[str, Any]:
-        """Тело запроса в формате OpenAI: модель, системный промпт, история, вопрос."""
+        """Тело запроса в формате OpenAI: модель, системный промпт, история, вопрос.
+
+        JSON-режим `response_format` не используется: часть провайдеров отвечает
+        на него ошибкой 502, а промпт «только JSON» и парсер с повторами надёжнее.
+        """
         system_prompt = build_system_prompt(
             level,
             lang,
@@ -240,11 +241,7 @@ class AIClient:
                 {"role": item["role"], "content": item["content"]} for item in history
             )
         messages.append({"role": "user", "content": prompt})
-
-        payload: dict[str, Any] = {"model": self.model, "messages": messages}
-        if response_format is not None:
-            payload["response_format"] = response_format
-        return payload
+        return {"model": self.model, "messages": messages}
 
     async def _send(self, payload: dict[str, Any], task: str, prompt: str) -> str:
         """Один запрос к OpenRouter: логирование времени и токенов, разбор конверта."""
@@ -359,7 +356,6 @@ class AIClient:
             level=level,
             lang=lang,
             prompt=prompt,
-            response_format=JSON_RESPONSE_FORMAT,
             with_user_text=with_user_text,
             json_mode=True,
             extra=extra,
@@ -400,7 +396,6 @@ class AIClient:
             level=level,
             lang=lang,
             prompt=prompt,
-            response_format=None,
             with_user_text=with_user_text,
             json_mode=False,
             extra=extra,

@@ -17,6 +17,14 @@ TEXTS: dict[str, str] = {
     "stats.best": "🏆 Рекорд: {days} дн.",
     "stats.week": "📅 Действий за неделю: {count}",
     "stats.hint": "Сделай одно задание, чтобы зажечь огонёк.",
+    # Слова дня
+    "vocabulary.title": "📚 Слова дня · уровень {level}",
+    "vocabulary.reused": "Сегодняшний набор уже сохранён — вот он.",
+    "vocabulary.default_level": (
+        "Уровень пока не определён, поэтому слова уровня {level}. "
+        "Пройди /level_detector, чтобы получать слова под свой уровень."
+    ),
+    "vocabulary.item": "{index}. {word} {transcription} — {translation}",
     # Общие
     "common.friend": "друг",
     "common.error": "Что-то пошло не так. Попробуй ещё раз чуть позже.",

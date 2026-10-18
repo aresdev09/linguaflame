@@ -16,12 +16,13 @@ from bot.database import get_session_factory
 from bot.locales import DEFAULT_LANGUAGE, t
 from bot.logging_setup import setup_logging
 from bot.middlewares import (
+    AIClientMiddleware,
     DbSessionMiddleware,
     ErrorMiddleware,
     ThrottleMiddleware,
     UserMiddleware,
 )
-from bot.routers import start, stats
+from bot.routers import daily_vocabulary, start, stats
 
 logger = logging.getLogger(__name__)
 
@@ -44,10 +45,12 @@ def build_dispatcher(storage: BaseStorage) -> Dispatcher:
     dispatcher = Dispatcher(storage=storage)
     dispatcher.include_router(start.router)
     dispatcher.include_router(stats.router)
+    dispatcher.include_router(daily_vocabulary.router)
 
     # Порядок важен: ошибки ловим снаружи, сессия БД открывается до хендлера.
     dispatcher.update.outer_middleware(ErrorMiddleware())
     dispatcher.update.middleware(DbSessionMiddleware(get_session_factory()))
+    dispatcher.update.middleware(AIClientMiddleware())
     dispatcher.update.middleware(UserMiddleware())
     dispatcher.update.middleware(ThrottleMiddleware())
     return dispatcher

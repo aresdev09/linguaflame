@@ -4,9 +4,12 @@
 план урока и проверка эссе. Свободный чат — обычный текст, схемы не имеет.
 """
 
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, StringConstraints, model_validator
+
+# Обязательный непустой текст: пустые слова/переводы ломают карточку слова.
+RequiredText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
 class QuizQuestion(BaseModel):
@@ -31,9 +34,9 @@ class QuizQuestion(BaseModel):
 class Word(BaseModel):
     """Слово с транскрипцией и переводом на родной язык пользователя."""
 
-    word: str
-    transcription: str
-    translation: str
+    word: RequiredText
+    transcription: RequiredText
+    translation: RequiredText
 
 
 class VocabularyResponse(BaseModel):
