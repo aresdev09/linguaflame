@@ -72,9 +72,9 @@ def do_run_migrations(connection: Connection) -> None:
 async def run_async_migrations() -> None:
     """Создаёт движок и применяет миграции на одном соединении.
 
-    Движок общий с ботом (`bot.database.build_engine`): SQLite получает
-    WAL и ожидание блокировок, иначе миграции при старте падают с
-    `database is locked`, пока бот параллельно пишет в базу.
+    Движок общий с ботом (`bot.database.build_engine`): для SQLite
+    включаются WAL и длительное ожидание блокировки записи — те же
+    настройки, что и у рабочего движка бота.
     """
 
     connectable = build_engine(database_url, poolclass=pool.NullPool)
