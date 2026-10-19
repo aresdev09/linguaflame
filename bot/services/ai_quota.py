@@ -3,11 +3,16 @@
 Счётчик хранится в `ai_usage` по локальной дате пользователя. Лимит
 считает логические задачи (вопрос квиза, набор слов, урок, проверка эссе,
 ответ в чате), а не отдельные HTTP-повторы внутри `AIClient`.
+
+Лимит проверяется до запроса, а счётчик обновляется после успешного
+ответа. Так запись в БД не держит блокировку записи SQLite во время
+ожидания ответа ИИ — иначе параллельные апдейты падают с
+`database is locked`.
 """
 
 import logging
 from collections.abc import Iterable, Sequence
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class QuotaAIClient:
-    """Обёртка `AIClient`: списывает запрос и не даёт превысить дневной лимит."""
+    """Обёртка `AIClient`: не даёт превысить дневной лимит запросов."""
 
     def __init__(
         self,
@@ -44,12 +49,17 @@ class QuotaAIClient:
         self._limit = limit
         self._now = now
 
-    async def _charge(self) -> None:
-        """Списывает один запрос; при исчерпании лимита — понятная ошибка."""
+    def _day(self) -> date:
+        """Локальная дата пользователя, к которой относится запрос."""
         moment = as_utc(self._now)
-        day = moment.astimezone(resolve_timezone(self._user.timezone, user_id=self._user.id)).date()
-        allowed = await AIUsageRepo(self._session).consume(self._user.id, day, self._limit)
-        if not allowed:
+        timezone_info = resolve_timezone(self._user.timezone, user_id=self._user.id)
+        return moment.astimezone(timezone_info).date()
+
+    async def _check_limit(self) -> None:
+        """Проверяет лимит до запроса к ИИ; чтение писателей не блокирует."""
+        day = self._day()
+        usage = await AIUsageRepo(self._session).get(self._user.id, day)
+        if usage is not None and usage.requests >= self._limit:
             logger.warning(
                 "Лимит ИИ исчерпан: пользователь %s, %s, лимит %d",
                 self._user.id,
@@ -58,9 +68,15 @@ class QuotaAIClient:
             )
             raise AIQuotaExceeded(f"Пользователь {self._user.id} исчерпал лимит ИИ на {day}")
 
+    async def _count_request(self) -> None:
+        """Учитывает запрос после успешного ответа ИИ."""
+        await AIUsageRepo(self._session).add(self._user.id, self._day())
+
     async def generate_quiz(self, level: str, lang: str) -> QuizQuestion:
-        await self._charge()
-        return await self._client.generate_quiz(level, lang)
+        await self._check_limit()
+        question = await self._client.generate_quiz(level, lang)
+        await self._count_request()
+        return question
 
     async def generate_vocabulary(
         self,
@@ -70,10 +86,12 @@ class QuotaAIClient:
         count: int,
         exclude_words: Iterable[str] = (),
     ) -> VocabularyResponse:
-        await self._charge()
-        return await self._client.generate_vocabulary(
+        await self._check_limit()
+        response = await self._client.generate_vocabulary(
             level, lang, count=count, exclude_words=exclude_words
         )
+        await self._count_request()
+        return response
 
     async def generate_lesson_plan(
         self,
@@ -82,12 +100,16 @@ class QuotaAIClient:
         *,
         topic: str | None = None,
     ) -> LessonPlan:
-        await self._charge()
-        return await self._client.generate_lesson_plan(level, lang, topic=topic)
+        await self._check_limit()
+        plan = await self._client.generate_lesson_plan(level, lang, topic=topic)
+        await self._count_request()
+        return plan
 
     async def check_essay(self, level: str, lang: str, text: str) -> EssayCheck:
-        await self._charge()
-        return await self._client.check_essay(level, lang, text)
+        await self._check_limit()
+        check = await self._client.check_essay(level, lang, text)
+        await self._count_request()
+        return check
 
     async def free_chat(
         self,
@@ -97,8 +119,10 @@ class QuotaAIClient:
         history: Sequence[dict[str, str]] = (),
         text: str,
     ) -> str:
-        await self._charge()
-        return await self._client.free_chat(level, lang, history=history, text=text)
+        await self._check_limit()
+        answer = await self._client.free_chat(level, lang, history=history, text=text)
+        await self._count_request()
+        return answer
 
     async def ask_in_lesson(
         self,
@@ -108,5 +132,9 @@ class QuotaAIClient:
         step_text: str,
         question: str,
     ) -> str:
-        await self._charge()
-        return await self._client.ask_in_lesson(level, lang, step_text=step_text, question=question)
+        await self._check_limit()
+        answer = await self._client.ask_in_lesson(
+            level, lang, step_text=step_text, question=question
+        )
+        await self._count_request()
+        return answer

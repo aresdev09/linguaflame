@@ -12,16 +12,12 @@ class AIUsageRepo(BaseRepo):
     async def get(self, user_id: int, day: date) -> AIUsage | None:
         return await self.session.get(AIUsage, (user_id, day))
 
-    async def consume(self, user_id: int, day: date, limit: int) -> bool:
-        """Списывает один запрос; False — дневной лимит уже исчерпан."""
+    async def add(self, user_id: int, day: date) -> None:
+        """Учитывает один запрос за день, создавая счётчик при необходимости."""
         usage = await self.get(user_id, day)
         if usage is None:
             usage = AIUsage(user_id=user_id, day=day, requests=1)
             self.session.add(usage)
-            await self.session.flush()
-            return True
-        if usage.requests >= limit:
-            return False
-        usage.requests += 1
+        else:
+            usage.requests += 1
         await self.session.flush()
-        return True

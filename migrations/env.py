@@ -6,9 +6,9 @@ from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from bot.config import DEFAULT_DATABASE_URL
+from bot.database import build_engine
 from bot.models import Base
 
 # this is the Alembic Config object, which provides
@@ -70,16 +70,14 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_async_migrations() -> None:
-    """In this scenario we need to create an Engine
-    and associate a connection with the context.
+    """Создаёт движок и применяет миграции на одном соединении.
 
+    Движок общий с ботом (`bot.database.build_engine`): SQLite получает
+    WAL и ожидание блокировок, иначе миграции при старте падают с
+    `database is locked`, пока бот параллельно пишет в базу.
     """
 
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    connectable = build_engine(database_url, poolclass=pool.NullPool)
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)

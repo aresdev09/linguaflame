@@ -7,6 +7,7 @@
 
 import inspect
 from datetime import UTC, date, datetime, time, timedelta
+from pathlib import Path
 from typing import Any
 
 from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
@@ -18,11 +19,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from bot.config import Settings
+from bot.database import build_engine
 from bot.keyboards import REMINDER_QUICK_CALLBACK, reminder_quick_kb
 from bot.locales import t
 from bot.middlewares.ai import AIClientMiddleware
 from bot.middlewares.user import UserMiddleware
-from bot.models import ActivityLog, Streak, User
+from bot.models import ActivityLog, Base, Streak, User
 from bot.repositories import StreakRepo, UserRepo
 from bot.routers.reminders import quick_start_callback
 from bot.scheduler import (
@@ -42,6 +44,7 @@ from tests.fakes import FakeCallbackQuery, FakeChat, FakeMessage, FakeUpdate
 
 UTC_USER = 3001
 SAM_USER = 3002
+THIRD_USER = 3003
 
 
 class FakeBot:
@@ -57,6 +60,32 @@ class FakeBot:
         if self.errors:
             raise self.errors.pop(0)
         self.messages.append({"chat_id": chat_id, "text": text, "reply_markup": reply_markup})
+
+
+class SpyBot(FakeBot):
+    """Перед письмом «контрольному» пользователю читает БД отдельным соединением."""
+
+    def __init__(
+        self,
+        session_factory: async_sessionmaker[AsyncSession],
+        *,
+        watching: int,
+        watched: int,
+    ) -> None:
+        super().__init__()
+        self._session_factory = session_factory
+        self._watching = watching
+        self._watched = watched
+        self.seen: list[int | None] = []
+
+    async def send_message(
+        self, chat_id: int, text: str, reply_markup: Any = None, **kwargs: Any
+    ) -> None:
+        if chat_id == self._watching:
+            async with self._session_factory() as session:
+                streak = await StreakRepo(session).get(self._watched)
+                self.seen.append(streak.reminders_count if streak is not None else None)
+        await super().send_message(chat_id, text, reply_markup, **kwargs)
 
 
 async def _create_user(
@@ -593,3 +622,33 @@ async def test_scheduler_registers_hourly_job(
     # Задача должна переживать RedisJobStore: объект Bot в аргументы не попадает.
     assert job.func_ref == "bot.scheduler:run_hourly_check"
     assert job.args == ()
+
+
+async def test_reminder_mark_is_committed_before_next_user(tmp_path: Path) -> None:
+    """Рассылка не держит одну транзакцию на всех: запись идёт отдельно на пользователя.
+
+    Перед письмом второму пользователю отметка об отправке первому уже в БД.
+    Иначе блокировка записи SQLite висела бы всю рассылку, и апдейты бота
+    падали бы с `database is locked`.
+    """
+    engine = build_engine(f"sqlite+aiosqlite:///{(tmp_path / 'reminders.db').as_posix()}")
+    async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.create_all)
+    factory = async_sessionmaker(engine, expire_on_commit=False)
+    try:
+        for user_id in (UTC_USER, THIRD_USER):
+            await _create_user(
+                factory,
+                user_id,
+                timezone_name="UTC",
+                last_activity=date(2026, 10, 17),
+                streak=2,
+            )
+        bot = SpyBot(factory, watching=THIRD_USER, watched=UTC_USER)
+
+        run = await _run(factory, bot, datetime(2026, 10, 18, 9, 0, tzinfo=UTC))
+
+        assert run.sent == 2
+        assert bot.seen == [1]
+    finally:
+        await engine.dispose()

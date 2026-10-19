@@ -5,6 +5,10 @@
 тексты и обновление серии — в `bot.services.reminders`; здесь отправка,
 пауза между сообщениями и обработка ошибок Telegram.
 
+Записи идут отдельными короткими транзакциями: одна транзакция на рассылку
+держала бы блокировку записи SQLite во время всех отправок, и параллельные
+апдейты бота падали бы с `database is locked`.
+
 Задачи хранятся в Redis (`RedisJobStore`), чтобы переживать перезапуск бота.
 Если Redis недоступен (локальная разработка), используется память процесса —
 как и для FSM в `bot.main`.
@@ -27,7 +31,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from bot.config import Settings, get_settings
-from bot.database import get_session_factory
+from bot.database import get_session_factory, transaction_with_retry
 from bot.keyboards import reminder_quick_kb
 from bot.models import User
 from bot.repositories import UserRepo
@@ -83,45 +87,52 @@ async def check_streaks(
     moment = as_utc(now) + timedelta(hours=hour_offset)
     checked = sent = skipped = blocked = failed = 0
 
+    # Кандидатов читаем в короткой сессии: дальше на каждого пользователя
+    # открывается своя транзакция только на время записи об отправке.
     async with session_factory() as session:
-        async with session.begin():
-            users = await UserRepo(session).list_active_with_streaks()
-            for user, streak in users:
-                checked += 1
-                reminder = plan_reminder(user, streak, moment)
-                if reminder is None or not reminder_allowed(user, streak, moment):
-                    skipped += 1
-                    continue
+        users = await UserRepo(session).list_active_with_streaks()
 
-                text = reminder_text(reminder, user, moment)
-                try:
-                    await _send(bot, user, text)
-                except TelegramForbiddenError:
-                    # Пользователь заблокировал бота: больше ему не пишем.
-                    await UserRepo(session).deactivate(user.id)
-                    blocked += 1
-                    logger.info("Пользователь %s заблокировал бота", user.id)
-                    continue
-                except TelegramRetryAfter as exc:
-                    await sleep(exc.retry_after)
-                    try:
-                        await _send(bot, user, text)
-                    except TelegramForbiddenError:
-                        await UserRepo(session).deactivate(user.id)
-                        blocked += 1
-                        continue
-                    except Exception:
-                        failed += 1
-                        logger.exception("Повторная отправка напоминания %s не удалась", user.id)
-                        continue
-                except Exception:
-                    failed += 1
-                    logger.exception("Не удалось отправить напоминание пользователю %s", user.id)
-                    continue
+    for user, streak in users:
+        checked += 1
+        reminder = plan_reminder(user, streak, moment)
+        if reminder is None or not reminder_allowed(user, streak, moment):
+            skipped += 1
+            continue
 
-                await mark_reminder_sent(session, user, reminder, moment)
-                sent += 1
-                await sleep(pause)
+        text = reminder_text(reminder, user, moment)
+        try:
+            await _send(bot, user, text)
+        except TelegramForbiddenError:
+            # Пользователь заблокировал бота: больше ему не пишем.
+            await _deactivate(session_factory, user.id)
+            blocked += 1
+            logger.info("Пользователь %s заблокировал бота", user.id)
+            continue
+        except TelegramRetryAfter as exc:
+            await sleep(exc.retry_after)
+            try:
+                await _send(bot, user, text)
+            except TelegramForbiddenError:
+                await _deactivate(session_factory, user.id)
+                blocked += 1
+                continue
+            except Exception:
+                failed += 1
+                logger.exception("Повторная отправка напоминания %s не удалась", user.id)
+                continue
+        except Exception:
+            failed += 1
+            logger.exception("Не удалось отправить напоминание пользователю %s", user.id)
+            continue
+
+        await transaction_with_retry(
+            session_factory,
+            lambda session, user=user, reminder=reminder: mark_reminder_sent(
+                session, user, reminder, moment
+            ),
+        )
+        sent += 1
+        await sleep(pause)
 
     run = ReminderRun(
         checked=checked,
@@ -139,6 +150,17 @@ async def check_streaks(
         run.failed,
     )
     return run
+
+
+async def _deactivate(
+    session_factory: async_sessionmaker[AsyncSession],
+    user_id: int,
+) -> None:
+    """Помечает пользователя неактивным своей короткой транзакцией."""
+    await transaction_with_retry(
+        session_factory,
+        lambda session: UserRepo(session).deactivate(user_id),
+    )
 
 
 async def _send(bot: Bot, user: User, text: str) -> None:

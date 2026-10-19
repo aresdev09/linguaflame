@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from bot.middlewares.ai import AIClientMiddleware
 from bot.repositories import AIUsageRepo, UserRepo
-from bot.services.ai_errors import AIQuotaExceeded
+from bot.services.ai_errors import AIQuotaExceeded, AIRequestError
 from bot.services.ai_quota import QuotaAIClient
 from bot.services.fake_ai_client import FakeAIClient
 
@@ -40,13 +40,37 @@ async def test_quota_allows_requests_up_to_limit(session: AsyncSession) -> None:
 
 async def test_quota_blocks_extra_request(session: AsyncSession) -> None:
     user = await _user(session)
-    client = QuotaAIClient(FakeAIClient(), session, user, 1, now=MOMENT)
+    fake = FakeAIClient()
+    client = QuotaAIClient(fake, session, user, 1, now=MOMENT)
 
     await client.generate_quiz("B1", "ru")
     with pytest.raises(AIQuotaExceeded) as exc:
         await client.generate_quiz("B1", "ru")
 
     assert exc.value.user_message_key == "common.ai_limit"
+    # Заблокированный запрос до ИИ не дошёл: лимит проверяется до вызова.
+    assert len(fake.calls_of("quiz")) == 1
+
+
+async def test_quota_does_not_count_failed_ai_call(session: AsyncSession) -> None:
+    """Счётчик растёт только после успешного ответа: ошибка лимит не тратит."""
+    user = await _user(session)
+    broken = QuotaAIClient(
+        FakeAIClient(error=AIRequestError("нет связи")), session, user, 1, now=MOMENT
+    )
+
+    with pytest.raises(AIRequestError):
+        await broken.generate_quiz("B1", "ru")
+
+    assert await AIUsageRepo(session).get(USER_ID, datetime(2026, 10, 18).date()) is None
+
+    # Лимит не израсходован: следующий успешный запрос проходит.
+    ok = QuotaAIClient(FakeAIClient(), session, user, 1, now=MOMENT)
+    await ok.generate_quiz("B1", "ru")
+
+    usage = await AIUsageRepo(session).get(USER_ID, datetime(2026, 10, 18).date())
+    assert usage is not None
+    assert usage.requests == 1
 
 
 async def test_quota_resets_next_local_day(session: AsyncSession) -> None:
