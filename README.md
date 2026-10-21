@@ -126,8 +126,8 @@ All settings are read from the environment or from `.env`
 | `REDIS_URL` | no | `redis://localhost:6379/0` | FSM storage and scheduler job store |
 | `AI_SERVER_URL` | no | `https://integrate.api.nvidia.com/v1` | Base URL of the OpenAI-compatible API (OpenRouter: `https://openrouter.ai/api/v1`) |
 | `AI_API_KEY` | for AI features | empty | API key for that service (`nvapi-...` for NVIDIA) |
-| `AI_MODEL` | no | `openai/gpt-oss-20b` | Model ID from the chosen provider's catalog; `.env.example` uses `deepseek-ai/deepseek-v4.1-flash` |
-| `AI_TIMEOUT` | no | `90` | Seconds to wait for one AI request (lesson generation is the slowest) |
+| `AI_MODEL` | no | `deepseek-ai/deepseek-v4.1-flash` | Model ID from the chosen provider's catalog |
+| `AI_TIMEOUT` | no | `180` | Seconds to wait for one AI request (lesson generation and essay checks are the slowest) |
 | `AI_DAILY_LIMIT` | no | `100` | AI tasks per user per day (`0` disables the limit) |
 | `LOG_LEVEL` | no | `INFO` | Standard Python logging level name, for example `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL` |
 | `LOG_JSON` | no | `false` | `true` — structured JSON logs |
@@ -144,9 +144,8 @@ Keep real values only in `.env` or in the process environment.
 ### AI provider: NVIDIA NIM (default) or OpenRouter
 
 The AI client speaks the OpenAI chat-completions protocol, so any compatible
-provider works without code changes. The built-in fallback targets NVIDIA NIM
-with `openai/gpt-oss-20b`; `.env.example` uses
-`deepseek-ai/deepseek-v4.1-flash` on the same endpoint:
+provider works without code changes. Defaults target NVIDIA NIM with
+`deepseek-ai/deepseek-v4.1-flash`:
 
 ```
 AI_SERVER_URL=https://integrate.api.nvidia.com/v1
@@ -201,6 +200,7 @@ required by Telegram.
 ```bash
 pytest -q
 pytest --cov=bot --cov-report=term-missing   # with coverage (pytest-cov)
+RUN_LIVE_AI=1 pytest -q tests/test_ai_live.py # real API check, uses tokens
 ruff check .                                 # linting
 ruff format .                                # formatting
 ```

@@ -82,9 +82,9 @@ class Settings(BaseSettings):
     # с https://build.nvidia.com. OpenRouter: https://openrouter.ai/api/v1.
     ai_server_url: str = "https://integrate.api.nvidia.com/v1"
     ai_api_key: str = ""
-    ai_model: str = "openai/gpt-oss-20b"
-    # Таймаут одного запроса: план урока генерируется 30–60 с.
-    ai_timeout: float = Field(default=90.0, gt=0)
+    ai_model: str = "deepseek-ai/deepseek-v4.1-flash"
+    # Таймаут одного запроса: план урока и проверка эссе иногда идут дольше минуты.
+    ai_timeout: float = Field(default=180.0, gt=0)
     log_level: str = "INFO"
     # JSON-логи для продакшена; в разработке удобнее обычный текст.
     log_json: bool = False

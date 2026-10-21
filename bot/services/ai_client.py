@@ -58,8 +58,8 @@ logger = logging.getLogger(__name__)
 SchemaT = TypeVar("SchemaT", bound=BaseModel)
 
 CHAT_COMPLETIONS_PATH = "/chat/completions"
-# Бесплатные reasoning-модели отвечают 20–40 с, поэтому запас больше типичного.
-DEFAULT_TIMEOUT = 60.0
+# Reasoning-модели отвечают 20–40 с, а урок или эссе могут идти дольше минуты.
+DEFAULT_TIMEOUT = 180.0
 MAX_RETRIES = 2
 RETRY_BASE_DELAY = 1.0
 CHARS_PER_TOKEN = 4  # грубая оценка, если сервер не вернул usage
