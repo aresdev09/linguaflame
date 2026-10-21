@@ -82,7 +82,7 @@ class Settings(BaseSettings):
     # с https://build.nvidia.com. OpenRouter: https://openrouter.ai/api/v1.
     ai_server_url: str = "https://integrate.api.nvidia.com/v1"
     ai_api_key: str = ""
-    ai_model: str = "deepseek-ai/deepseek-v4.1-flash"
+    ai_model: str = "nvidia/nemotron-3-ultra-550b-a55b"
     # Таймаут одного запроса: план урока и проверка эссе иногда идут дольше минуты.
     ai_timeout: float = Field(default=180.0, gt=0)
     log_level: str = "INFO"

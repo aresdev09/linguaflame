@@ -126,7 +126,7 @@ All settings are read from the environment or from `.env`
 | `REDIS_URL` | no | `redis://localhost:6379/0` | FSM storage and scheduler job store |
 | `AI_SERVER_URL` | no | `https://integrate.api.nvidia.com/v1` | Base URL of the OpenAI-compatible API (OpenRouter: `https://openrouter.ai/api/v1`) |
 | `AI_API_KEY` | for AI features | empty | API key for that service (`nvapi-...` for NVIDIA) |
-| `AI_MODEL` | no | `deepseek-ai/deepseek-v4.1-flash` | Model ID from the chosen provider's catalog |
+| `AI_MODEL` | no | `nvidia/nemotron-3-ultra-550b-a55b` | Model ID from the chosen provider's catalog |
 | `AI_TIMEOUT` | no | `180` | Seconds to wait for one AI request (lesson generation and essay checks are the slowest) |
 | `AI_DAILY_LIMIT` | no | `100` | AI tasks per user per day (`0` disables the limit) |
 | `LOG_LEVEL` | no | `INFO` | Standard Python logging level name, for example `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL` |
@@ -145,12 +145,12 @@ Keep real values only in `.env` or in the process environment.
 
 The AI client speaks the OpenAI chat-completions protocol, so any compatible
 provider works without code changes. Defaults target NVIDIA NIM with
-`deepseek-ai/deepseek-v4.1-flash`:
+`nvidia/nemotron-3-ultra-550b-a55b`:
 
 ```
 AI_SERVER_URL=https://integrate.api.nvidia.com/v1
 AI_API_KEY=nvapi-...          # from https://build.nvidia.com
-AI_MODEL=deepseek-ai/deepseek-v4.1-flash
+AI_MODEL=nvidia/nemotron-3-ultra-550b-a55b
 ```
 
 To switch to OpenRouter, change the same three values:
