@@ -20,5 +20,5 @@ COPY scripts ./scripts
 
 USER bot
 
-# Миграции запускает docker-compose перед стартом бота.
+# Бот применяет миграции и загружает банк вопросов при старте.
 CMD ["python", "-m", "bot.main"]

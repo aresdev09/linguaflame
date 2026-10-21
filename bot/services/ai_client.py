@@ -6,7 +6,7 @@
 Весь код бота ходит в ИИ только через этот класс.
 
 Контракт запроса:
-    POST {AI_SERVER_URL}/chat/completions   # по умолчанию https://openrouter.ai/api/v1
+    POST {AI_SERVER_URL}/chat/completions   # по умолчанию https://integrate.api.nvidia.com/v1
     headers: Authorization: Bearer <AI_API_KEY>, Content-Type: application/json
 
     body:

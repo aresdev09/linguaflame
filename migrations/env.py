@@ -11,12 +11,8 @@ from bot.config import DEFAULT_DATABASE_URL
 from bot.database import build_engine
 from bot.models import Base
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
 # При запуске из бота логирование уже настроено, перезаписывать его нельзя.
 if config.config_file_name is not None and not config.attributes.get("skip_logging_config"):
     fileConfig(config.config_file_name)
@@ -31,11 +27,6 @@ config.set_main_option("sqlalchemy.url", database_url)
 
 # Схема приложения нужна для 'autogenerate'
 target_metadata = Base.metadata
-
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
 
 
 def run_migrations_offline() -> None:
