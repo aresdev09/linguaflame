@@ -1,9 +1,8 @@
 # LinguaFlame
 
-Telegram bot for learning English with an AI backend. It runs quizzes, daily
-vocabulary sets, step-by-step grammar lessons, IELTS essay checks, a level test,
-and a free conversation mode, and keeps the learner consistent with a daily
-streak plus reminders.
+Telegram bot for learning English with an AI backend: quizzes, daily vocabulary,
+step-by-step grammar lessons, IELTS essay checks, a CEFR level test, free chat,
+and a daily streak with reminders.
 
 ## Features
 
@@ -38,7 +37,8 @@ An hourly APScheduler job sends reminders (times are local to the user):
 - 20:00 evening reminder with the current streak, also only on an inactive day;
 - 10:00 the day after a missed day ("where are you?" plus the lost streak);
 - further gentle reminders after 3 and 7 days without activity;
-- after 7 silent days, sending stops until the next activity;
+- once more than 7 days have passed without activity, sending stops until the
+  next activity;
 - at most 2 scheduler messages per day, and rerunning the check in the same
   hour does not duplicate them.
 
@@ -59,8 +59,9 @@ learning action.
 ## Project structure
 
 ```
+main.py              entry point for hosts that run `python main.py`
 bot/
-  main.py            entry point: polling, dispatcher, middlewares, menu commands
+  main.py            polling/webhook startup, dispatcher, middlewares, menu commands
   webhook.py         webhook mode (aiohttp)
   config.py          settings loaded from environment / .env
   database.py        async engine and session factory
@@ -76,35 +77,41 @@ bot/
   repositories/      database access
   routers/           one router per command
   services/          business logic without aiogram
+alembic.ini          Alembic configuration
 migrations/          Alembic migrations
-scripts/             question bank loader, manual reminder run
+scripts/             question bank loader, reminder check, AI check
 tests/               pytest suite
+Dockerfile           bot image
+docker-compose.yml   PostgreSQL, Redis and bot services
+pyproject.toml       ruff configuration
+requirements.txt     runtime dependencies
+requirements-dev.txt test and linting dependencies
 ```
 
 ## Quick start
 
+The project targets Python 3.12 (the Docker image uses `python:3.12-slim`).
+
 ```bash
 git clone <repository-url>
-cd linguflame
+cd LinguaFlame
 
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 pip install -r requirements-dev.txt # tests and linting
 
-cp .env.example .env               # then fill in the values
-
-python -m bot.main                             # long polling
+cp .env.example .env               # Windows: Copy-Item .env.example .env
+alembic upgrade head               # create or update the schema
+python -m bot.main                 # long polling by default
 ```
 
-On startup the bot applies Alembic migrations (`alembic upgrade head`) and
-loads the bundled question bank, both idempotently. This also makes panel
-hosting work, where only `python main.py` is configured as the start command.
-The same steps can still be run manually:
+On startup the bot also applies Alembic migrations and loads the bundled
+question bank, both idempotently, so it is enough to configure `python main.py`
+as the start command on a host. The question bank can also be loaded manually:
 
 ```bash
-alembic upgrade head                    # apply the schema
-python -m scripts.load_level_questions  # load the question bank
+python -m scripts.load_level_questions
 ```
 
 ### Environment variables
@@ -119,10 +126,10 @@ All settings are read from the environment or from `.env`
 | `REDIS_URL` | no | `redis://localhost:6379/0` | FSM storage and scheduler job store |
 | `AI_SERVER_URL` | no | `https://integrate.api.nvidia.com/v1` | Base URL of the OpenAI-compatible API (OpenRouter: `https://openrouter.ai/api/v1`) |
 | `AI_API_KEY` | for AI features | empty | API key for that service (`nvapi-...` for NVIDIA) |
-| `AI_MODEL` | no | `openai/gpt-oss-20b` | Model ID from the chosen provider's catalog |
+| `AI_MODEL` | no | `openai/gpt-oss-20b` | Model ID from the chosen provider's catalog; `.env.example` uses `deepseek-ai/deepseek-v4.1-flash` |
 | `AI_TIMEOUT` | no | `90` | Seconds to wait for one AI request (lesson generation is the slowest) |
-| `AI_DAILY_LIMIT` | no | `100` | AI requests per user per day (`0` disables the limit) |
-| `LOG_LEVEL` | no | `INFO` | `DEBUG` / `INFO` / `WARNING` / `ERROR` |
+| `AI_DAILY_LIMIT` | no | `100` | AI tasks per user per day (`0` disables the limit) |
+| `LOG_LEVEL` | no | `INFO` | Standard Python logging level name, for example `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL` |
 | `LOG_JSON` | no | `false` | `true` — structured JSON logs |
 | `REMINDER_HOUR_OFFSET` | no | `0` | Shifts scheduler time in hours for manual checks |
 | `BOT_MODE` | no | `polling` | `polling` or `webhook` |
@@ -137,12 +144,14 @@ Keep real values only in `.env` or in the process environment.
 ### AI provider: NVIDIA NIM (default) or OpenRouter
 
 The AI client speaks the OpenAI chat-completions protocol, so any compatible
-provider works without code changes. Defaults target NVIDIA:
+provider works without code changes. The built-in fallback targets NVIDIA NIM
+with `openai/gpt-oss-20b`; `.env.example` uses
+`deepseek-ai/deepseek-v4.1-flash` on the same endpoint:
 
 ```
 AI_SERVER_URL=https://integrate.api.nvidia.com/v1
 AI_API_KEY=nvapi-...          # from https://build.nvidia.com
-AI_MODEL=openai/gpt-oss-20b
+AI_MODEL=deepseek-ai/deepseek-v4.1-flash
 ```
 
 To switch to OpenRouter, change the same three values:
@@ -150,7 +159,7 @@ To switch to OpenRouter, change the same three values:
 ```
 AI_SERVER_URL=https://openrouter.ai/api/v1
 AI_API_KEY=sk-or-...          # from https://openrouter.ai/keys
-AI_MODEL=nvidia/nemotron-3.5-super-vl:free
+AI_MODEL=<model-id-from-openrouter>
 ```
 
 Model IDs are provider-specific: OpenRouter's `:free` suffix does not exist on
