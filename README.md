@@ -126,7 +126,9 @@ All settings are read from the environment or from `.env`
 | `REDIS_URL` | no | `redis://localhost:6379/0` | FSM storage and scheduler job store |
 | `AI_SERVER_URL` | no | `https://integrate.api.nvidia.com/v1` | Base URL of the OpenAI-compatible API (OpenRouter: `https://openrouter.ai/api/v1`) |
 | `AI_API_KEY` | for AI features | empty | API key for that service (`nvapi-...` for NVIDIA) |
-| `AI_MODEL` | no | `nvidia/nemotron-3-ultra-550b-a55b` | Model ID from the chosen provider's catalog |
+| `AI_MODEL` | no | `nvidia/nemotron-3-ultra-550b-a55b` | Model ID for quiz, chat, and lesson questions |
+| `AI_MODEL_HARD` | no | empty (uses `AI_MODEL`) | Model for lesson plans, essay checks, and daily vocabulary |
+| `AI_MODEL_FALLBACK` | no | `deepseek-ai/deepseek-v4.1-flash` | Backup model used when the primary model fails or times out; empty disables it |
 | `AI_TIMEOUT` | no | `180` | Seconds to wait for one AI request (lesson generation and essay checks are the slowest) |
 | `AI_DAILY_LIMIT` | no | `100` | AI tasks per user per day (`0` disables the limit) |
 | `LOG_LEVEL` | no | `INFO` | Standard Python logging level name, for example `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL` |
@@ -145,34 +147,44 @@ Keep real values only in `.env` or in the process environment.
 
 The AI client speaks the OpenAI chat-completions protocol, so any compatible
 provider works without code changes. Defaults target NVIDIA NIM with
-`nvidia/nemotron-3-ultra-550b-a55b`:
+`nvidia/nemotron-3-ultra-550b-a55b` for all tasks and
+`deepseek-ai/deepseek-v4.1-flash` as the backup:
 
 ```
 AI_SERVER_URL=https://integrate.api.nvidia.com/v1
 AI_API_KEY=nvapi-...          # from https://build.nvidia.com
 AI_MODEL=nvidia/nemotron-3-ultra-550b-a55b
+AI_MODEL_FALLBACK=deepseek-ai/deepseek-v4.1-flash
 ```
 
-To switch to OpenRouter, change the same three values:
+`AI_MODEL_HARD` is optional. Set it when a stronger model should handle lesson
+plans, essay checks, and daily vocabulary; leave it empty to reuse `AI_MODEL`.
+The fallback is tried after normal retries, including after a timeout, so a
+temporary model outage does not have to fail the user's request.
+
+To switch to OpenRouter, change the same values and use OpenRouter model IDs
+for the hard and fallback slots too:
 
 ```
 AI_SERVER_URL=https://openrouter.ai/api/v1
 AI_API_KEY=sk-or-...          # from https://openrouter.ai/keys
 AI_MODEL=<model-id-from-openrouter>
+AI_MODEL_HARD=<stronger-model-id>
+AI_MODEL_FALLBACK=<backup-model-id>
 ```
 
 Model IDs are provider-specific: OpenRouter's `:free` suffix does not exist on
 NVIDIA, and a model ID may be listed in a provider's catalog yet return 404 for
-your account. Before deploying, check the whole setup with one text request and
-one JSON request:
+your account. Before deploying, check the whole setup with a text request, a
+quiz JSON request, and a short vocabulary request on the hard-task model:
 
 ```bash
 python -m scripts.check_ai
 ```
 
-The script prints the configured URL, model and whether a key is set, warns
-when the key and URL belong to different providers, and exits non-zero if the
-model fails either request.
+The script prints the configured URL, models and whether a key is set, warns
+when the key and URL belong to different providers, and exits non-zero if any
+request fails.
 
 ## Docker
 

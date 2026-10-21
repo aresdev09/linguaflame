@@ -12,6 +12,8 @@ ENV_VARS = (
     "AI_SERVER_URL",
     "AI_API_KEY",
     "AI_MODEL",
+    "AI_MODEL_HARD",
+    "AI_MODEL_FALLBACK",
     "AI_TIMEOUT",
     "LOG_LEVEL",
 )
@@ -42,6 +44,8 @@ def test_ai_defaults_target_nvidia(monkeypatch: pytest.MonkeyPatch) -> None:
 
     assert settings.ai_server_url == "https://integrate.api.nvidia.com/v1"
     assert settings.ai_model == "nvidia/nemotron-3-ultra-550b-a55b"
+    assert settings.ai_model_hard == ""
+    assert settings.ai_model_fallback == "deepseek-ai/deepseek-v4.1-flash"
     assert settings.ai_timeout == 180.0
 
 

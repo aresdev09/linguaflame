@@ -49,6 +49,8 @@ services:
       AI_SERVER_URL: ${AI_SERVER_URL:-https://integrate.api.nvidia.com/v1}
       AI_API_KEY: ${AI_API_KEY:-}
       AI_MODEL: ${AI_MODEL:-nvidia/nemotron-3-ultra-550b-a55b}
+      AI_MODEL_HARD: ${AI_MODEL_HARD:-}
+      AI_MODEL_FALLBACK: ${AI_MODEL_FALLBACK:-deepseek-ai/deepseek-v4.1-flash}
       AI_TIMEOUT: ${AI_TIMEOUT:-180}
       AI_DAILY_LIMIT: ${AI_DAILY_LIMIT:-100}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}

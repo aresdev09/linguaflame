@@ -316,6 +316,78 @@ async def test_free_chat_returns_text_with_history(make_client) -> None:
     assert "Answer in the language the student writes in." in system_prompt
 
 
+async def test_hard_tasks_use_hard_model(make_client) -> None:
+    answers = [
+        json_envelope(LESSON_PLAN_RESPONSE),
+        json_envelope(ESSAY_RESPONSE),
+        json_envelope(VOCABULARY_RESPONSE),
+    ]
+    client, requests = make_client(lambda request: answers.pop(0), hard_model="hard/model")
+
+    await client.generate_lesson_plan("B1", "ru")
+    await client.check_essay("B1", "ru", "An essay.")
+    await client.generate_vocabulary("A2", "ru", count=1)
+
+    assert [request_payload(request)["model"] for request in requests] == ["hard/model"] * 3
+
+
+async def test_fallback_model_is_used_after_primary_failure(make_client) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request_payload(request)["model"] == "test/model":
+            return httpx.Response(503, text="unavailable")
+        return json_envelope(QUIZ_RESPONSE)
+
+    client, requests = make_client(
+        handler,
+        fallback_model="backup/model",
+        max_retries=0,
+    )
+
+    question = await client.generate_quiz("A2", "ru")
+
+    assert question.correct == "A"
+    assert [request_payload(request)["model"] for request in requests] == [
+        "test/model",
+        "backup/model",
+    ]
+
+
+async def test_fallback_model_is_used_after_timeout(make_client) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request_payload(request)["model"] == "test/model":
+            raise httpx.ReadTimeout("timed out", request=request)
+        return json_envelope(QUIZ_RESPONSE)
+
+    client, requests = make_client(handler, fallback_model="backup/model")
+
+    question = await client.generate_quiz("A2", "ru")
+
+    assert question.correct == "A"
+    assert len(requests) == 2
+
+
+async def test_hard_model_falls_back_to_backup(make_client) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request_payload(request)["model"] == "hard/model":
+            return httpx.Response(503, text="unavailable")
+        return json_envelope(LESSON_PLAN_RESPONSE)
+
+    client, requests = make_client(
+        handler,
+        hard_model="hard/model",
+        fallback_model="backup/model",
+        max_retries=0,
+    )
+
+    plan = await client.generate_lesson_plan("B1", "ru")
+
+    assert plan.topic == "Present Perfect"
+    assert [request_payload(request)["model"] for request in requests] == [
+        "hard/model",
+        "backup/model",
+    ]
+
+
 async def test_lesson_plan_and_lesson_question(make_client) -> None:
     answers = [
         json_envelope(LESSON_PLAN_RESPONSE),
@@ -372,14 +444,20 @@ def test_get_ai_client_takes_settings_from_config(monkeypatch) -> None:
     monkeypatch.setenv("AI_SERVER_URL", "https://openrouter.ai/api/v1/")
     monkeypatch.setenv("AI_API_KEY", "key-from-env")
     monkeypatch.setenv("AI_MODEL", "vendor/model:free")
+    monkeypatch.setenv("AI_MODEL_HARD", "vendor/hard")
+    monkeypatch.setenv("AI_MODEL_FALLBACK", "vendor/backup")
+    ai_client_module.get_settings.cache_clear()
     ai_client_module.get_ai_client.cache_clear()
     try:
         client = ai_client_module.get_ai_client()
         assert client.base_url == "https://openrouter.ai/api/v1"
         assert client.api_key == "key-from-env"
         assert client.model == "vendor/model:free"
+        assert client.hard_model == "vendor/hard"
+        assert client.fallback_model == "vendor/backup"
     finally:
         ai_client_module.get_ai_client.cache_clear()
+        ai_client_module.get_settings.cache_clear()
 
 
 def test_error_texts_exist_in_localization() -> None:

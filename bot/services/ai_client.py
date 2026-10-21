@@ -99,6 +99,8 @@ class AIClient:
         api_key: str,
         *,
         model: str,
+        hard_model: str | None = None,
+        fallback_model: str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
         max_retries: int = MAX_RETRIES,
         retry_delay: float = RETRY_BASE_DELAY,
@@ -108,6 +110,8 @@ class AIClient:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.model = model
+        self.hard_model = hard_model or model
+        self.fallback_model = fallback_model or None
         self.timeout = timeout
         self.max_retries = max_retries
         self.retry_delay = retry_delay
@@ -147,6 +151,7 @@ class AIClient:
             level=level,
             lang=lang,
             prompt=tasks.vocabulary_prompt(count, exclude_words),
+            model=self.hard_model,
         )
 
     async def generate_lesson_plan(
@@ -163,6 +168,7 @@ class AIClient:
             level=level,
             lang=lang,
             prompt=tasks.lesson_plan_prompt(topic),
+            model=self.hard_model,
         )
 
     async def check_essay(self, level: str, lang: str, text: str) -> EssayCheck:
@@ -174,6 +180,7 @@ class AIClient:
             lang=lang,
             prompt=tasks.essay_prompt(wrap_user_text(text)),
             with_user_text=True,
+            model=self.hard_model,
         )
 
     async def free_chat(
@@ -225,6 +232,7 @@ class AIClient:
         json_mode: bool,
         extra: str = "",
         history: Sequence[dict[str, str]] | None = None,
+        model: str | None = None,
     ) -> dict[str, Any]:
         """Тело запроса в формате OpenAI: модель, системный промпт, история, вопрос.
 
@@ -242,7 +250,15 @@ class AIClient:
         if history:
             messages.extend({"role": item["role"], "content": item["content"]} for item in history)
         messages.append({"role": "user", "content": prompt})
-        return {"model": self.model, "messages": messages}
+        return {"model": model or self.model, "messages": messages}
+
+    def _model_candidates(self, model: str | None = None) -> list[str]:
+        """Основная модель и, если задана, резервная — без дублей."""
+        primary = model or self.model
+        candidates = [primary]
+        if self.fallback_model and self.fallback_model not in candidates:
+            candidates.append(self.fallback_model)
+        return candidates
 
     async def _send(self, payload: dict[str, Any], task: str, prompt: str) -> str:
         """Один запрос к ИИ: логирование времени и токенов, разбор конверта."""
@@ -348,36 +364,49 @@ class AIClient:
         with_user_text: bool = False,
         extra: str = "",
         history: Sequence[dict[str, str]] | None = None,
+        model: str | None = None,
     ) -> SchemaT:
-        """Ответ как JSON нужной схемы; битый ответ — до 2 повторов."""
-        payload = self._payload(
-            level=level,
-            lang=lang,
-            prompt=prompt,
-            with_user_text=with_user_text,
-            json_mode=True,
-            extra=extra,
-            history=history,
-        )
-
+        """Ответ как JSON нужной схемы; при сбое — резервная модель."""
         last_error: AIError | None = None
-        for attempt in range(self.max_retries + 1):
-            if attempt:
-                await self._before_retry(attempt, task, last_error or AIError("?"))
-            try:
-                text = await self._send(payload, task, prompt)
-            except AITimeoutError:
-                raise  # повтор после таймаута только удвоит ожидание
-            except (AIRequestError, AIResponseError) as exc:
-                last_error = exc
-                continue
-            try:
-                return schema.model_validate(parse_json_payload(text))
-            except (json.JSONDecodeError, ValidationError) as exc:
-                last_error = AIResponseError(
-                    f"Ответ ИИ не подходит под схему {schema.__name__}: {exc}"
+        for model_index, current_model in enumerate(self._model_candidates(model)):
+            if model_index:
+                logger.warning(
+                    "ИИ %s: переключаюсь на резервную модель %s после ошибки: %s",
+                    task,
+                    current_model,
+                    last_error or "неизвестная ошибка",
                 )
-                logger.warning("Ответ ИИ невалиден (%s): %s", schema.__name__, exc)
+            payload = self._payload(
+                level=level,
+                lang=lang,
+                prompt=prompt,
+                with_user_text=with_user_text,
+                json_mode=True,
+                extra=extra,
+                history=history,
+                model=current_model,
+            )
+            for attempt in range(self.max_retries + 1):
+                if attempt:
+                    await self._before_retry(attempt, task, last_error or AIError("?"))
+                try:
+                    text = await self._send(payload, task, prompt)
+                except AITimeoutError as exc:
+                    last_error = exc
+                    break  # повтор на той же модели только удвоит ожидание
+                except AIRequestRejected as exc:
+                    last_error = exc
+                    break  # 404/401 бессмысленно повторять на той же модели
+                except (AIRequestError, AIResponseError) as exc:
+                    last_error = exc
+                    continue
+                try:
+                    return schema.model_validate(parse_json_payload(text))
+                except (json.JSONDecodeError, ValidationError) as exc:
+                    last_error = AIResponseError(
+                        f"Ответ ИИ не подходит под схему {schema.__name__}: {exc}"
+                    )
+                    logger.warning("Ответ ИИ невалиден (%s): %s", schema.__name__, exc)
         raise last_error or AIError("ИИ не ответил")
 
     async def _request_text(
@@ -390,33 +419,46 @@ class AIClient:
         with_user_text: bool = False,
         extra: str = "",
         history: Sequence[dict[str, str]] | None = None,
+        model: str | None = None,
     ) -> str:
-        """Ответ как обычный текст (свободный чат, вопрос внутри урока)."""
-        payload = self._payload(
-            level=level,
-            lang=lang,
-            prompt=prompt,
-            with_user_text=with_user_text,
-            json_mode=False,
-            extra=extra,
-            history=history,
-        )
-
+        """Ответ как обычный текст; при сбое — резервная модель."""
         last_error: AIError | None = None
-        for attempt in range(self.max_retries + 1):
-            if attempt:
-                await self._before_retry(attempt, task, last_error or AIError("?"))
-            try:
-                text = await self._send(payload, task, prompt)
-            except AITimeoutError:
-                raise  # повтор после таймаута только удвоит ожидание
-            except (AIRequestError, AIResponseError) as exc:
-                last_error = exc
-                continue
-            cleaned = strip_markdown_fences(text)
-            if cleaned:
-                return cleaned
-            last_error = AIResponseError("ИИ вернул пустой ответ")
+        for model_index, current_model in enumerate(self._model_candidates(model)):
+            if model_index:
+                logger.warning(
+                    "ИИ %s: переключаюсь на резервную модель %s после ошибки: %s",
+                    task,
+                    current_model,
+                    last_error or "неизвестная ошибка",
+                )
+            payload = self._payload(
+                level=level,
+                lang=lang,
+                prompt=prompt,
+                with_user_text=with_user_text,
+                json_mode=False,
+                extra=extra,
+                history=history,
+                model=current_model,
+            )
+            for attempt in range(self.max_retries + 1):
+                if attempt:
+                    await self._before_retry(attempt, task, last_error or AIError("?"))
+                try:
+                    text = await self._send(payload, task, prompt)
+                except AITimeoutError as exc:
+                    last_error = exc
+                    break  # повтор на той же модели только удвоит ожидание
+                except AIRequestRejected as exc:
+                    last_error = exc
+                    break  # 404/401 бессмысленно повторять на той же модели
+                except (AIRequestError, AIResponseError) as exc:
+                    last_error = exc
+                    continue
+                cleaned = strip_markdown_fences(text)
+                if cleaned:
+                    return cleaned
+                last_error = AIResponseError("ИИ вернул пустой ответ")
         raise last_error or AIError("ИИ не ответил")
 
 
@@ -428,5 +470,7 @@ def get_ai_client() -> AIClient:
         base_url=settings.ai_server_url,
         api_key=settings.ai_api_key,
         model=settings.ai_model,
+        hard_model=settings.ai_model_hard or None,
+        fallback_model=settings.ai_model_fallback or None,
         timeout=settings.ai_timeout,
     )

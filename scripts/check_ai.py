@@ -3,9 +3,9 @@
 Запуск из корня проекта (ключ и адрес берутся из окружения или `.env`):
     python -m scripts.check_ai
 
-Скрипт делает два запроса через боевой `AIClient`: обычный текстовый и
-JSON-задание квиза. Так видно, подходит ли модель для задач бота, а не только
-что ключ принят.
+Скрипт делает три запроса через боевой `AIClient`: обычный текст, JSON-задание
+квиза и короткий словарь на сложной модели. Так видно, подходят ли основная и
+резервная модели для задач бота, а не только что ключ принят.
 """
 
 import argparse
@@ -61,15 +61,24 @@ async def check_ai(client: AIClient, *, level: str = "A2", lang: str = "ru") -> 
         print(f"  JSON: ошибка — {exc}")
         return False
     print(f"  JSON: ok — {question.question[:80]!r}")
+
+    try:
+        words = await client.generate_vocabulary(level, lang, count=2)
+    except AIError as exc:
+        print(f"  сложная JSON-задача: ошибка — {exc}")
+        return False
+    print(f"  сложная JSON-задача: ok — {[word.word for word in words.words]}")
     return True
 
 
 async def main(level: str, lang: str) -> int:
     """Печатает настройки, гоняет проверки и возвращает код выхода."""
     settings = get_settings()
-    print(f"AI_SERVER_URL: {settings.ai_server_url}")
-    print(f"AI_MODEL:      {settings.ai_model}")
-    print(f"AI_API_KEY:    {'задан' if settings.ai_api_key else 'не задан'}")
+    print(f"AI_SERVER_URL:     {settings.ai_server_url}")
+    print(f"AI_MODEL:          {settings.ai_model}")
+    print(f"AI_MODEL_HARD:     {settings.ai_model_hard or settings.ai_model}")
+    print(f"AI_MODEL_FALLBACK: {settings.ai_model_fallback or 'не задана'}")
+    print(f"AI_API_KEY:        {'задан' if settings.ai_api_key else 'не задан'}")
 
     hint = provider_hint(settings)
     if hint:
@@ -81,6 +90,8 @@ async def main(level: str, lang: str) -> int:
         base_url=settings.ai_server_url,
         api_key=settings.ai_api_key,
         model=settings.ai_model,
+        hard_model=settings.ai_model_hard or None,
+        fallback_model=settings.ai_model_fallback or None,
         timeout=settings.ai_timeout,
     )
     try:

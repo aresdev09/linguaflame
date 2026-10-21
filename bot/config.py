@@ -83,6 +83,12 @@ class Settings(BaseSettings):
     ai_server_url: str = "https://integrate.api.nvidia.com/v1"
     ai_api_key: str = ""
     ai_model: str = "nvidia/nemotron-3-ultra-550b-a55b"
+    # Модель для сложных задач: план урока, проверка эссе и словарь на день.
+    # Пустое значение — использовать AI_MODEL.
+    ai_model_hard: str = ""
+    # Резервная модель, если основная недоступна или исчерпала повторы.
+    # Пустое значение — работать без резерва.
+    ai_model_fallback: str = "deepseek-ai/deepseek-v4.1-flash"
     # Таймаут одного запроса: план урока и проверка эссе иногда идут дольше минуты.
     ai_timeout: float = Field(default=180.0, gt=0)
     log_level: str = "INFO"

@@ -41,6 +41,18 @@ async def test_check_ai_fails_on_invalid_json_answer() -> None:
     assert await check_ai(client) is False
 
 
+async def test_check_ai_fails_on_hard_task() -> None:
+    client = FakeAIClient()
+
+    async def broken_vocabulary(level: str, lang: str, **kwargs):
+        client._record("vocabulary", level=level, lang=lang, **kwargs)
+        raise AIRequestRejected("сложная модель недоступна")
+
+    client.generate_vocabulary = broken_vocabulary  # type: ignore[method-assign]
+
+    assert await check_ai(client) is False
+
+
 def test_hint_for_nvidia_key_on_openrouter_url() -> None:
     hint = provider_hint(_settings(ai_api_key="nvapi-test", ai_server_url=OPENROUTER_BASE_URL))
 

@@ -32,6 +32,8 @@ async def test_default_nvidia_settings_can_complete_requests() -> None:
         base_url=settings.ai_server_url,
         api_key=settings.ai_api_key,
         model=settings.ai_model,
+        hard_model=settings.ai_model_hard or None,
+        fallback_model=settings.ai_model_fallback or None,
         timeout=settings.ai_timeout,
     )
     try:
