@@ -580,7 +580,7 @@ def slide_01() -> str:
         </div>
         <div class="hero-author">
           <span class="author-label">Presented by</span>
-          <span class="author-name">Кавулжанов Жавохир</span>
+          <span class="author-name">Javokhir Kavulzhanov</span>
           <span class="author-handle">github.com/aresdev09</span>
         </div>
         <div class="hero-meta"><b>Working product</b> · Python 3.12 / aiogram 3 · deployed for <b>$0</b></div>
@@ -1147,7 +1147,7 @@ def slide_10() -> str:
           <span class="final-check">{icon("check", 15)} Shipping</span>
         </div>
         <div class="final-links">
-          <div>Presented by: <b>Кавулжанов Жавохир</b></div>
+          <div>Presented by: <b>Javokhir Kavulzhanov</b></div>
           <div>Try it: <b>@LinguaFlameBot</b></div>
           <div>Code: <b>github.com/aresdev09/linguaflame</b></div>
           <div>Stack: <b>Python · aiogram 3 · PostgreSQL · Redis · NVIDIA NIM</b></div>
