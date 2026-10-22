@@ -1,47 +1,44 @@
-# Презентация LinguaFlame
+# LinguaFlame presentation
 
-Питч-дек для показа работодателю: 12 слайдов, 16:9, на русском языке.
+Employer-facing pitch deck: 10 slides, 16:9, in English.
 
-## Файлы
+## Files
 
-| Файл | Что это |
+| File | What it is |
 |---|---|
-| `LinguaFlame_Presentation.pptx` | Основной файл для показа (PowerPoint / Google Slides / Keynote). В заметках к каждому слайду — тезисы для рассказа. |
-| `LinguaFlame_Presentation.pdf` | Та же презентация в PDF — на случай, если на чужом компьютере нет PowerPoint. |
-| `build_deck.py` | Скрипт сборки: HTML/CSS → PNG (headless Edge) → PPTX и PDF. |
-| `assets/bot_qr.png` | QR-код на `@LinguaFlameBot` (на финальном слайде). |
+| `LinguaFlame_Presentation.pptx` | Main deck (PowerPoint / Google Slides / Keynote). Every slide has speaker notes with the talking points. |
+| `LinguaFlame_Presentation.pdf` | The same deck as PDF, in case PowerPoint is not available on the presenting machine. |
+| `build_deck.py` | Build script: HTML/CSS → PNG (headless Edge) → PPTX and PDF. |
+| `assets/bot_qr.png` | QR code for `@LinguaFlameBot` (used on the closing slide). |
 
-Маскот и эмблемы бота берутся из `../Avatars`.
+The mascot and the bot emblem come from `../Avatars`.
 
-## Структура деки
+## Structure
 
-1. Титул — «Английский, который не бросают»
-2. Проблема — почему мотивация заканчивается раньше прогресса
-3. Решение — цикл из четырёх шагов
-4. Продукт — три ключевых экрана (диагностика, урок, IELTS-эссе)
-5. Сценарии — 8 команд бота
-6. Архитектура — aiogram 3, сервисы, PostgreSQL, Redis, AI-клиент
-7. Алгоритм уровня — взвешенный балл, бонус за скорость, пороги CEFR
-8. Retention — streak, напоминания, быстрый старт
-9. Качество — 253 теста, 74 % покрытия, Ruff, live-проверка AI
-10. Деплой — 0 ₽ на старте (Wispbyte + Supabase + Upstash)
-11. Roadmap — «сейчас / 90 дней / 6 месяцев»
-12. Итог — контакты, QR-код бота, ссылка на GitHub
+1. Title — "English that people don't quit" + author name
+2. Problem — why motivation ends before progress does
+3. Solution — a four-step loop (diagnose, practise, feedback, habit)
+4. Product — three key screens (placement test, lesson, IELTS essay)
+5. Flows — the 8 bot commands
+6. Architecture — aiogram 3, services, PostgreSQL, Redis, AI client
+7. Level algorithm — weighted score, speed bonus, CEFR thresholds
+8. Retention — streaks, reminders, quick start
+9. Quality — 253 tests, 74 % coverage, Ruff, live AI check
+10. Summary — contacts, QR code to the bot, GitHub link
 
-## Пересборка
+## Rebuilding
 
-Нужны Python 3.11+, `python-pptx`, `Pillow` и Microsoft Edge (для headless-скриншотов).
+Needs Python 3.11+, `python-pptx`, `Pillow` and Microsoft Edge (for headless screenshots).
 
 ```bash
 pip install python-pptx Pillow
 python presentation/build_deck.py
 ```
 
-Скрипт заново создаёт `presentation/.build/` (HTML + PNG) и перезаписывает PPTX и PDF.
+The script regenerates `presentation/.build/` (HTML + PNG) and overwrites the PPTX and PDF.
 
-## Как показывать
+## Presenting
 
-- Рассказ на 7–10 минут: 30 секунд на слайд, детально — на 4, 6, 7 и 9.
-- Слайд 4 и 8 — примеры механики, а не реальная статистика пользователей;
-  это подписано на самих слайдах.
-- Финал: показать QR-код и дать ссылку `github.com/aresdev09/linguaflame`.
+- Aim for 7–10 minutes: roughly 30 seconds per slide, and go deeper on 4, 6, 7 and 9.
+- Slides 4 and 8 show the mechanics as examples, not as real user statistics — they are labelled as such on the slides.
+- Close with the QR code and the repository link `github.com/aresdev09/linguaflame`.

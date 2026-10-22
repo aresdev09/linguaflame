@@ -27,7 +27,7 @@ AVATAR = REPO / "Avatars" / "photo_2026-10-21_19-09-38.jpg"
 BANNER = REPO / "Avatars" / "photo_2026-10-21_19-09-43.jpg"
 
 W, H = 1920, 1080
-TOTAL = 12
+TOTAL = 10
 
 
 ICONS: dict[str, str] = {
@@ -190,8 +190,12 @@ h3 { font-size: 27px; line-height: 1.18; letter-spacing: -.6px; font-weight: 600
 .hero-copy h1 { margin-bottom: 30px; }
 .hero-copy .lead { width: 760px; font-size: 24px; }
 .hero-pills { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; width: 760px; }
-.hero-meta { margin-top: 48px; color: #7f91aa; font-size: 15px; letter-spacing: .5px; }
+.hero-meta { margin-top: 26px; color: #7f91aa; font-size: 15px; letter-spacing: .5px; }
 .hero-meta b { color: #d8e2ef; font-weight: 600; }
+.hero-author { display: flex; align-items: baseline; gap: 14px; margin-top: 42px; }
+.hero-author .author-label { color: #6f8299; font-size: 12px; font-weight: 700; letter-spacing: 2.4px; text-transform: uppercase; }
+.hero-author .author-name { color: #f8fafc; font-size: 26px; font-weight: 600; letter-spacing: -.4px; }
+.hero-author .author-handle { color: #ff9a5c; font-size: 15px; }
 .hero-visual { position: relative; height: 820px; }
 .hero-visual .halo {
   position: absolute; width: 690px; height: 690px; left: 50%; top: 50%;
@@ -509,50 +513,6 @@ h3 { font-size: 27px; line-height: 1.18; letter-spacing: -.6px; font-weight: 600
 .quality-card b { display: block; font-size: 15px; margin-bottom: 5px; }
 .quality-card span { display: block; color: #8fa3ba; font-size: 12.5px; line-height: 1.4; }
 
-/* Deploy */
-.deploy-layout { display: grid; grid-template-columns: .82fr 1.18fr; gap: 30px; margin-top: 34px; }
-.cost-card { padding: 30px; min-height: 520px; position: relative; overflow: hidden; }
-.cost-card:after { content: ''; position: absolute; width: 390px; height: 390px; left: -150px; bottom: -170px; border-radius: 50%; background: radial-gradient(circle, rgba(45,212,191,.15), transparent 68%); }
-.cost-big { font-size: 132px; line-height: .82; letter-spacing: -7px; font-weight: 700; color: #fff; margin-top: 37px; }
-.cost-big span { font-size: 40px; letter-spacing: -1px; color: #5eead4; }
-.cost-label { margin-top: 13px; color: #8fa3ba; font-size: 16px; }
-.cost-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 26px; }
-.cost-tag { padding: 8px 11px; border-radius: 8px; color: #b8e9e2; background: rgba(45,212,191,.075); border: 1px solid rgba(45,212,191,.18); font-size: 12px; font-weight: 600; }
-.cost-list { margin-top: 26px; display: flex; flex-direction: column; gap: 11px; }
-.cost-item { display: flex; align-items: center; gap: 11px; color: #b7c5d6; font-size: 14.5px; }
-.cost-item .icon { color: #5eead4; }
-.provider-list { display: flex; flex-direction: column; gap: 13px; }
-.provider { display: flex; align-items: center; gap: 17px; padding: 17px 20px; border-radius: 18px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.09); }
-.provider .p-logo { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; flex: none; }
-.provider .p-logo.w { background: rgba(255,122,24,.13); color: #ffb066; border: 1px solid rgba(255,122,24,.24); }
-.provider .p-logo.s { background: rgba(74,222,128,.10); color: #86efac; border: 1px solid rgba(74,222,128,.22); }
-.provider .p-logo.u { background: rgba(139,92,246,.12); color: #c4b5fd; border: 1px solid rgba(139,92,246,.24); }
-.provider b { display: block; font-size: 17px; }
-.provider span { display: block; color: #8fa3ba; font-size: 12.5px; margin-top: 3px; }
-.provider .p-status { margin-left: auto; color: #86efac; font-size: 11px; font-weight: 700; letter-spacing: .8px; white-space: nowrap; }
-.command-bar { margin-top: 21px; display: flex; align-items: center; gap: 16px; padding: 18px 21px; border-radius: 16px; background: #050b14; border: 1px solid rgba(255,255,255,.10); }
-.command-bar code { font-family: Consolas, monospace; color: #5eead4; font-size: 16px; }
-.command-bar span { color: #7e91a9; font-size: 13px; }
-.deploy-note { margin-top: 18px; color: #6f8299; font-size: 12px; }
-
-/* Roadmap */
-.roadmap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 60px; position: relative; }
-.roadmap-grid:before { content: ''; position: absolute; left: 5%; right: 5%; top: 25px; height: 1px; background: linear-gradient(90deg, rgba(255,122,24,.5), rgba(45,212,191,.4)); }
-.phase { position: relative; padding-top: 61px; }
-.phase .phase-dot { position: absolute; top: 17px; left: 0; width: 17px; height: 17px; border-radius: 50%; background: #ff7a18; box-shadow: 0 0 0 7px rgba(255,122,24,.12), 0 0 22px rgba(255,122,24,.4); }
-.phase:nth-child(2) .phase-dot { background: #ffc266; box-shadow: 0 0 0 7px rgba(255,194,102,.10), 0 0 22px rgba(255,194,102,.3); }
-.phase:nth-child(3) .phase-dot { background: #2dd4bf; box-shadow: 0 0 0 7px rgba(45,212,191,.10), 0 0 22px rgba(45,212,191,.3); }
-.phase-card { padding: 27px 27px; min-height: 410px; }
-.phase-card .phase-time { color: #ffb066; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
-.phase-card h3 { font-size: 27px; margin-bottom: 22px; }
-.phase-list { display: flex; flex-direction: column; gap: 14px; }
-.phase-item { display: flex; gap: 10px; align-items: flex-start; color: #a6b6ca; font-size: 14.5px; line-height: 1.4; }
-.phase-item .icon { color: #5eead4; margin-top: 1px; }
-.phase-item b { color: #e4edf6; font-weight: 600; }
-.metric-strip { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 23px; }
-.metric-chip { padding: 10px 14px; border-radius: 9px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.08); color: #9fb0c5; font-size: 12.5px; }
-.metric-chip b { color: #f8fafc; font-weight: 600; }
-
 /* Final */
 .final-grid { display: grid; grid-template-columns: 1.16fr .84fr; gap: 40px; align-items: center; height: 100%; }
 .final-copy h2 { font-size: 78px; }
@@ -585,7 +545,7 @@ def footer(number: int, section: str) -> str:
 
 def page(body: str, number: int, section: str) -> str:
     return f"""<!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=1920, initial-scale=1">
@@ -610,15 +570,20 @@ def slide_01() -> str:
           <span class="brand-name">LinguaFlame</span>
           <span class="brand-tag">AI ENGLISH COACH</span>
         </div>
-        <div class="kicker"><span class="line"></span> ПРОДУКТ · 2026</div>
-        <h1>Английский,<br>который <span class="gradient">не бросают.</span></h1>
-        <p class="lead">AI-тренер в Telegram: определяет уровень, собирает ежедневную практику и возвращает к занятиям в нужный момент.</p>
+        <div class="kicker"><span class="line"></span> PRODUCT · 2026</div>
+        <h1>English that<br>people <span class="gradient">don't quit.</span></h1>
+        <p class="lead">An AI coach inside Telegram: it measures your level, builds a daily practice loop and brings you back at the right moment.</p>
         <div class="hero-pills">
-          <span class="pill"><span class="dot"></span> 6 уровней CEFR</span>
-          <span class="pill"><span class="dot"></span> 8 учебных сценариев</span>
-          <span class="pill"><span class="dot"></span> 253 автотеста</span>
+          <span class="pill"><span class="dot"></span> 6 CEFR levels</span>
+          <span class="pill"><span class="dot"></span> 8 learning flows</span>
+          <span class="pill"><span class="dot"></span> 253 automated tests</span>
         </div>
-        <div class="hero-meta"><b>Работающий продукт</b> · Python 3.12 / aiogram 3 · деплой за <b>0 ₽</b></div>
+        <div class="hero-author">
+          <span class="author-label">Presented by</span>
+          <span class="author-name">Кавулжанов Жавохир</span>
+          <span class="author-handle">github.com/aresdev09</span>
+        </div>
+        <div class="hero-meta"><b>Working product</b> · Python 3.12 / aiogram 3 · deployed for <b>$0</b></div>
       </div>
       <div class="hero-visual">
         <div class="halo"></div>
@@ -626,15 +591,15 @@ def slide_01() -> str:
         <div class="logo-frame"><img src="file:///{AVATAR.as_posix()}" alt="LinguaFlame mascot"></div>
         <div class="float-card fc1">
           <div class="fc-icon">{icon("target", 27)}</div>
-          <div><b>A1 → C2</b><span>диагностика за 50 вопросов</span></div>
+          <div><b>A1 → C2</b><span>placement test in 50 questions</span></div>
         </div>
         <div class="float-card fc2">
           <div class="fc-icon">{icon("flame", 27)}</div>
-          <div><b>Ежедневный цикл</b><span>5–15 минут в Telegram</span></div>
+          <div><b>Daily loop</b><span>5–15 minutes inside Telegram</span></div>
         </div>
         <div class="float-card fc3">
           <div class="fc-icon">{icon("shield", 27)}</div>
-          <div><b>AI с fallback</b><span>NVIDIA NIM → DeepSeek</span></div>
+          <div><b>AI with fallback</b><span>NVIDIA NIM → DeepSeek</span></div>
         </div>
       </div>
     </div>
@@ -646,20 +611,20 @@ def slide_02() -> str:
         (
             "01",
             "eye",
-            "Не видно, где пробел",
-            "Уровень определяют на глаз: непонятно, что именно подтягивать — грамматику, словарь или беглость.",
+            "No idea where the gap is",
+            "People guess their own level: it is unclear whether to fix grammar, vocabulary or fluency.",
         ),
         (
             "02",
             "refresh",
-            "Нет ежедневного цикла",
-            "Длинные уроки и приложения не встраиваются в день. Мотивация падает раньше, чем появляется результат.",
+            "No daily loop",
+            "Long lessons and heavy apps do not fit into a working day. Motivation dies before results show up.",
         ),
         (
             "03",
             "clock",
-            "Обратная связь слишком поздно",
-            "Эссе и устную речь проверяют через дни. Ошибка повторяется, а уверенность не растёт.",
+            "Feedback arrives too late",
+            "Essays and speaking are checked days later, so the same mistake repeats and confidence stays flat.",
         ),
     ]
     cards_html = "".join(
@@ -673,20 +638,20 @@ def slide_02() -> str:
     return f"""
     <div class="slide-head">
       <div>
-        <div class="kicker"><span class="line"></span> 01 / ПРОБЛЕМА</div>
-        <h2>Мотивация заканчивается<br>раньше, чем прогресс.</h2>
+        <div class="kicker"><span class="line"></span> 01 / PROBLEM</div>
+        <h2>Motivation ends<br>before progress does.</h2>
       </div>
-      <div class="slide-note">Почему взрослые бросают английский,<br>даже когда «всё понимают»</div>
+      <div class="slide-note">Why adults quit English<br>even when they "understand most of it"</div>
     </div>
     <div class="problem-grid">{cards_html}</div>
     <div class="insight-bar">
       <div class="insight-icon">{icon("sparkles", 29)}</div>
-      <div><b>Инсайт</b><p>Нужен не ещё один курс, а короткий цикл: <b>диагностика → действие → обратная связь → возврат завтра.</b></p></div>
+      <div><b>Insight</b><p>People do not need one more course. They need a short loop: <b>diagnose → act → get feedback → come back tomorrow.</b></p></div>
       <div class="target">{icon("arrow", 22)} LinguaFlame</div>
     </div>
     <div class="problem-quote">
-      <div class="q-text">«Взрослому ученику нужно <b>не больше контента, а меньше трения</b>.»</div>
-      <div class="q-tags"><span class="q-tag">5–15 минут</span><span class="q-tag">фидбек сразу</span><span class="q-tag">один интерфейс</span></div>
+      <div class="q-text">"An adult learner needs <b>less content, less friction</b> — not more."</div>
+      <div class="q-tags"><span class="q-tag">5–15 minutes</span><span class="q-tag">instant feedback</span><span class="q-tag">one interface</span></div>
     </div>
     """
 
@@ -696,30 +661,30 @@ def slide_03() -> str:
         (
             "01",
             "target",
-            "Диагностика",
-            "50 вопросов по грамматике и словарю. Уровень A1–C2 с учётом сложности и скорости.",
-            "честная стартовая точка",
+            "Diagnose",
+            "50 grammar and vocabulary questions. A1–C2 level that accounts for difficulty and answer speed.",
+            "an honest starting point",
         ),
         (
             "02",
             "book",
-            "Практика",
-            "Слова, грамматика, квиз, эссе и свободный чат — в одном Telegram-интерфейсе.",
-            "5–15 минут в день",
+            "Practise",
+            "Vocabulary, grammar, quizzes, essays and free chat — inside one Telegram chat.",
+            "5–15 minutes a day",
         ),
         (
             "03",
             "sparkles",
-            "Обратная связь",
-            "AI объясняет ошибки, проверяет эссе по критериям IELTS и мягко исправляет речь.",
-            "сразу, а не через неделю",
+            "Get feedback",
+            "AI explains mistakes, grades essays against IELTS criteria and gently corrects speech.",
+            "right away, not next week",
         ),
         (
             "04",
             "flame",
-            "Привычка",
-            "Streak, напоминания и кнопка «5 слов» возвращают к занятию без чувства вины.",
-            "цикл, а не разовый урок",
+            "Build a habit",
+            "Streaks, reminders and a “5 words” button pull the learner back without guilt.",
+            "a loop, not a one-off lesson",
         ),
     ]
     cards_list = []
@@ -737,20 +702,20 @@ def slide_03() -> str:
     return f"""
     <div class="slide-head">
       <div>
-        <div class="kicker"><span class="line"></span> 02 / РЕШЕНИЕ</div>
-        <h2>Один бот. Четыре шага.<br>Каждый день.</h2>
+        <div class="kicker"><span class="line"></span> 02 / SOLUTION</div>
+        <h2>One bot. Four steps.<br>Every single day.</h2>
       </div>
-      <div class="slide-note">LinguaFlame встраивается в Telegram —<br>без установки и нового аккаунта</div>
+      <div class="slide-note">LinguaFlame lives inside Telegram —<br>no install, no new account</div>
     </div>
     <div class="flow-grid">{"".join(cards_list)}</div>
     <div class="bottom-strip">
       {icon("message", 24)}
-      <span><b>Один интерфейс вместо пяти сервисов:</b> уровень, урок, проверка эссе, разговор и статистика — в переписке.</span>
+      <span><b>One interface instead of five services:</b> level test, lesson, essay review, conversation and progress — all in a chat.</span>
     </div>
     <div class="dayline">
-      <div class="day-item"><div class="d-icon">{icon("sun", 21)}</div><div><b>Утро · 5 слов</b><span>быстрый старт без домашнего задания</span></div></div>
-      <div class="day-item"><div class="d-icon">{icon("book", 21)}</div><div><b>День · урок</b><span>объяснение и практика по шагам</span></div></div>
-      <div class="day-item"><div class="d-icon">{icon("moon", 21)}</div><div><b>Вечер · эссе</b><span>фидбек по IELTS, пока текст свежий</span></div></div>
+      <div class="day-item"><div class="d-icon">{icon("sun", 21)}</div><div><b>Morning · 5 words</b><span>a quick start with no homework</span></div></div>
+      <div class="day-item"><div class="d-icon">{icon("book", 21)}</div><div><b>Daytime · lesson</b><span>explanation and practice, step by step</span></div></div>
+      <div class="day-item"><div class="d-icon">{icon("moon", 21)}</div><div><b>Evening · essay</b><span>IELTS feedback while the text is still fresh</span></div></div>
     </div>
     """
 
@@ -758,7 +723,7 @@ def slide_03() -> str:
 def phone_header() -> str:
     return f"""<div class="tg-head">
       <img src="file:///{AVATAR.as_posix()}" alt="">
-      <div><b>LinguaFlame</b><span>bot · онлайн</span></div>
+      <div><b>LinguaFlame</b><span>bot · online</span></div>
       <div class="more">⋯</div>
     </div>"""
 
@@ -771,22 +736,22 @@ def slide_04() -> str:
         <div class="chat">
           <div class="bubble user">/level_detector</div>
           <div class="bubble">
-            <span class="b-title">🎯 Твой уровень: B2</span>
-            Правильных ответов: <b>39 из 50</b> (78%)<br>
-            Среднее время: <b>8.4 с</b>
+            <span class="b-title">🎯 Your level: B2</span>
+            Correct answers: <b>39 of 50</b> (78%)<br>
+            Average time: <b>8.4 s</b>
             <div style="height:8px"></div>
-            <div class="b-row"><span>Грамматика</span><b class="b-ok">82%</b></div>
-            <div class="b-row"><span>Словарь</span><b class="b-ok">74%</b></div>
+            <div class="b-row"><span>Grammar</span><b class="b-ok">82%</b></div>
+            <div class="b-row"><span>Vocabulary</span><b class="b-ok">74%</b></div>
           </div>
           <div class="bubble">
-            💪 Сильная сторона: <b>грамматика</b>.<br>
-            📌 Стоит подтянуть: <b>словарь</b>.
+            💪 Strong side: <b>grammar</b>.<br>
+            📌 Worth improving: <b>vocabulary</b>.
           </div>
-          <div class="bubble b-muted" style="font-size:11.5px">Уровень обновлён. Продолжай заниматься: /daily_grammar и /daily_vocabulary.</div>
+          <div class="bubble b-muted" style="font-size:11.5px">Level updated. Keep going: /daily_grammar and /daily_vocabulary.</div>
         </div>
-        <div class="tg-input"><span>Написать сообщение…</span><span>{icon("send", 14)}</span></div>
+        <div class="tg-input"><span>Message</span><span>{icon("send", 14)}</span></div>
       </div></div>
-      <div class="phone-caption"><b>CEFR-диагностика</b><span>50 вопросов · 6 уровней · вес + скорость</span></div>
+      <div class="phone-caption"><b>CEFR placement</b><span>50 questions · 6 levels · weight + speed</span></div>
     </div>"""
     phone2 = f"""
     <div class="phone-wrap">
@@ -795,22 +760,22 @@ def slide_04() -> str:
         <div class="chat">
           <div class="bubble user">/daily_grammar</div>
           <div class="bubble">
-            <span class="b-title">📘 Present Perfect · шаг 2 из 6</span>
-            Используем, когда важен <b>результат сейчас</b>:<br>
-            «I have lost my keys» — ключи потеряны, я не могу войти.
+            <span class="b-title">📘 Present Perfect · step 2 of 6</span>
+            We use it when the <b>result matters now</b>:<br>
+            "I have lost my keys" — the keys are lost, I cannot get in.
             <div style="height:7px"></div>
-            <span class="b-muted">Сравни: «I lost my keys yesterday» — просто факт в прошлом.</span>
+            <span class="b-muted">Compare: "I lost my keys yesterday" — just a fact in the past.</span>
           </div>
-          <div class="bubble user">А в чём разница с Past Simple?</div>
+          <div class="bubble user">How is it different from Past Simple?</div>
           <div class="bubble">
-            Past Simple — действие завершено в прошлом.<br>
-            Present Perfect — прошлое действие связано с настоящим.
-            <div class="tg-buttons"><div class="tg-btn">▶️ Дальше</div><div class="tg-btn">💬 Спросить</div></div>
+            Past Simple — the action is finished in the past.<br>
+            Present Perfect — a past action linked to now.
+            <div class="tg-buttons"><div class="tg-btn">▶️ Next</div><div class="tg-btn">💬 Ask</div></div>
           </div>
         </div>
-        <div class="tg-input"><span>Написать сообщение…</span><span>{icon("send", 14)}</span></div>
+        <div class="tg-input"><span>Message</span><span>{icon("send", 14)}</span></div>
       </div></div>
-      <div class="phone-caption"><b>Урок по шагам</b><span>объяснение → примеры → упражнения → мини-тест</span></div>
+      <div class="phone-caption"><b>Step-by-step lesson</b><span>explanation → examples → exercises → mini-test</span></div>
     </div>"""
     phone3 = f"""
     <div class="phone-wrap">
@@ -819,7 +784,7 @@ def slide_04() -> str:
         <div class="chat">
           <div class="bubble user">/essay_checker</div>
           <div class="bubble">
-            <span class="b-title">📝 Оценка: 6.5 / 9</span>
+            <span class="b-title">📝 Score: 6.5 / 9</span>
             <div class="criteria">
               <div class="cr"><span>Task Response</span><b>7.0</b><div class="bar"><i style="width:78%"></i></div></div>
               <div class="cr"><span>Coherence</span><b>6.5</b><div class="bar"><i style="width:72%"></i></div></div>
@@ -828,26 +793,26 @@ def slide_04() -> str:
             </div>
           </div>
           <div class="bubble">
-            <span class="b-title">⚠️ Слабое место</span>
-            «Nowadays people <b>thinks</b>…» → <b>people think</b><br>
-            <span class="b-muted">Согласование подлежащего и глагола.</span>
+            <span class="b-title">⚠️ Weak spot</span>
+            "Nowadays people <b>thinks</b>…" → <b>people think</b><br>
+            <span class="b-muted">Subject–verb agreement.</span>
           </div>
-          <div class="bubble b-muted" style="font-size:11px">🎯 Что улучшить: Grammatical Range — проверяй времена и порядок слов.</div>
+          <div class="bubble b-muted" style="font-size:11px">🎯 Improve first: Grammatical Range — check tense and word order.</div>
         </div>
-        <div class="tg-input"><span>Написать сообщение…</span><span>{icon("send", 14)}</span></div>
+        <div class="tg-input"><span>Message</span><span>{icon("send", 14)}</span></div>
       </div></div>
-      <div class="phone-caption"><b>IELTS-эссе</b><span>общий band · 4 критерия · разбор ошибок</span></div>
+      <div class="phone-caption"><b>IELTS essay</b><span>overall band · 4 criteria · error breakdown</span></div>
     </div>"""
     return f"""
     <div class="slide-head">
       <div>
-        <div class="kicker"><span class="line"></span> 03 / ПРОДУКТ</div>
-        <h2>Сценарии, которые<br>можно потрогать.</h2>
+        <div class="kicker"><span class="line"></span> 03 / PRODUCT</div>
+        <h2>Three screens that<br>show the whole idea.</h2>
       </div>
-      <div class="slide-note">Не «магия AI», а понятный путь:<br>увидеть уровень → сделать → получить фидбек</div>
+      <div class="slide-note">Not "AI magic" but a clear path:<br>see your level → do the work → get feedback</div>
     </div>
     <div class="phone-grid">{phone1}{phone2}{phone3}</div>
-    <div class="example-note">Примеры интерфейса по реальным сценариям бота</div>
+    <div class="example-note">Interface mock-ups based on real bot flows</div>
     """
 
 
@@ -856,57 +821,57 @@ def slide_05() -> str:
         (
             "target",
             "/level_detector",
-            "Определение уровня",
-            "50 вопросов, A1–C2, взвешенный балл и бонус за скорость.",
+            "Level detection",
+            "50 questions, A1–C2, weighted score plus a speed bonus.",
             "CORE",
         ),
         (
             "book",
             "/daily_grammar",
-            "Урок грамматики",
-            "Объяснение, примеры, упражнения и мини-тест в конце.",
+            "Grammar lesson",
+            "Explanation, examples, exercises and a mini-test at the end.",
             "AI",
         ),
         (
             "layers",
             "/daily_vocabulary",
-            "20 слов дня",
-            "Транскрипция и перевод на родной язык; без повторов 7 дней.",
+            "20 words a day",
+            "Transcription and translation, no repeats within 7 days.",
             "AI",
         ),
         (
             "chat",
             "/quiz",
-            "Квиз A/B/C",
-            "Вопросы по одному, обратная связь и финальный счёт.",
+            "A/B/C quiz",
+            "One question at a time, instant feedback and a final score.",
             "CORE",
         ),
         (
             "file",
             "/essay_checker",
-            "Проверка эссе",
-            "IELTS Task 2: band, 4 критерия и слабые места.",
+            "Essay review",
+            "IELTS Task 2: band score, 4 criteria and weak spots.",
             "AI",
         ),
         (
             "message",
             "/free_chat",
-            "Свободный разговор",
-            "Чат на любом языке; ошибки в английском мягко исправляются.",
+            "Free conversation",
+            "Talk in any language; English mistakes are corrected gently.",
             "AI",
         ),
         (
             "flame",
             "/stats",
-            "Серия и рекорд",
-            "Текущий streak, личный рекорд и активность за 7 дней.",
+            "Streak and records",
+            "Current streak, personal best and 7-day activity.",
             "HABIT",
         ),
         (
             "graduation",
             "/start",
-            "Онбординг",
-            "Язык объяснений, часовой пояс и профиль пользователя.",
+            "Onboarding",
+            "Interface language, timezone and learner profile.",
             "CORE",
         ),
     ]
@@ -922,15 +887,15 @@ def slide_05() -> str:
     return f"""
     <div class="slide-head">
       <div>
-        <div class="kicker"><span class="line"></span> 04 / ПРОДУКТ</div>
-        <h2>8 сценариев —<br>полный учебный цикл.</h2>
+        <div class="kicker"><span class="line"></span> 04 / PRODUCT</div>
+        <h2>8 flows cover the<br>entire learning path.</h2>
       </div>
-      <div class="slide-note">От первого /start до привычки:<br>каждый сценарий связан с прогрессом</div>
+      <div class="slide-note">From the very first /start to stats<br>and coming back after a missed day</div>
     </div>
     <div class="feature-grid">{cards}</div>
     <div class="bottom-strip" style="margin-top:19px">
       {icon("zap", 23)}
-      <span><b>AI не ради AI:</b> он включается там, где нужен контекст — урок, эссе, слова и живой разговор.</span>
+      <span><b>AI where it earns its place:</b> lessons, essays, vocabulary and live conversation — not decoration.</span>
     </div>
     """
 
@@ -939,53 +904,53 @@ def slide_06() -> str:
     return f"""
     <div class="slide-head">
       <div>
-        <div class="kicker"><span class="line"></span> 05 / АРХИТЕКТУРА</div>
-        <h2>Async-ядро, которое<br>не падает от одного сбоя.</h2>
+        <div class="kicker"><span class="line"></span> 05 / ARCHITECTURE</div>
+        <h2>An async core that<br>survives a single failure.</h2>
       </div>
-      <div class="slide-note">Telegram → сервисы → данные + AI<br>каждый слой изолирован</div>
+      <div class="slide-note">Telegram → services → data + AI,<br>each layer isolated and testable</div>
     </div>
     <div class="arch-board">
       <div class="arch-col">
-        <div class="col-label">Клиент</div>
-        <div class="node accent"><div class="node-icon">{icon("users", 25)}</div><div><b>Telegram</b><span>пользователи · RU / EN</span></div></div>
+        <div class="col-label">Client</div>
+        <div class="node accent"><div class="node-icon">{icon("users", 25)}</div><div><b>Telegram</b><span>learners · RU / EN</span></div></div>
         <div class="arch-arrow">↓</div>
         <div class="node"><div class="node-icon">{icon("message", 25)}</div><div><b>aiogram 3</b><span>routers · FSM · middleware</span></div></div>
       </div>
       <div class="arch-arrow">→</div>
       <div class="arch-col">
-        <div class="col-label">Бизнес-логика</div>
+        <div class="col-label">Business logic</div>
         <div class="node accent"><div class="node-icon">{icon("layers", 25)}</div><div><b>Services</b><span>quiz · grammar · essay · level · streak</span></div></div>
         <div class="node"><div class="node-icon">{icon("database", 25)}</div><div><b>Repositories</b><span>SQLAlchemy 2 async</span></div></div>
-        <div class="node teal"><div class="node-icon">{icon("database", 25)}</div><div><b>PostgreSQL / SQLite</b><span>4 миграции Alembic</span></div></div>
+        <div class="node teal"><div class="node-icon">{icon("database", 25)}</div><div><b>PostgreSQL / SQLite</b><span>4 Alembic migrations</span></div></div>
       </div>
       <div class="arch-arrow">→</div>
       <div class="arch-col">
         <div class="col-label">AI sidecar</div>
-        <div class="node violet"><div class="node-icon">{icon("cpu", 25)}</div><div><b>AI Client</b><span>JSON schema · retries · timeout 180s</span></div></div>
+        <div class="node violet"><div class="node-icon">{icon("cpu", 25)}</div><div><b>AI client</b><span>JSON schema · retries · 180s timeout</span></div></div>
         <div class="node"><div class="node-icon">{icon("zap", 25)}</div><div><b>NVIDIA NIM</b><span>Nemotron 3 Ultra 550B</span></div></div>
-        <div class="node"><div class="node-icon">{icon("refresh", 25)}</div><div><b>DeepSeek V4.1 Flash</b><span>fallback после ошибки / 404</span></div></div>
+        <div class="node"><div class="node-icon">{icon("refresh", 25)}</div><div><b>DeepSeek V4.1 Flash</b><span>fallback on error / 404</span></div></div>
       </div>
     </div>
     <div class="arch-bottom">
       <div class="node"><div class="node-icon">{icon("database", 22)}</div><div><b>Redis</b><span>FSM + APScheduler job store</span></div></div>
-      <div class="node"><div class="node-icon">{icon("clock", 22)}</div><div><b>APScheduler</b><span>напоминания по часовому поясу</span></div></div>
-      <div class="node"><div class="node-icon">{icon("wrench", 22)}</div><div><b>Bootstrap</b><span>миграции + банк вопросов при старте</span></div></div>
+      <div class="node"><div class="node-icon">{icon("clock", 22)}</div><div><b>APScheduler</b><span>reminders in the user's timezone</span></div></div>
+      <div class="node"><div class="node-icon">{icon("wrench", 22)}</div><div><b>Bootstrap</b><span>migrations + question bank on start</span></div></div>
     </div>
     <div class="arch-notes">
-      <span class="arch-note"><b>async end-to-end</b> · без блокирующих вызовов</span>
-      <span class="arch-note"><b>prompt injection guard</b> · текст в &lt;user_text&gt;</span>
-      <span class="arch-note"><b>graceful degradation</b> · Redis → память, AI → fallback</span>
-      <span class="arch-note"><b>structured logs</b> · время, уровень, контекст</span>
+      <span class="arch-note"><b>async end-to-end</b> · no blocking calls</span>
+      <span class="arch-note"><b>prompt injection guard</b> · user text wrapped in &lt;user_text&gt;</span>
+      <span class="arch-note"><b>graceful degradation</b> · Redis → memory, AI → fallback</span>
+      <span class="arch-note"><b>structured logs</b> · time, level, context</span>
     </div>
     <div class="request-flow">
-      <span class="rf-label">Один запрос</span>
+      <span class="rf-label">One request</span>
       <span class="rf-step">Telegram update</span><span class="rf-arrow">→</span>
       <span class="rf-step">middleware</span><span class="rf-arrow">→</span>
       <span class="rf-step">router</span><span class="rf-arrow">→</span>
       <span class="rf-step">service</span><span class="rf-arrow">→</span>
       <span class="rf-step">repo / AI</span><span class="rf-arrow">→</span>
       <span class="rf-step">response</span>
-      <span class="rf-live"><i></i> без блокировки event loop</span>
+      <span class="rf-live"><i></i> never blocks the event loop</span>
     </div>
     """
 
@@ -1014,34 +979,34 @@ def slide_07() -> str:
     return f"""
     <div class="slide-head">
       <div>
-        <div class="kicker"><span class="line"></span> 06 / АЛГОРИТМ</div>
-        <h2>Уровень — это не просто<br>процент правильных.</h2>
+        <div class="kicker"><span class="line"></span> 06 / ALGORITHM</div>
+        <h2>A level is more than a<br>percentage of correct answers.</h2>
       </div>
-      <div class="slide-note">Сложные вопросы стоят дороже.<br>Скорость — бонус, а не главный критерий.</div>
+      <div class="slide-note">Harder questions are worth more.<br>Speed is a bonus, not the main criterion.</div>
     </div>
     <div class="level-layout">
       <div class="card level-card">
-        <div class="card-title"><b>50 вопросов в тесте</b><span>180 в банке · 30 на уровень</span></div>
+        <div class="card-title"><b>50 questions per test</b><span>180 in the bank · 30 per level</span></div>
         {rows}
-        <div style="margin-top:15px;color:#7f91aa;font-size:12.5px">Грамматика и словарь — по 4–5 вопросов на уровень.</div>
+        <div style="margin-top:15px;color:#7f91aa;font-size:12.5px">4–5 grammar and vocabulary questions per level.</div>
       </div>
       <div class="card formula-card">
-        <div class="card-title"><b>Как считается балл</b><span>максимум 198</span></div>
-        <div class="formula">балл = <b>вес(уровень)</b> × (1 + <b>0.10</b>)<br><span style="color:#8fa3ba;font-size:13px">бонус только за быстрый и верный ответ</span></div>
+        <div class="card-title"><b>How the score works</b><span>maximum 198</span></div>
+        <div class="formula">score = <b>weight(level)</b> × (1 + <b>0.10</b>)<br><span style="color:#8fa3ba;font-size:13px">the bonus needs a fast and correct answer</span></div>
         <div class="weight-row">{ws}</div>
-        <div class="card-title" style="margin-top:22px;margin-bottom:10px"><b>Пороги итогового %</b><span>CEFR</span></div>
+        <div class="card-title" style="margin-top:22px;margin-bottom:10px"><b>Final score thresholds</b><span>CEFR</span></div>
         <div class="thresholds">{ths}</div>
         <div class="level-callouts">
-          <div class="callout">{icon("zap", 20)}<div><b>+10% за скорость</b><span>B1+ быстрее 2 сек — угадывание; дольше 60 сек — без бонуса.</span></div></div>
-          <div class="callout">{icon("shield", 20)}<div><b>Согласованность</b><span>60%+ на высоком уровне может поднять итог. Только вверх.</span></div></div>
+          <div class="callout">{icon("zap", 20)}<div><b>+10% for speed</b><span>B1+ under 2 s counts as guessing; over 60 s gets no bonus.</span></div></div>
+          <div class="callout">{icon("shield", 20)}<div><b>Consistency check</b><span>60%+ at a higher level can lift the result. It only moves up.</span></div></div>
         </div>
       </div>
     </div>
     <div class="level-summary">
-      <div class="ls"><b>50</b><span>вопросов</span></div>
-      <div class="ls"><b>198</b><span>макс. баллов</span></div>
-      <div class="ls"><b>60%</b><span>порог согласованности</span></div>
-      <p>Уровень обновляется только после завершения теста. Незавершённый тест можно продолжить с того же вопроса.</p>
+      <div class="ls"><b>50</b><span>questions</span></div>
+      <div class="ls"><b>198</b><span>max score</span></div>
+      <div class="ls"><b>60%</b><span>consistency threshold</span></div>
+      <p>The level changes only after the test is finished. An unfinished test can be resumed from the same question.</p>
     </div>
     """
 
@@ -1051,26 +1016,26 @@ def slide_08() -> str:
         (
             "sun",
             "09:00",
-            "Утренний старт",
-            "Если сегодня ещё не было активности — короткое напоминание с кнопкой «5 слов».",
+            "Morning start",
+            "If nothing happened yet today — a short nudge with a “5 words” button.",
         ),
         (
             "moon",
             "20:00",
-            "Вечерний огонёк",
-            "Показывает текущую серию и оставляет один простой шаг до полуночи.",
+            "Evening streak",
+            "Shows the current streak and leaves one easy step before midnight.",
         ),
         (
             "refresh",
-            "пропуск",
-            "«Где ты?»",
-            "Мягко возвращает после пропуска, не обнуляя чувство прогресса.",
+            "missed",
+            "“Where are you?”",
+            "A gentle return after a missed day, without wiping out the sense of progress.",
         ),
         (
             "calendar",
-            "3 / 7 дней",
-            "Долгое возвращение",
-            "Дополнительные напоминания, потом пауза — без спама и давления.",
+            "3 / 7 days",
+            "Longer return",
+            "A few extra reminders, then silence — no spam, no pressure.",
         ),
     ]
     rem_html = "".join(
@@ -1085,38 +1050,38 @@ def slide_08() -> str:
     <div class="slide-head">
       <div>
         <div class="kicker"><span class="line"></span> 07 / RETENTION</div>
-        <h2>Привычка — такая же фича,<br>как и урок.</h2>
+        <h2>Habit is a feature,<br>same as the lesson.</h2>
       </div>
-      <div class="slide-note">Цель — не идеальный урок,<br>а следующее действие</div>
+      <div class="slide-note">The goal is not a perfect lesson,<br>but the next action</div>
     </div>
     <div class="habit-layout">
       <div class="card streak-card">
-        <div class="streak-top"><div class="big-flame">{icon("flame", 43)}</div><span>Твой прогресс</span></div>
-        <div class="streak-number">12 <small>дней</small></div>
-        <div class="streak-sub">🔥 текущая серия — пример механики</div>
+        <div class="streak-top"><div class="big-flame">{icon("flame", 43)}</div><span>Your progress</span></div>
+        <div class="streak-number">12 <small>days</small></div>
+        <div class="streak-sub">🔥 current streak — mechanics example</div>
         <div class="streak-stats">
-          <div class="streak-stat"><b>18</b><span>личный рекорд</span></div>
-          <div class="streak-stat"><b>5</b><span>действий за неделю</span></div>
+          <div class="streak-stat"><b>18</b><span>personal best</span></div>
+          <div class="streak-stat"><b>5</b><span>actions this week</span></div>
         </div>
         <div class="week-dots">
-          <div class="wd"><div class="dot on"></div><span>Пн</span></div>
-          <div class="wd"><div class="dot on"></div><span>Вт</span></div>
-          <div class="wd"><div class="dot"></div><span>Ср</span></div>
-          <div class="wd"><div class="dot on"></div><span>Чт</span></div>
-          <div class="wd"><div class="dot on"></div><span>Пт</span></div>
-          <div class="wd"><div class="dot"></div><span>Сб</span></div>
-          <div class="wd"><div class="dot on"></div><span>Вс</span></div>
+          <div class="wd"><div class="dot on"></div><span>Mon</span></div>
+          <div class="wd"><div class="dot on"></div><span>Tue</span></div>
+          <div class="wd"><div class="dot"></div><span>Wed</span></div>
+          <div class="wd"><div class="dot on"></div><span>Thu</span></div>
+          <div class="wd"><div class="dot on"></div><span>Fri</span></div>
+          <div class="wd"><div class="dot"></div><span>Sat</span></div>
+          <div class="wd"><div class="dot on"></div><span>Sun</span></div>
         </div>
       </div>
       <div>
         <div class="reminder-list">{rem_html}</div>
-        <div class="habit-quote">{icon("message", 20)} <b>Максимум 2 сообщения в день.</b> Напоминания возвращают, а не превращаются в спам.</div>
+        <div class="habit-quote">{icon("message", 20)} <b>At most 2 messages a day.</b> Reminders bring people back instead of becoming spam.</div>
       </div>
     </div>
     <div class="activity-strip">
       <div class="a-icon">{icon("flame", 21)}</div>
-      <span><b>Действием считается:</b> квиз · урок · слова · эссе · свободный чат · тест уровня</span>
-      <span class="a-plus">+1 день к серии</span>
+      <span><b>Any of these counts as activity:</b> quiz · lesson · vocabulary · essay · free chat · level test</span>
+      <span class="a-plus">+1 day of streak</span>
     </div>
     """
 
@@ -1125,16 +1090,16 @@ def slide_09() -> str:
     return f"""
     <div class="slide-head">
       <div>
-        <div class="kicker"><span class="line"></span> 08 / КАЧЕСТВО</div>
-        <h2>Продукт, который<br>можно проверить.</h2>
+        <div class="kicker"><span class="line"></span> 08 / QUALITY</div>
+        <h2>A product you can<br>actually verify.</h2>
       </div>
-      <div class="slide-note">Не «на глаз»: тесты, линтер,<br>миграции и живой AI-запрос</div>
+      <div class="slide-note">Not "trust me": tests, linting,<br>migrations and a live AI request</div>
     </div>
     <div class="metrics-grid">
-      <div class="metric"><b>253</b><span>автотеста · 1 opt-in live</span></div>
-      <div class="metric"><b>74<span class="u">%</span></b><span>покрытие кода</span></div>
-      <div class="metric"><b>180</b><span>вопросов в банке</span></div>
-      <div class="metric"><b>6</b><span>уровней CEFR</span></div>
+      <div class="metric"><b>253</b><span>automated tests · 1 opt-in live</span></div>
+      <div class="metric"><b>74<span class="u">%</span></b><span>code coverage</span></div>
+      <div class="metric"><b>180</b><span>questions in the bank</span></div>
+      <div class="metric"><b>6</b><span>CEFR levels</span></div>
     </div>
     <div class="quality-layout">
       <div class="terminal">
@@ -1148,142 +1113,33 @@ def slide_09() -> str:
 <span class="p">$</span> ruff format --check .
 <span class="ok">106 files already formatted</span>
 
-<span class="dim"># live NVIDIA API проверен отдельным opt-in тестом</span>
-<span class="dim"># fallback сработал после 404 основного модели</span></div>
+<span class="dim"># the live NVIDIA API is covered by a separate opt-in test</span>
+<span class="dim"># the fallback model kicked in after a 404</span></div>
       </div>
       <div class="quality-cards">
-        <div class="quality-card">{icon("shield", 22)}<b>Live AI проверен</b><span>Реальный запрос к NVIDIA NIM, не только мок.</span></div>
-        <div class="quality-card">{icon("refresh", 22)}<b>Fallback после 404</b><span>Пользователь не видит отказа основного провайдера.</span></div>
-        <div class="quality-card">{icon("code", 22)}<b>JSON + retry</b><span>Схемы ответов, повторы и таймаут 180 секунд.</span></div>
-        <div class="quality-card">{icon("lock", 22)}<b>Секреты в env</b><span>Токены и ключи не попадают в репозиторий.</span></div>
+        <div class="quality-card">{icon("shield", 22)}<b>Live AI checked</b><span>A real request to NVIDIA NIM, not only mocks.</span></div>
+        <div class="quality-card">{icon("refresh", 22)}<b>Fallback on 404</b><span>The learner never sees the primary provider fail.</span></div>
+        <div class="quality-card">{icon("code", 22)}<b>JSON + retry</b><span>Validated schemas, retries and a 180 s timeout.</span></div>
+        <div class="quality-card">{icon("lock", 22)}<b>Secrets in env</b><span>Tokens and API keys never reach the repository.</span></div>
       </div>
     </div>
     <div class="principles">
-      <div class="principle"><b>Тесты вместо веры</b><span>253 проверки на каждом коммите</span></div>
-      <div class="principle"><b>Схемы вместо парсинга</b><span>AI отвечает валидируемым JSON</span></div>
-      <div class="principle"><b>Fallback вместо 500</b><span>сбой модели не ломает урок</span></div>
-      <div class="principle"><b>Миграции вместо ручных правок</b><span>схема воспроизводима с нуля</span></div>
+      <div class="principle"><b>Tests over faith</b><span>253 checks on every commit</span></div>
+      <div class="principle"><b>Schemas over parsing</b><span>the AI answers with validated JSON</span></div>
+      <div class="principle"><b>Fallback over 500</b><span>a model outage never breaks a lesson</span></div>
+      <div class="principle"><b>Migrations over manual edits</b><span>the schema is reproducible from scratch</span></div>
     </div>
     """
 
 
 def slide_10() -> str:
-    return f"""
-    <div class="slide-head">
-      <div>
-        <div class="kicker"><span class="line"></span> 09 / ДЕПЛОЙ</div>
-        <h2>Работает 24/7<br>за 0 ₽ на старте.</h2>
-      </div>
-      <div class="slide-note">Free-tier без карты:<br>бот + PostgreSQL + Redis</div>
-    </div>
-    <div class="deploy-layout">
-      <div class="card cost-card">
-        <div class="pill"><span class="dot"></span> инфраструктура</div>
-        <div class="cost-big">0 <span>₽ / мес</span></div>
-        <div class="cost-label">на старте и демо, без привязки карты</div>
-        <div class="cost-tags">
-          <span class="cost-tag">Wispbyte Free</span>
-          <span class="cost-tag">Supabase Free</span>
-          <span class="cost-tag">Upstash Free</span>
-        </div>
-        <div class="cost-list">
-          <div class="cost-item">{icon("check", 17)}<span>Процесс живёт 24/7</span></div>
-          <div class="cost-item">{icon("check", 17)}<span>PostgreSQL 500 МБ + бэкапы</span></div>
-          <div class="cost-item">{icon("check", 17)}<span>Redis 250 МБ для FSM и планировщика</span></div>
-          <div class="cost-item">{icon("check", 17)}<span>Ни Docker, ни ручных миграций</span></div>
-        </div>
-        <div class="deploy-note">Free tier — для запуска и первых пользователей.<br>При росте — managed-стек и webhook.</div>
-      </div>
-      <div>
-        <div class="provider-list">
-          <div class="provider"><div class="p-logo w">W</div><div><b>Wispbyte Free</b><span>24/7 · Python 3.11+ · запуск из корня</span></div><div class="p-status">BOT</div></div>
-          <div class="provider"><div class="p-logo s">S</div><div><b>Supabase Free</b><span>PostgreSQL 500 MB · без карты</span></div><div class="p-status">DB</div></div>
-          <div class="provider"><div class="p-logo u">U</div><div><b>Upstash Free</b><span>Redis 250 MB · 500K команд / мес</span></div><div class="p-status">FSM</div></div>
-        </div>
-        <div class="command-bar"><code>$ python main.py</code><span>миграции → банк вопросов → polling</span></div>
-        <div class="deploy-note">SQLite и in-memory Redis — автоматический fallback, если внешние сервисы недоступны.</div>
-      </div>
-    </div>
-    <div class="deploy-steps">
-      <div class="deploy-step"><div class="ds-num">01 / UPLOAD</div><b>Загрузить код</b><span>main.py · bot/ · migrations/</span></div>
-      <div class="deploy-step"><div class="ds-num">02 / ENV</div><b>Добавить секреты</b><span>BOT_TOKEN · DATABASE_URL · AI_API_KEY</span></div>
-      <div class="deploy-step"><div class="ds-num">03 / START</div><b>Запустить процесс</b><span>python main.py</span></div>
-      <div class="deploy-step"><div class="ds-num">04 / CHECK</div><b>Проверить в Telegram</b><span>/start → /level_detector → /daily_grammar</span></div>
-    </div>
-    """
-
-
-def slide_11() -> str:
-    phases = [
-        (
-            "Сейчас",
-            "Фундамент",
-            [
-                ("check", "<b>8 сценариев</b> и полный CEFR-тест"),
-                ("check", "<b>253 теста</b>, Ruff, Alembic"),
-                ("check", "<b>AI fallback</b> и live-проверка"),
-                ("arrow", "Аналитика событий и воронки"),
-            ],
-        ),
-        (
-            "90 дней",
-            "Персонализация",
-            [
-                ("arrow", "<b>Адаптивная сложность</b> по ошибкам"),
-                ("arrow", "<b>Speaking</b>: STT/TTS и разговор"),
-                ("arrow", "<b>Кабинет учителя</b> и отчёты"),
-                ("arrow", "Подписка / пакеты занятий"),
-            ],
-        ),
-        (
-            "6 месяцев",
-            "Масштаб",
-            [
-                ("arrow", "<b>B2B</b> для школ и курсов"),
-                ("arrow", "<b>Telegram Mini App</b>"),
-                ("arrow", "Локализация и контент-маркетплейс"),
-                ("arrow", "ML-прогноз оттока и уровня"),
-            ],
-        ),
-    ]
-    phase_html = "".join(
-        f"""<div class="phase"><div class="phase-dot"></div><div class="card phase-card">
-          <div class="phase-time">{time}</div><h3>{title}</h3>
-          <div class="phase-list">{"".join(f'<div class="phase-item">{icon(ic, 17)}<span>{text}</span></div>' for ic, text in items)}</div>
-        </div></div>"""
-        for time, title, items in phases
-    )
-    return f"""
-    <div class="slide-head">
-      <div>
-        <div class="kicker"><span class="line"></span> 10 / ROADMAP</div>
-        <h2>От бота к персональной<br>AI-школе.</h2>
-      </div>
-      <div class="slide-note">Сначала retention,<br>потом монетизация</div>
-    </div>
-    <div class="roadmap-grid">{phase_html}</div>
-    <div class="metric-strip">
-      <span class="metric-chip"><b>D1 / D7 retention</b></span>
-      <span class="metric-chip"><b>lessons / week</b></span>
-      <span class="metric-chip"><b>level-up rate</b></span>
-      <span class="metric-chip"><b>AI cost / active user</b></span>
-    </div>
-    <div class="success-panel">
-      <div class="s-icon">{icon("target", 23)}</div>
-      <div><b>Критерий успеха:</b> пользователь возвращается на 7-й день и видит, что его уровень растёт.</div>
-      <div class="s-metrics"><span class="s-metric">retention</span><span class="s-metric">level-up</span><span class="s-metric">AI cost</span></div>
-    </div>
-    """
-
-
-def slide_12() -> str:
     qr_path = (ASSETS / "bot_qr.png").as_posix()
     return f"""
     <div class="final-grid">
       <div class="final-copy">
-        <div class="kicker"><span class="line"></span> 11 / ИТОГ</div>
-        <h2>Спасибо.<br>Давайте сделаем английский<br><span class="gradient">ежедневной привычкой.</span></h2>
-        <p class="lead">LinguaFlame — не концепт на слайдах: работающий Telegram-продукт с AI, базой, напоминаниями и тестами. Его можно открыть и пройти путь пользователя прямо сейчас.</p>
+        <div class="kicker"><span class="line"></span> 09 / SUMMARY</div>
+        <h2>Thank you.<br>Let's make English<br><span class="gradient">a daily habit.</span></h2>
+        <p class="lead">LinguaFlame is not a slide concept: it is a working Telegram product with AI, a database, reminders and tests. Anyone can open it and walk the learner's path right now.</p>
         <div class="final-checks">
           <span class="final-check">{icon("check", 15)} Product thinking</span>
           <span class="final-check">{icon("check", 15)} Full-stack async</span>
@@ -1291,16 +1147,17 @@ def slide_12() -> str:
           <span class="final-check">{icon("check", 15)} Shipping</span>
         </div>
         <div class="final-links">
-          <div>Попробовать: <b>@LinguaFlameBot</b></div>
-          <div>Код: <b>github.com/aresdev09/linguaflame</b></div>
-          <div>Стек: <b>Python · aiogram 3 · PostgreSQL · Redis · NVIDIA NIM</b></div>
+          <div>Presented by: <b>Кавулжанов Жавохир</b></div>
+          <div>Try it: <b>@LinguaFlameBot</b></div>
+          <div>Code: <b>github.com/aresdev09/linguaflame</b></div>
+          <div>Stack: <b>Python · aiogram 3 · PostgreSQL · Redis · NVIDIA NIM</b></div>
         </div>
       </div>
       <div class="qr-card">
         <div class="qr-brand"><img src="file:///{AVATAR.as_posix()}" alt=""><b>LinguaFlame</b></div>
-        <img class="qr" src="file:///{qr_path}" alt="QR-код бота">
+        <img class="qr" src="file:///{qr_path}" alt="QR code for the bot">
         <div class="qr-handle">@LinguaFlameBot</div>
-        <div class="qr-sub">наведи камеру — и можно заниматься</div>
+        <div class="qr-sub">scan the code and start practising</div>
       </div>
     </div>
     <div class="banner-strip"></div>
@@ -1308,61 +1165,55 @@ def slide_12() -> str:
 
 
 SLIDES = [
-    ("Титул", slide_01, "AI-тренер, который возвращает к английскому каждый день"),
     (
-        "Проблема",
+        "Title",
+        slide_01,
+        "LinguaFlame is an AI English coach in Telegram that measures the level, drives daily practice and brings the learner back.",
+    ),
+    (
+        "Problem",
         slide_02,
-        "Контента много, а цикла нет: люди не видят пробел, не получают быструю обратную связь и бросают.",
+        "There is plenty of content but no loop: people cannot see their gap, do not get fast feedback, and quit.",
     ),
     (
-        "Решение",
+        "Solution",
         slide_03,
-        "Четыре шага: диагностика, короткая практика, обратная связь и привычка — в одном Telegram-боте.",
+        "Four steps - diagnose, short practice, feedback, habit - inside a single Telegram bot.",
     ),
     (
-        "Продукт",
+        "Product",
         slide_04,
-        "Три ключевых экрана: CEFR-результат, пошаговый урок и IELTS-разбор эссе.",
+        "Three key screens: the CEFR result, the step-by-step lesson and the IELTS essay review.",
     ),
     (
-        "Сценарии",
+        "Flows",
         slide_05,
-        "Восемь сценариев покрывают весь путь — от онбординга до статистики и возврата после пропуска.",
+        "Eight flows cover the whole path - from onboarding to stats and returning after a missed day.",
     ),
     (
-        "Архитектура",
+        "Architecture",
         slide_06,
-        "Async-слои, PostgreSQL, Redis, APScheduler и AI-клиент с fallback. Каждый слой можно тестировать отдельно.",
+        "Async layers, PostgreSQL, Redis, APScheduler and an AI client with fallback. Every layer is testable on its own.",
     ),
     (
-        "Алгоритм уровня",
+        "Level algorithm",
         slide_07,
-        "Уровень считается по взвешенному баллу: сложные вопросы дороже, скорость даёт бонус, согласованность может поднять итог.",
+        "The level uses a weighted score: harder questions are worth more, speed adds a bonus, consistency can lift the result.",
     ),
     (
         "Retention",
         slide_08,
-        "Streak и напоминания построены вокруг следующего действия, а не вокруг идеального урока. Максимум два сообщения в день.",
+        "Streaks and reminders are built around the next action, not around a perfect lesson. At most two messages a day.",
     ),
     (
-        "Качество",
+        "Quality",
         slide_09,
-        "253 теста, 74% покрытия, Ruff, Alembic и проверенный live-запрос к NVIDIA NIM.",
+        "253 tests, 74% coverage, Ruff, Alembic migrations and a verified live request to NVIDIA NIM.",
     ),
     (
-        "Деплой",
+        "Summary",
         slide_10,
-        "Стартовый стек без фиксированных затрат: Wispbyte, Supabase и Upstash. Есть graceful degradation.",
-    ),
-    (
-        "Roadmap",
-        slide_11,
-        "Сначала удержание и адаптивность, затем speaking, кабинет учителя и B2B.",
-    ),
-    (
-        "Итог",
-        slide_12,
-        "Работающий продукт, который можно открыть в Telegram и пройти путь пользователя.",
+        "A working product that can be opened in Telegram and walked through as a learner.",
     ),
 ]
 
@@ -1410,8 +1261,8 @@ def build_pptx(paths: list[Path]) -> Path:
         notes = slide.notes_slide.notes_text_frame
         notes.text = note
     out = ROOT / "LinguaFlame_Presentation.pptx"
-    prs.core_properties.title = "LinguaFlame — AI English Coach"
-    prs.core_properties.author = "aresdev09"
+    prs.core_properties.title = "LinguaFlame - AI English Coach"
+    prs.core_properties.author = "Javokhir Kavulzhanov"
     prs.core_properties.subject = "Product pitch deck"
     prs.core_properties.comments = "Generated from the LinguaFlame repository"
     prs.save(out)

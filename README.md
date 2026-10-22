@@ -217,6 +217,12 @@ ruff check .                                 # linting
 ruff format .                                # formatting
 ```
 
+## Presentation
+
+A 10-slide pitch deck for demos and interviews lives in `presentation/`
+(`LinguaFlame_Presentation.pptx` and `.pdf`). It is generated from
+`presentation/build_deck.py`; see `presentation/README.md` for the rebuild steps.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
