@@ -4,3 +4,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# Build script with embedded HTML/CSS templates: long lines are part of the layout.
+"presentation/build_deck.py" = ["E501"]
