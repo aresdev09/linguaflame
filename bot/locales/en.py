@@ -73,6 +73,10 @@ TEXTS: dict[str, str] = {
     "level.result_done": (
         "Your level has been updated. Keep going: /daily_grammar and /daily_vocabulary."
     ),
+    "level.reset_notice": (
+        "⚠️ We found an issue in the level test: it could set your level too high.\n\n"
+        "We have reset your level. Please take the test again: /level_detector"
+    ),
     # Grammar lesson
     "grammar.loading": "⏳ Preparing your lesson… It usually takes up to a minute.",
     "grammar.default_level": (

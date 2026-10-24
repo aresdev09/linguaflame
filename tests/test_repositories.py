@@ -62,6 +62,18 @@ async def test_user_update_profile_and_set_level(session: AsyncSession) -> None:
     assert user.level_tested_at is not None
 
 
+async def test_user_reset_level_clears_level_and_date(session: AsyncSession) -> None:
+    repo = UserRepo(session)
+    user = await repo.get_or_create(1)
+    await repo.set_level(1, "C2", utcnow())
+
+    await repo.reset_level(1)
+
+    await session.refresh(user)
+    assert user.level is None
+    assert user.level_tested_at is None
+
+
 async def test_streak_get_or_create_and_update(session: AsyncSession) -> None:
     await UserRepo(session).get_or_create(1)
     repo = StreakRepo(session)

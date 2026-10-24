@@ -48,6 +48,12 @@ class UserRepo(BaseRepo):
         """Помечает пользователя неактивным (бот заблокирован)."""
         await self.session.execute(update(User).where(User.id == user_id).values(is_active=False))
 
+    async def list_with_level(self) -> list[User]:
+        """Пользователи с выставленным уровнем — для скрипта массового сброса."""
+        stmt = select(User).where(User.level.is_not(None)).order_by(User.id)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def get_or_create(
         self,
         user_id: int,
@@ -89,9 +95,19 @@ class UserRepo(BaseRepo):
     async def set_level(self, user_id: int, level: str, tested_at: datetime) -> None:
         """Записывает уровень пользователя.
 
-        Вызывается только из сервиса level detector: больше нигде
-        `users.level` не меняется.
+        Вызывается из сервиса level detector и скрипта поддержки
+        `scripts/set_user_level.py`: больше нигде `users.level` не меняется.
         """
         await self.session.execute(
             update(User).where(User.id == user_id).values(level=level, level_tested_at=tested_at)
+        )
+
+    async def reset_level(self, user_id: int) -> None:
+        """Полностью сбрасывает уровень.
+
+        Используется только скриптом поддержки: бот так уровень не меняет,
+        пользователь проходит тест заново как впервые.
+        """
+        await self.session.execute(
+            update(User).where(User.id == user_id).values(level=None, level_tested_at=None)
         )
