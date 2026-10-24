@@ -223,6 +223,13 @@ A 10-slide pitch deck for demos and interviews lives in `presentation/`
 (`LinguaFlame_Presentation.pptx` and `.pdf`). It is generated from
 `presentation/build_deck.py`; see `presentation/README.md` for the rebuild steps.
 
+## Promo video
+
+A 15-second promo ships in two cuts — vertical `1080x1920` and landscape
+`1920x1080` (each with a sub-5 MB looping GIF) — rendered from `promo/render.py`
+and `promo/render_wide.py` with Python, Pillow and ffmpeg; the soundtrack is
+synthesised by `promo/make_music.py`. Rebuild steps are in `promo/README.md`.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
