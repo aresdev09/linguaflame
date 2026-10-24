@@ -25,6 +25,17 @@ class LevelTestRepo(BaseRepo):
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_latest_finished(self, user_id: int) -> LevelTest | None:
+        """Последний завершённый тест пользователя — источник текущего уровня."""
+        stmt = (
+            select(LevelTest)
+            .where(LevelTest.user_id == user_id, LevelTest.finished_at.is_not(None))
+            .order_by(LevelTest.finished_at.desc(), LevelTest.id.desc())
+            .limit(1)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def create(
         self,
         user_id: int,

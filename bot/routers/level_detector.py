@@ -33,13 +33,12 @@ from bot.repositories import (
 )
 from bot.services.level_test import (
     InsufficientQuestionsError,
-    LevelAnswer,
     LevelTestResult,
-    compute_level_test_result,
     format_level_question,
     format_level_result,
     format_retake_prompt,
     get_questions_by_ids,
+    recalculate_test_result,
     select_test_questions,
 )
 from bot.services.streak import register_activity, streak_line
@@ -342,20 +341,9 @@ async def _complete_test(
     if test.finished_at is not None:
         return None
 
-    rows = await LevelTestAnswerRepo(session).list_with_questions(test.id)
-    if not rows or len(rows) < len(test.question_ids):
+    result = await recalculate_test_result(session, test)
+    if result is None:
         return None
-
-    answers = [
-        LevelAnswer(
-            level=question.level,
-            kind=question.kind,
-            is_correct=answer.is_correct,
-            answer_time_sec=answer.answer_time_sec,
-        )
-        for answer, question in rows
-    ]
-    result = compute_level_test_result(answers)
 
     moment = now or datetime.now(UTC)
     await LevelTestRepo(session).finish(

@@ -32,8 +32,8 @@ from bot.config import (
     SPEED_SLOW_SEC,
 )
 from bot.locales import t
-from bot.models import Question, User
-from bot.repositories import QuestionRepo
+from bot.models import LevelTest, Question, User
+from bot.repositories import LevelTestAnswerRepo, QuestionRepo
 from bot.services.timezones import as_utc, resolve_timezone
 
 logger = logging.getLogger(__name__)
@@ -243,6 +243,32 @@ def compute_level_test_result(answers: Sequence[LevelAnswer]) -> LevelTestResult
         result.total_count,
     )
     return result
+
+
+async def recalculate_test_result(
+    session: AsyncSession,
+    test: LevelTest,
+) -> LevelTestResult | None:
+    """Пересчитывает сохранённый тест по текущим правилам подсчёта.
+
+    Вернёт None, если ответов меньше, чем вопросов в тесте (тест неполный).
+    Нужно скрипту поддержки: сравнить выдачу исправленного алгоритма
+    с уровнем, который записан пользователю.
+    """
+    rows = await LevelTestAnswerRepo(session).list_with_questions(test.id)
+    if not rows or len(rows) < len(test.question_ids or []):
+        return None
+
+    answers = [
+        LevelAnswer(
+            level=question.level,
+            kind=question.kind,
+            is_correct=answer.is_correct,
+            answer_time_sec=answer.answer_time_sec,
+        )
+        for answer, question in rows
+    ]
+    return compute_level_test_result(answers)
 
 
 def _section_percent(correct: int, total: int) -> float:
