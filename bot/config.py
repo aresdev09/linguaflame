@@ -59,6 +59,10 @@ SPEED_GUESSING_SEC: int = 2
 SPEED_SLOW_SEC: int = 60
 # Проверка согласованности: уровень с точностью не ниже 60% может поднять итог.
 CONSISTENCY_MIN_ACCURACY: float = 0.60
+# Подъём работает только при общем проценте выше этого значения и не больше
+# чем на один уровень: случайные попадания на сложных вопросах не должны
+# выдавать новичку C2.
+CONSISTENCY_LIFT_MIN_PERCENT: float = 80.0
 
 
 class ConfigError(RuntimeError):

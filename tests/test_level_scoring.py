@@ -2,7 +2,7 @@
 
 import random
 
-from bot.config import LEVEL_TEST_DISTRIBUTION, LEVELS
+from bot.config import CONSISTENCY_LIFT_MIN_PERCENT, LEVEL_TEST_DISTRIBUTION, LEVELS
 from bot.services.level_test import (
     LevelAnswer,
     compute_level_test_result,
@@ -56,17 +56,23 @@ def test_all_wrong_gives_a1() -> None:
     assert result.percent == 0.0
 
 
-def test_fast_random_clicks_are_not_higher_than_b1() -> None:
-    rng = random.Random(2024)
+def test_fast_random_clicks_never_give_high_levels() -> None:
+    # Ключевая регрессия: раньше подъём согласованности выдавал C2 примерно
+    # в 7% прогонов чистых случайных кликов. Проверяем на множестве seed:
+    # C1/C2 не появляются, редкая удача может дотянуть максимум до B2.
+    for seed in range(2000):
+        rng = random.Random(seed)
 
-    def random_correct(level: str, index: int) -> bool:
-        return rng.random() < 1 / 3
+        # rng в значении по умолчанию — ruff требует явной привязки в цикле.
+        def random_correct(level: str, index: int, _rng: random.Random = rng) -> bool:
+            return _rng.random() < 1 / 3
 
-    result = compute_level_test_result(_make_answers(is_correct=random_correct, answer_time_sec=1))
-
-    assert LEVELS.index(result.level) <= LEVELS.index("B1"), (
-        f"случайные клики дали {result.level} ({result.percent}%)"
-    )
+        result = compute_level_test_result(
+            _make_answers(is_correct=random_correct, answer_time_sec=1)
+        )
+        assert LEVELS.index(result.level) < LEVELS.index("C1"), (
+            f"seed {seed}: случайные клики дали {result.level} ({result.percent}%)"
+        )
 
 
 def test_speed_bonus_rewards_fast_answers() -> None:
@@ -87,12 +93,45 @@ def test_guessing_rule_applies_from_b1() -> None:
     assert score_answer("C1", is_correct=True, answer_time_sec=61) == 5.0
 
 
-def test_consistency_check_raises_level_when_high_level_questions_pass() -> None:
+def test_lucky_c2_answers_do_not_make_a_beginner_c2() -> None:
+    # 6 из 10 C2-вопросов угаданы, но общий результат низкий: уровень решают пороги.
     def only_c2_correct(level: str, index: int) -> bool:
         return level == "C2" and index < 6
 
     result = compute_level_test_result(_make_answers(is_correct=only_c2_correct, answer_time_sec=5))
 
+    assert result.percent == 20.0
+    assert result.level == "A2"
+
+
+def test_consistency_does_not_lift_below_lift_threshold() -> None:
+    # Верно только всё сложное, общий процент в полосе B2 — подъём не работает.
+    def only_high_levels_correct(level: str, index: int) -> bool:
+        return level in {"C1", "C2"}
+
+    result = compute_level_test_result(
+        _make_answers(is_correct=only_high_levels_correct, answer_time_sec=5)
+    )
+
+    assert result.percent < CONSISTENCY_LIFT_MIN_PERCENT
+    assert result.level == "B2"
+
+
+def test_consistency_lift_works_near_top() -> None:
+    # Пользователь почти на пороге C2, C2-вопросы отвечает верно: подъём на один уровень.
+    def near_top(level: str, index: int) -> bool:
+        if level == "A1":
+            return index < 2
+        if level == "C1":
+            return index < 7
+        if level == "C2":
+            return index < 7
+        return True
+
+    result = compute_level_test_result(_make_answers(is_correct=near_top, answer_time_sec=5))
+
+    assert result.percent > CONSISTENCY_LIFT_MIN_PERCENT
+    assert result.percent < 88
     assert result.level == "C2"
 
 

@@ -6,7 +6,9 @@
 - быстрый ответ даёт бонус до +10%, ответ быстрее 2 секунд на B1+
   считается угадыванием, ответ дольше 60 секунд бонуса не получает;
 - итоговый процент переводится в уровень по порогам из конфига;
-- дополнительная проверка согласованности может поднять уровень.
+- дополнительная проверка согласованности поднимает уровень не больше чем
+  на один шаг и только при общем проценте выше порога подъёма, иначе
+  удачные попадания на сложных вопросах давали бы новичкам высокий уровень.
 """
 
 import logging
@@ -18,6 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.config import (
+    CONSISTENCY_LIFT_MIN_PERCENT,
     CONSISTENCY_MIN_ACCURACY,
     LEVEL_SPEED_NORMS_SEC,
     LEVEL_TEST_DISTRIBUTION,
@@ -209,9 +212,13 @@ def compute_level_test_result(answers: Sequence[LevelAnswer]) -> LevelTestResult
     threshold_level = level_from_percent(percent)
     consistent_level = _consistency_level(answers)
     final_level = threshold_level
-    if consistent_level is not None:
-        if LEVELS.index(consistent_level) > LEVELS.index(final_level):
-            final_level = consistent_level
+    if consistent_level is not None and percent > CONSISTENCY_LIFT_MIN_PERCENT:
+        threshold_index = LEVELS.index(threshold_level)
+        # Подъём не больше чем на один уровень: угадать один блок вопросов
+        # легко, а показать высокий общий процент — нет.
+        lifted_index = min(LEVELS.index(consistent_level), threshold_index + 1)
+        if lifted_index > threshold_index:
+            final_level = LEVELS[lifted_index]
 
     grammar = [answer for answer in answers if answer.kind == "grammar"]
     vocabulary = [answer for answer in answers if answer.kind == "vocabulary"]
