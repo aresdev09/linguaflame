@@ -5,9 +5,9 @@ from datetime import timedelta
 import pytest
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from bot.models import User, utcnow
+from bot.models import Streak, User, utcnow
 from bot.repositories import (
     ActivityRepo,
     EssayRepo,
@@ -74,6 +74,38 @@ async def test_user_reset_level_clears_level_and_date(session: AsyncSession) -> 
     assert user.level_tested_at is None
 
 
+async def test_user_creation_race_returns_existing_user(
+    session_factory: async_sessionmaker[AsyncSession],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # «Параллельный» апдейт уже создал пользователя в своей транзакции.
+    async with session_factory() as setup:
+        async with setup.begin():
+            await UserRepo(setup).get_or_create(1, username="first")
+
+    async with session_factory() as session:
+        repo = UserRepo(session)
+        original_get = repo.get
+        misses = 0
+
+        async def get_miss_once(user_id: int) -> User | None:
+            """Первый вызов «не находит» запись — как при гонке апдейтов."""
+            nonlocal misses
+            misses += 1
+            if misses == 1:
+                return None
+            return await original_get(user_id)
+
+        monkeypatch.setattr(repo, "get", get_miss_once)
+
+        user, created = await repo.ensure(1, username="second")
+
+        assert created is False
+        assert user.username == "first"
+        assert misses == 2
+        assert await session.scalar(select(func.count()).select_from(User)) == 1
+
+
 async def test_streak_get_or_create_and_update(session: AsyncSession) -> None:
     await UserRepo(session).get_or_create(1)
     repo = StreakRepo(session)
@@ -88,6 +120,38 @@ async def test_streak_get_or_create_and_update(session: AsyncSession) -> None:
     assert streak.current_streak == 3
     assert streak.best_streak == 5
     assert streak.last_activity_date == today
+
+
+async def test_streak_creation_race_returns_existing_streak(
+    session_factory: async_sessionmaker[AsyncSession],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # «Параллельный» апдейт уже создал серию в своей транзакции.
+    async with session_factory() as setup:
+        async with setup.begin():
+            await UserRepo(setup).get_or_create(1)
+            await StreakRepo(setup).get_or_create(1)
+
+    async with session_factory() as session:
+        repo = StreakRepo(session)
+        original_get = repo.get
+        misses = 0
+
+        async def get_miss_once(user_id: int) -> Streak | None:
+            """Первый вызов «не находит» серию — как при гонке апдейтов."""
+            nonlocal misses
+            misses += 1
+            if misses == 1:
+                return None
+            return await original_get(user_id)
+
+        monkeypatch.setattr(repo, "get", get_miss_once)
+
+        again = await repo.get_or_create(1)
+
+        assert again.user_id == 1
+        assert again.current_streak == 0
+        assert misses == 2
 
 
 async def test_question_create_and_filter(session: AsyncSession) -> None:

@@ -59,6 +59,45 @@ async def test_user_middleware_creates_user_once(
         assert await session.scalar(select(func.count()).select_from(User)) == 1
 
 
+async def test_user_middleware_survives_creation_race(
+    session_factory: async_sessionmaker[AsyncSession],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Параллельный апдейт уже создал пользователя: middleware не падает."""
+    middleware = UserMiddleware()
+    event = SimpleNamespace(from_user=FakeTelegramUser(888, username="ann"))
+
+    async def handler(event: Any, data: dict[str, Any]) -> bool:
+        return data["is_new_user"]
+
+    # Пользователя уже создал параллельный апдейт в своей транзакции.
+    async with session_factory() as session:
+        async with session.begin():
+            await UserRepo(session).create(888, username="ann")
+
+    original_get = UserRepo.get
+    misses = 0
+
+    async def get_miss_once(self: UserRepo, user_id: int) -> User | None:
+        nonlocal misses
+        misses += 1
+        if misses == 1:
+            return None
+        return await original_get(self, user_id)
+
+    monkeypatch.setattr(UserRepo, "get", get_miss_once)
+
+    async with session_factory() as session:
+        async with session.begin():
+            assert await middleware(handler, event, {"session": session}) is False
+
+    async with session_factory() as session:
+        assert await session.scalar(
+            select(func.count()).select_from(User)
+        ) == 1
+        assert await session.scalar(select(User.username)) == "ann"
+
+
 async def test_db_session_middleware_commits_on_success(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:

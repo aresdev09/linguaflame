@@ -8,7 +8,6 @@ from aiogram import BaseMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.middlewares.utils import telegram_user_from
-from bot.models import User
 from bot.repositories import UserRepo
 
 logger = logging.getLogger(__name__)
@@ -33,10 +32,13 @@ class UserMiddleware(BaseMiddleware):
             return await handler(event, data)
 
         repo = UserRepo(session)
-        user: User | None = await repo.get(telegram_user.id)
-        is_new_user = user is None
+        # ensure вместо get+create: параллельные апдейты нового пользователя
+        # не должны падать на UNIQUE constraint по users.id.
+        user, is_new_user = await repo.ensure(
+            telegram_user.id,
+            username=telegram_user.username,
+        )
         if is_new_user:
-            user = await repo.create(telegram_user.id, username=telegram_user.username)
             logger.info("Новый пользователь: %s", user.id)
 
         data["user"] = user

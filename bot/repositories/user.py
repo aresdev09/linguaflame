@@ -3,6 +3,7 @@
 from datetime import datetime
 
 from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 
 from bot.models import Streak, User
 from bot.repositories.base import BaseRepo
@@ -54,6 +55,39 @@ class UserRepo(BaseRepo):
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
+    async def ensure(
+        self,
+        user_id: int,
+        *,
+        username: str | None = None,
+        native_language: str = "en",
+        timezone: str = "UTC",
+    ) -> tuple[User, bool]:
+        """Возвращает пару (пользователь, создан ли он этим вызовом).
+
+        Безопасно к гонке: Telegram присылает несколько апдейтов нового
+        пользователя почти одновременно, каждый в своей транзакции. Проигравший
+        вставку получает IntegrityError и читает запись победителя, а не падает.
+        """
+        user = await self.get(user_id)
+        if user is not None:
+            return user, False
+        try:
+            # Savepoint: неудачная вставка не ломает общую транзакцию апдейта.
+            async with self.session.begin_nested():
+                created = await self.create(
+                    user_id,
+                    username=username,
+                    native_language=native_language,
+                    timezone=timezone,
+                )
+            return created, True
+        except IntegrityError:
+            existing = await self.get(user_id)
+            if existing is None:
+                raise
+            return existing, False
+
     async def get_or_create(
         self,
         user_id: int,
@@ -63,14 +97,12 @@ class UserRepo(BaseRepo):
         timezone: str = "UTC",
     ) -> User:
         """Возвращает пользователя, создавая его при первом обращении."""
-        user = await self.get(user_id)
-        if user is None:
-            user = await self.create(
-                user_id,
-                username=username,
-                native_language=native_language,
-                timezone=timezone,
-            )
+        user, _ = await self.ensure(
+            user_id,
+            username=username,
+            native_language=native_language,
+            timezone=timezone,
+        )
         return user
 
     async def update_profile(
