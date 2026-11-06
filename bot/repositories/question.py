@@ -23,10 +23,12 @@ class QuestionRepo(BaseRepo):
         options: dict[str, str],
         correct_option: str,
         explanation: str | None = None,
+        language: str = "ru",
     ) -> Question:
         question = Question(
             kind=kind,
             level=level,
+            language=language,
             text=text,
             options=options,
             correct_option=correct_option,
@@ -43,13 +45,16 @@ class QuestionRepo(BaseRepo):
         *,
         limit: int | None = None,
         exclude_ids: Iterable[int] = (),
+        language: str | None = None,
     ) -> list[Question]:
-        """Вопросы по виду и уровню без повторов."""
+        """Вопросы по виду, уровню и языку без повторов."""
         stmt = select(Question)
         if kind is not None:
             stmt = stmt.where(Question.kind == kind)
         if level is not None:
             stmt = stmt.where(Question.level == level)
+        if language is not None:
+            stmt = stmt.where(Question.language == language)
         excluded = list(exclude_ids)
         if excluded:
             stmt = stmt.where(Question.id.not_in(excluded))

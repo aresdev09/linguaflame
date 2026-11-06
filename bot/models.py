@@ -96,7 +96,12 @@ class LevelTestAnswer(Base):
 
 
 class Question(Base):
-    """Банк вопросов для квиза и теста уровня."""
+    """Банк вопросов для квиза и теста уровня.
+
+    `language` — язык пояснений и формулировок-подсказок (вопрос на английском,
+    пояснение на родном языке). Вопросы без переведённого банка берутся
+    из русского как есть (см. сервисы).
+    """
 
     __tablename__ = "questions"
 
@@ -105,6 +110,7 @@ class Question(Base):
         Enum("grammar", "vocabulary", name="question_kind", native_enum=False)
     )
     level: Mapped[str] = mapped_column(String(2))
+    language: Mapped[str] = mapped_column(String(8), default="ru", server_default="ru")
     text: Mapped[str] = mapped_column(Text)
     options: Mapped[dict] = mapped_column(JSON)
     correct_option: Mapped[str] = mapped_column(String(1))

@@ -24,13 +24,14 @@ async def _create_user(
     *,
     level: str | None = "B1",
     native_language: str = "ru",
+    user_id: int = USER_ID,
 ) -> None:
     async with session_factory() as session:
         async with session.begin():
             repo = UserRepo(session)
-            await repo.create(USER_ID, native_language=native_language)
+            await repo.create(user_id, native_language=native_language)
             if level is not None:
-                await repo.set_level(USER_ID, level, datetime.now(UTC))
+                await repo.set_level(user_id, level, datetime.now(UTC))
 
 
 async def _seed_question(
@@ -40,6 +41,7 @@ async def _seed_question(
     level: str = "B1",
     correct: str = "A",
     explanation: str = "Пояснение",
+    language: str = "ru",
 ) -> int:
     async with session_factory() as session:
         async with session.begin():
@@ -50,6 +52,7 @@ async def _seed_question(
                 options={"A": "am", "B": "is", "C": "are"},
                 correct_option=correct,
                 explanation=explanation,
+                language=language,
             )
             return question.id
 
@@ -94,6 +97,58 @@ async def test_next_question_generates_and_saves_when_bank_is_empty(
             assert saved[0].correct_option == ai.quiz.correct
 
     assert ai.calls_of("quiz") == [{"task": "quiz", "level": "B1", "lang": "ru"}]
+
+
+async def test_next_question_uses_uz_bank_for_uz_user(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    await _create_user(session_factory, native_language="uz")
+    await _seed_question(session_factory, text="Русский вопрос", language="ru")
+    uz_id = await _seed_question(session_factory, text="Uzbek savol", language="uz")
+    ai = FakeAIClient()
+
+    async with session_factory() as session:
+        async with session.begin():
+            user = await UserRepo(session).get(USER_ID)
+            assert user is not None
+            question = await next_quiz_question(session, user, ai)
+
+    assert question.id == uz_id
+    assert ai.calls == []
+
+
+async def test_next_question_falls_back_to_russian_bank(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    await _create_user(session_factory, native_language="uz")
+    ru_id = await _seed_question(session_factory, text="Русский вопрос", language="ru")
+    ai = FakeAIClient()
+
+    async with session_factory() as session:
+        async with session.begin():
+            user = await UserRepo(session).get(USER_ID)
+            assert user is not None
+            question = await next_quiz_question(session, user, ai)
+
+    assert question.id == ru_id
+    assert ai.calls == []
+
+
+async def test_generated_question_is_saved_in_user_language(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    await _create_user(session_factory, native_language="uz")
+    ai = FakeAIClient()
+
+    async with session_factory() as session:
+        async with session.begin():
+            user = await UserRepo(session).get(USER_ID)
+            assert user is not None
+            question = await next_quiz_question(session, user, ai)
+            saved = await session.get(Question, question.id)
+
+    assert saved is not None
+    assert saved.language == "uz"
 
 
 async def test_next_question_uses_a2_without_level(

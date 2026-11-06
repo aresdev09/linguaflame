@@ -93,7 +93,7 @@ async def _start_new_test(
 ) -> None:
     """Создаёт тест из 50 вопросов и отправляет первый вопрос."""
     try:
-        questions = await select_test_questions(session)
+        questions = await select_test_questions(session, language=lang)
     except InsufficientQuestionsError as exc:
         logger.warning("Тест уровня недоступен: %s", exc)
         await message.answer(t("level.bank_empty", lang))

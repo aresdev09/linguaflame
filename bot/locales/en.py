@@ -205,9 +205,10 @@ TEXTS: dict[str, str] = {
     "common.ai_limit": (
         "Today's AI request limit is reached. Your progress is saved — come back tomorrow."
     ),
-    # Language names (same in both languages)
+    # Language names (same in all languages)
     "language.ru": "Русский",
     "language.en": "English",
+    "language.uz": "O'zbekcha",
     # Timezones
     "timezone.utc": "UTC",
     "timezone.moscow": "Moscow",

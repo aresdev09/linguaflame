@@ -9,7 +9,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from bot.locales import t
+from bot.locales import SUPPORTED_LANGUAGES, t
 from bot.middlewares.user import UserMiddleware
 from bot.models import User
 from bot.repositories import UserRepo
@@ -17,6 +17,16 @@ from bot.routers.start import choose_language, choose_timezone, start_command
 from bot.states import OnboardingStates
 
 USER_ID = 555
+
+
+def callbacks(markup: Any) -> list[str]:
+    """callback_data всех кнопок клавиатуры по порядку."""
+    return [
+        button.callback_data
+        for row in markup.inline_keyboard
+        for button in row
+        if button.callback_data is not None
+    ]
 
 
 class FakeTelegramUser:
@@ -135,6 +145,39 @@ async def test_choose_language_saves_profile_and_asks_timezone(
         assert user.native_language == "ru"
 
     assert message.answers[-1] == t("start.choose_timezone", "ru")
+
+
+async def test_choose_language_offers_all_supported_languages(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    message = FakeMessage()
+    state = _state()
+
+    await _dispatch(session_factory, start_command, message, state)
+
+    markup = message.markups[1]
+    assert markup is not None
+    assert callbacks(markup) == [f"lang:{code}" for code in SUPPORTED_LANGUAGES]
+
+
+async def test_choose_uzbek_language_saves_profile(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    message = FakeMessage()
+    state = _state()
+    await _dispatch(session_factory, start_command, message, state)
+
+    callback = FakeCallbackQuery("lang:uz", message)
+    await _dispatch(session_factory, choose_language, callback, state)
+
+    assert callback.answers == [""]
+    assert await state.get_state() == OnboardingStates.choose_timezone.state
+    assert message.answers[-1] == t("start.choose_timezone", "uz")
+
+    async with session_factory() as session:
+        user = await UserRepo(session).get(USER_ID)
+        assert user is not None
+        assert user.native_language == "uz"
 
 
 async def test_choose_language_rejects_unknown_language(

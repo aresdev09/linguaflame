@@ -1,16 +1,16 @@
-"""Локализация бота: тексты по ключам, языки ru и en.
+"""Локализация бота: тексты по ключам, языки ru, en и uz.
 
 Все строки, которые видит пользователь, берутся отсюда через `t(key, lang)`.
 """
 
 from typing import Final
 
-from bot.locales import en, ru
+from bot.locales import en, ru, uz
 
 DEFAULT_LANGUAGE: Final[str] = "ru"
-SUPPORTED_LANGUAGES: Final[tuple[str, ...]] = ("ru", "en")
+SUPPORTED_LANGUAGES: Final[tuple[str, ...]] = ("ru", "en", "uz")
 
-_TEXTS: Final[dict[str, dict[str, str]]] = {"ru": ru.TEXTS, "en": en.TEXTS}
+_TEXTS: Final[dict[str, dict[str, str]]] = {"ru": ru.TEXTS, "en": en.TEXTS, "uz": uz.TEXTS}
 
 
 def t(key: str, lang: str | None = None, **kwargs: object) -> str:

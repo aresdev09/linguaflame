@@ -40,18 +40,25 @@ async def _create_user(
     level: str | None = None,
     tested_at: datetime | None = None,
     timezone_name: str = "UTC",
+    native_language: str = "ru",
 ) -> None:
     async with session_factory() as session:
         async with session.begin():
             repo = UserRepo(session)
-            user = await repo.create(USER_ID, native_language="ru", timezone=timezone_name)
+            user = await repo.create(
+                USER_ID, native_language=native_language, timezone=timezone_name
+            )
             if level is not None:
                 await repo.set_level(USER_ID, level, tested_at or datetime.now(UTC))
             await session.flush()
             assert user is not None
 
 
-async def _seed_bank(session_factory: async_sessionmaker[AsyncSession]) -> None:
+async def _seed_bank(
+    session_factory: async_sessionmaker[AsyncSession],
+    *,
+    language: str = "ru",
+) -> None:
     """По 5 вопросов каждого вида на уровень — хватает на тест из 50."""
     async with session_factory() as session:
         async with session.begin():
@@ -66,6 +73,7 @@ async def _seed_bank(session_factory: async_sessionmaker[AsyncSession]) -> None:
                             options={"A": "one", "B": "two", "C": "three"},
                             correct_option="A",
                             explanation="Пояснение",
+                            language=language,
                         )
 
 
@@ -278,6 +286,28 @@ async def test_double_click_does_not_add_answer(
         assert len(answers) == 1
     data = await state.get_data()
     assert data["answered_count"] == 1
+
+
+async def test_uz_user_gets_questions_from_uz_bank(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    await _create_user(session_factory, native_language="uz")
+    await _seed_bank(session_factory, language="ru")
+    await _seed_bank(session_factory, language="uz")
+    chat = FakeChat(USER_ID)
+    state = make_state(USER_ID)
+
+    await _start_test(session_factory, chat, state)
+
+    async with session_factory() as session:
+        test = (await session.scalars(select(LevelTest))).one()
+        uz_ids = {
+            question.id
+            for question in await QuestionRepo(session).list_by_kind_level(language="uz")
+        }
+
+    assert len(test.question_ids) == 50
+    assert set(test.question_ids) <= uz_ids
 
 
 async def test_full_flow_all_correct_sets_c2(

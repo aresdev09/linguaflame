@@ -1,6 +1,6 @@
 """Банк вопросов уровня: чтение JSON, проверка и загрузка в `questions`.
 
-Формат файла `bot/data/level_questions.json`:
+Формат файла банка:
 {
   "version": 1,
   "questions": [
@@ -9,12 +9,17 @@
      "correct_option": "B", "explanation": "..."}
   ]
 }
+
+Банки лежат в `bot/data/`: `level_questions.json` (русский, по умолчанию) и
+`level_questions_uz.json` (узбекский). Язык передаётся в `insert_bank(language=...)`
+и сохраняется в колонке `questions.language`.
 """
 
 import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Final
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,6 +29,11 @@ from bot.repositories import QuestionRepo
 logger = logging.getLogger(__name__)
 
 BANK_PATH = Path(__file__).resolve().parents[1] / "data" / "level_questions.json"
+UZ_BANK_PATH = Path(__file__).resolve().parents[1] / "data" / "level_questions_uz.json"
+# Банки по языкам пояснений. Для языков без переведённого банка сервисы
+# откатываются на русский.
+BANK_FILES: Final[dict[str, Path]] = {"ru": BANK_PATH, "uz": UZ_BANK_PATH}
+DEFAULT_BANK_LANGUAGE: Final[str] = "ru"
 
 QUESTION_KINDS = ("grammar", "vocabulary")
 OPTION_LETTERS = ("A", "B", "C", "D")
@@ -168,14 +178,16 @@ def validate_bank(
 async def insert_bank(
     session: AsyncSession,
     questions: list[BankQuestion],
+    *,
+    language: str = DEFAULT_BANK_LANGUAGE,
 ) -> InsertStats:
     """Добавляет в `questions` только те вопросы, которых там ещё нет.
 
-    Дубли определяются по паре (уровень, вид) и тексту без учёта регистра.
+    Дубли определяются по языку, паре (уровень, вид) и тексту без учёта регистра.
     Коммит делает вызывающий код (скрипт или тест).
     """
     repo = QuestionRepo(session)
-    existing = await repo.list_by_kind_level()
+    existing = await repo.list_by_kind_level(language=language)
     known = {(item.level, item.kind, item.text.strip().casefold()) for item in existing}
 
     added = 0
@@ -192,9 +204,10 @@ async def insert_bank(
             options=question.options,
             correct_option=question.correct_option,
             explanation=question.explanation,
+            language=language,
         )
         known.add(key)
         added += 1
 
-    logger.info("Банк вопросов: добавлено %d, пропущено %d", added, skipped)
+    logger.info("Банк вопросов (%s): добавлено %d, пропущено %d", language, added, skipped)
     return InsertStats(added=added, skipped=skipped)

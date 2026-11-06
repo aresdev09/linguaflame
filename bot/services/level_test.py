@@ -34,6 +34,7 @@ from bot.config import (
 from bot.locales import t
 from bot.models import LevelTest, Question, User
 from bot.repositories import LevelTestAnswerRepo, QuestionRepo
+from bot.services.question_bank import DEFAULT_BANK_LANGUAGE
 from bot.services.timezones import as_utc, resolve_timezone
 
 logger = logging.getLogger(__name__)
@@ -66,8 +67,14 @@ async def select_test_questions(
     *,
     rng: random.Random | None = None,
     distribution: dict[str, int] | None = None,
+    language: str = DEFAULT_BANK_LANGUAGE,
 ) -> list[Question]:
-    """Набирает вопросы по распределению уровней, без повторов."""
+    """Набирает вопросы по распределению уровней, без повторов.
+
+    Берутся вопросы на языке пользователя; если их не хватает, недостающие
+    добираются из русского банка (он единственный полный до появления
+    перевода).
+    """
     chooser = rng or random.Random()
     plan = distribution or LEVEL_TEST_DISTRIBUTION
     repo = QuestionRepo(session)
@@ -80,7 +87,15 @@ async def select_test_questions(
             ("grammar", grammar_count),
             ("vocabulary", vocabulary_count),
         ):
-            pool = await repo.list_by_kind_level(kind=kind, level=level)
+            pool = await repo.list_by_kind_level(kind=kind, level=level, language=language)
+            if len(pool) < needed and language != DEFAULT_BANK_LANGUAGE:
+                extra = await repo.list_by_kind_level(
+                    kind=kind,
+                    level=level,
+                    language=DEFAULT_BANK_LANGUAGE,
+                    exclude_ids=[question.id for question in pool],
+                )
+                pool = [*pool, *extra]
             if len(pool) < needed:
                 raise InsufficientQuestionsError(level, kind, needed, len(pool))
             selected.extend(chooser.sample(pool, needed))

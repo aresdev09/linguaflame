@@ -197,6 +197,32 @@ async def test_question_create_and_filter(session: AsyncSession) -> None:
     assert saved.correct_option == "A"
 
 
+async def test_question_language_defaults_to_ru_and_filters(
+    session: AsyncSession,
+) -> None:
+    repo = QuestionRepo(session)
+    default_question = await repo.create(
+        kind="grammar",
+        level="A1",
+        text="I ___ a student.",
+        options={"A": "am", "B": "is", "C": "are"},
+        correct_option="A",
+    )
+    uz_question = await repo.create(
+        kind="grammar",
+        level="A1",
+        text="She ___ a teacher.",
+        options={"A": "am", "B": "is", "C": "are"},
+        correct_option="B",
+        language="uz",
+    )
+
+    assert (await repo.get(default_question.id)).language == "ru"
+    assert [q.id for q in await repo.list_by_kind_level(language="ru")] == [default_question.id]
+    assert [q.id for q in await repo.list_by_kind_level(language="uz")] == [uz_question.id]
+    assert len(await repo.list_by_kind_level()) == 2
+
+
 async def test_lesson_create_and_progress(session: AsyncSession) -> None:
     await UserRepo(session).get_or_create(1)
     repo = LessonRepo(session)

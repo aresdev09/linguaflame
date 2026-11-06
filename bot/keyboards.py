@@ -5,7 +5,7 @@
 
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from bot.locales import t
+from bot.locales import SUPPORTED_LANGUAGES, t
 
 LANGUAGE_CALLBACK_PREFIX = "lang:"
 TIMEZONE_CALLBACK_PREFIX = "tz:"
@@ -39,13 +39,10 @@ def language_kb(lang: str) -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=t("language.ru", lang),
-                    callback_data=f"{LANGUAGE_CALLBACK_PREFIX}ru",
-                ),
-                InlineKeyboardButton(
-                    text=t("language.en", lang),
-                    callback_data=f"{LANGUAGE_CALLBACK_PREFIX}en",
-                ),
+                    text=t(f"language.{code}", lang),
+                    callback_data=f"{LANGUAGE_CALLBACK_PREFIX}{code}",
+                )
+                for code in SUPPORTED_LANGUAGES
             ]
         ]
     )

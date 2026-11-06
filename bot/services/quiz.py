@@ -10,6 +10,7 @@ from bot.locales import t
 from bot.models import Question, User
 from bot.repositories import QuestionRepo
 from bot.services.ai_client import AIClient
+from bot.services.question_bank import DEFAULT_BANK_LANGUAGE
 
 logger = logging.getLogger(__name__)
 
@@ -31,13 +32,19 @@ async def next_quiz_question(
     Сгенерированный вопрос сразу сохраняется в `questions`, чтобы пополнить банк.
     """
     level = user.level or DEFAULT_LEVEL
+    lang = user.native_language
     repo = QuestionRepo(session)
 
-    bank = await repo.list_by_kind_level(level=level, limit=1, exclude_ids=used_ids)
+    bank = await repo.list_by_kind_level(level=level, limit=1, exclude_ids=used_ids, language=lang)
+    if not bank and lang != DEFAULT_BANK_LANGUAGE:
+        # Языка пользователя нет в банке — берём русский (текущее поведение).
+        bank = await repo.list_by_kind_level(
+            level=level, limit=1, exclude_ids=used_ids, language=DEFAULT_BANK_LANGUAGE
+        )
     if bank:
         return bank[0]
 
-    generated = await ai.generate_quiz(level, user.native_language)
+    generated = await ai.generate_quiz(level, lang)
     question = await repo.create(
         kind=GENERATED_QUESTION_KIND,
         level=level,
@@ -45,6 +52,7 @@ async def next_quiz_question(
         options=generated.options,
         correct_option=generated.correct,
         explanation=generated.explanation,
+        language=lang,
     )
     logger.info("Квиз: сгенерирован вопрос %s уровня %s", question.id, level)
     return question

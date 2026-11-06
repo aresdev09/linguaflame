@@ -17,7 +17,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from bot.config import Settings
 from bot.database import get_session_factory
-from bot.services.question_bank import BANK_PATH, insert_bank, load_bank, validate_bank
+from bot.services.question_bank import (
+    BANK_FILES,
+    DEFAULT_BANK_LANGUAGE,
+    insert_bank,
+    load_bank,
+    validate_bank,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -72,19 +78,33 @@ async def upgrade_database(database_url: str) -> None:
 
 async def load_question_bank(
     session_factory: async_sessionmaker[AsyncSession] | None = None,
-    path: Path = BANK_PATH,
+    path: Path | None = None,
+    language: str | None = None,
 ) -> tuple[int, int]:
     """Догружает банк вопросов уровня в `questions` (без дублей).
 
-    Возвращает (добавлено, уже было).
+    Без аргументов загружает все известные банки (`BANK_FILES`). `path` и
+    `language` позволяют загрузить один конкретный файл: путь к нему и язык
+    пояснений, который будет сохранён в вопросах.
+    Возвращает (добавлено, уже было) — суммарно по всем банкам.
     """
-    questions = load_bank(path)
-    validate_bank(questions)
     factory = session_factory or get_session_factory()
+    if path is not None:
+        banks = [(language or DEFAULT_BANK_LANGUAGE, path)]
+    else:
+        banks = list(BANK_FILES.items())
+
+    total_added = 0
+    total_skipped = 0
     async with factory() as session:
         async with session.begin():
-            stats = await insert_bank(session, questions)
-    return stats.added, stats.skipped
+            for bank_language, bank_path in banks:
+                questions = load_bank(bank_path)
+                validate_bank(questions)
+                stats = await insert_bank(session, questions, language=bank_language)
+                total_added += stats.added
+                total_skipped += stats.skipped
+    return total_added, total_skipped
 
 
 async def prepare_database(settings: Settings, *, bank: bool = True) -> None:

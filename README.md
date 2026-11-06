@@ -18,8 +18,10 @@ and a daily streak with reminders.
 | `/stats` | Current streak, personal best, and activity count for the last 7 days. |
 
 Quiz questions come from a bundled question bank
-(`bot/data/level_questions.json`, loaded into the database); when the bank has
-no suitable question, one is generated through the AI backend.
+(`bot/data/level_questions.json` for Russian and `bot/data/level_questions_uz.json`
+for Uzbek, both loaded into the database); questions are served in the user's
+native language, falling back to Russian when no translated question is left.
+When the bank has no suitable question, one is generated through the AI backend.
 
 ## Streak and reminders
 
@@ -70,8 +72,8 @@ bot/
   models.py          SQLAlchemy models
   states.py          FSM state groups
   keyboards.py       inline keyboards and callback constants
-  data/              bundled level question bank (JSON)
-  locales/           user-facing texts (en, ru)
+  data/              bundled level question banks (ru, uz; JSON)
+  locales/           user-facing texts (ru, en, uz)
   middlewares/       db session, user, AI client, throttle, errors, chat exit
   prompts/           prompt templates for the AI backend
   repositories/      database access
@@ -107,11 +109,12 @@ python -m bot.main                 # long polling by default
 ```
 
 On startup the bot also applies Alembic migrations and loads the bundled
-question bank, both idempotently, so it is enough to configure `python main.py`
-as the start command on a host. The question bank can also be loaded manually:
+question banks, both idempotently, so it is enough to configure `python main.py`
+as the start command on a host. The question banks can also be loaded manually:
 
 ```bash
-python -m scripts.load_level_questions
+python -m scripts.load_level_questions              # every known bank
+python -m scripts.load_level_questions --language uz  # only the Uzbek one
 ```
 
 ### Environment variables
